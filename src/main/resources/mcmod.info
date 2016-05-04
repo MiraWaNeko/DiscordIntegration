@@ -1,0 +1,16 @@
+[
+{
+  "modid": "ChikachiDiscord",
+  "name": "Chikachi's Discord Mod",
+  "description": "MC <=> Discord communication",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["Chikachi"],
+  "credits": "",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]
