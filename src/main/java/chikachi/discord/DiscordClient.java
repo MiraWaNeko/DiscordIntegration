@@ -59,13 +59,17 @@ class DiscordClient {
         }
 
         if (message.contains("@")) {
+            message = " " + message + " ";
+
             List<User> users = this.channel.getGuild().getUsers();
 
             for (User user : users) {
-                if (message.contains("@" + user.getUsername())) {
-                    message = message.replace("@" + user.getUsername(), user.getAsMention());
+                if (message.contains("@" + user.getUsername() + " ")) {
+                    message = message.replace("@" + user.getUsername() + " ", user.getAsMention() + " ");
                 }
             }
+
+            message = message.trim();
         }
 
         this.channel.sendMessage(message);
