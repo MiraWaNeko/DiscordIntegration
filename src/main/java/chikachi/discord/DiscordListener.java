@@ -93,13 +93,20 @@ class DiscordListener extends ListenerAdapter {
                 List<String> playerNames = new ArrayList<>();
 
                 List<EntityPlayerMP> players = MinecraftServer.getServer().getConfigurationManager().getPlayerList();
-                int playersOnline = players.size();
+
+                for (EntityPlayerMP player : players) {
+                    String playerName = player.getDisplayNameString();
+                    if (playerName.startsWith("@")) {
+                        continue;
+                    }
+                    playerNames.add(playerName);
+                }
+
+                int playersOnline = playerNames.size();
                 if (playersOnline == 0) {
                     DiscordClient.getInstance().sendMessage("No players online");
                     return;
                 }
-
-                playerNames.addAll(players.stream().map(EntityPlayerMP::getDisplayNameString).collect(Collectors.toList()));
 
                 if (playersOnline == 1) {
                     DiscordClient.getInstance().sendMessage(
