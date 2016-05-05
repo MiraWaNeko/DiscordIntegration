@@ -11,9 +11,9 @@ import java.util.List;
 
 class DiscordClient {
     private static DiscordClient instance;
-    private JDA jda;
+    JDA jda;
     private DiscordListener listener = new DiscordListener();
-    TextChannel channel;
+    private TextChannel channel;
     List<String> queue = new ArrayList<>();
 
     static DiscordClient getInstance() {
@@ -44,18 +44,39 @@ class DiscordClient {
         }
     }
 
+    TextChannel getChannel() {
+        /*ChikachiDiscord.Log("=== Guild ===");
+        List<Guild> guilds = this.jda.getGuilds();
+        for (Guild guild : guilds) {
+            ChikachiDiscord.Log(String.format("%s (%s)", guild.getName(), guild.getId()));
+        }
+
+        ChikachiDiscord.Log("=== Channels ===");
+        List<TextChannel> channels = this.jda.getTextChannels();
+        for (TextChannel channel : channels) {
+            ChikachiDiscord.Log(String.format("%s (%s)", channel.getName(), channel.getId()));
+        }*/
+
+        if (this.channel == null) {
+            this.channel = this.jda.getTextChannelById(Configuration.getChannel());
+            if (this.channel == null) {
+                ChikachiDiscord.Log("Failed to find channel", true);
+                return null;
+            }
+        }
+
+        return this.channel;
+    }
+
     boolean sendMessage(String message) {
         if (this.jda == null) {
             this.queue.add(message);
             return true;
         }
 
-        if (this.channel == null) {
-            this.channel = this.jda.getTextChannelById(Configuration.getChannel());
-            if (this.channel == null) {
-                ChikachiDiscord.Log("Failed to find channel", true);
-                return false;
-            }
+        TextChannel channel = getChannel();
+        if (channel == null) {
+            return false;
         }
 
         if (message.contains("@")) {

@@ -32,5 +32,7 @@ class Proxy {
         if (setting.isEnabled()) {
             DiscordClient.getInstance().sendMessage(setting.getMessage());
         }
+
+        DiscordClient.getInstance().jda.shutdown();
     }
 }

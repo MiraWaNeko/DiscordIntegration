@@ -38,7 +38,6 @@ public class ChikachiDiscord {
     @Mod.EventHandler
     public void onServerShutdown(FMLServerStoppingEvent event) {
         proxy.onServerShutdown(event);
-
     }
 
     @SuppressWarnings("unused")

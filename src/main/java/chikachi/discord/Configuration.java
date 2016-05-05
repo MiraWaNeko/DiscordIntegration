@@ -16,6 +16,8 @@ class Configuration {
 
     private static boolean commandOnline = false;
 
+    private static boolean experimentalFakePlayers = false;
+
     private static EnableMessageTuple discordChat = new EnableMessageTuple(true, "<__%s__> %s");
     private static EnableMessageTuple discordDeath = new EnableMessageTuple(true, "__%s__ %s");
     private static EnableMessageTuple discordAchievement = new EnableMessageTuple(true, "Congrats to __%s__ for earning the achievement **[%s]**");
@@ -83,43 +85,50 @@ class Configuration {
 
                 writer.beginObject();
 
-                    writer.name("discord");
+                writer.name("discord");
 
-                    writer.beginObject();
-                        writer.name("token");
-                        writer.value("");
-                        writer.name("channel");
-                        writer.value("");
+                writer.beginObject();
+                writer.name("token");
+                writer.value("");
+                writer.name("channel");
+                writer.value("");
 
-                        writer.name("commands");
+                writer.name("commands");
 
-                        writer.beginObject();
-                            writer.name("online");
-                            writer.value(true);
-                        writer.endObject();
-                    writer.endObject();
+                writer.beginObject();
+                writer.name("online");
+                writer.value(true);
+                writer.endObject();
+                writer.endObject();
 
-                    writer.name("messages");
+                writer.name("messages");
 
-                    writer.beginObject();
-                        writer.name("discord");
+                writer.beginObject();
+                writer.name("discord");
 
-                        writer.beginObject();
-                            writeEnableMessageCombo(writer, "chat", "<__%s__> %s");
-                            writeEnableMessageCombo(writer, "death", "__%s__ %s");
-                            writeEnableMessageCombo(writer, "achievement", "__%s__ have gotten the achievement **[%s]**");
-                            writeEnableMessageCombo(writer, "join", "__%s__ joined the server!");
-                            writeEnableMessageCombo(writer, "leave", "__%s__ left the server!");
-                            writeEnableMessageCombo(writer, "startup", "**Server started**", false);
-                            writeEnableMessageCombo(writer, "shutdown", "**Server shutdown**", false);
-                        writer.endObject();
+                writer.beginObject();
+                writeEnableMessageCombo(writer, "chat", "<__%s__> %s");
+                writeEnableMessageCombo(writer, "death", "__%s__ %s");
+                writeEnableMessageCombo(writer, "achievement", "__%s__ have gotten the achievement **[%s]**");
+                writeEnableMessageCombo(writer, "join", "__%s__ joined the server!");
+                writeEnableMessageCombo(writer, "leave", "__%s__ left the server!");
+                writeEnableMessageCombo(writer, "startup", "**Server started**", false);
+                writeEnableMessageCombo(writer, "shutdown", "**Server shutdown**", false);
+                writer.endObject();
 
-                        writer.name("minecraft");
+                writer.name("minecraft");
 
-                        writer.beginObject();
-                            writeEnableMessageCombo(writer, "chat", "<%s> %s");
-                        writer.endObject();
-                    writer.endObject();
+                writer.beginObject();
+                writeEnableMessageCombo(writer, "chat", "<%s> %s");
+                writer.endObject();
+                writer.endObject();
+
+                writer.name("experimental");
+
+                writer.beginObject();
+                writer.name("fakePlayers");
+                writer.value(false);
+                writer.endObject();
 
                 writer.endObject();
 
@@ -203,6 +212,17 @@ class Configuration {
                             }
                         }
                         reader.endObject();
+                    } else if (name.equalsIgnoreCase("experimental")) {
+                        reader.beginObject();
+                        while (reader.hasNext()) {
+                            name = reader.nextName();
+                            if (name.equalsIgnoreCase("fakePlayers")) {
+                                experimentalFakePlayers = reader.nextBoolean();
+                            } else {
+                                reader.skipValue();
+                            }
+                        }
+                        reader.endObject();
                     } else {
                         reader.skipValue();
                     }
@@ -224,6 +244,10 @@ class Configuration {
 
     static boolean isCommandOnlineEnabled() {
         return commandOnline;
+    }
+
+    static boolean isExperimentalFakePlayersEnabled() {
+        return experimentalFakePlayers;
     }
 
     static EnableMessageTuple getDiscordChat() {

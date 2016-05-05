@@ -1,7 +1,6 @@
 package chikachi.discord;
 
 import com.google.common.base.Joiner;
-import com.mojang.authlib.GameProfile;
 import net.dv8tion.jda.OnlineStatus;
 import net.dv8tion.jda.entities.TextChannel;
 import net.dv8tion.jda.entities.User;
@@ -12,6 +11,7 @@ import net.dv8tion.jda.hooks.ListenerAdapter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.management.ServerConfigurationManager;
 import net.minecraft.util.IChatComponent;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.util.FakePlayer;
@@ -20,19 +20,20 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
 
 class DiscordListener extends ListenerAdapter {
     private HashMap<String, FakePlayer> fakePlayers = new HashMap<>();
-    private MinecraftServer minecraftServer;
 
     private void userOnline(User user) {
         if (user == null) return;
         if (user.getOnlineStatus() == OnlineStatus.OFFLINE) return;
+        if (!Configuration.isExperimentalFakePlayersEnabled()) return;
 
         DiscordFakePlayer discordFakePlayer = new DiscordFakePlayer(user);
 
-        minecraftServer.getConfigurationManager().playerEntityList.add(discordFakePlayer);
+        ServerConfigurationManager configurationManager = MinecraftServer.getServer().getConfigurationManager();
+
+        configurationManager.playerEntityList.add(discordFakePlayer);
 
         fakePlayers.put(user.getUsername(), discordFakePlayer);
     }
@@ -40,30 +41,41 @@ class DiscordListener extends ListenerAdapter {
     private void userOffline(User user) {
         if (user == null) return;
         if (user.getOnlineStatus() != OnlineStatus.OFFLINE) return;
+        if (!Configuration.isExperimentalFakePlayersEnabled()) return;
 
         if (fakePlayers.containsKey(user.getUsername())) {
             FakePlayer fakePlayer = fakePlayers.get(user.getUsername());
             if (fakePlayer != null) {
-                minecraftServer.getConfigurationManager().playerEntityList.remove(fakePlayer);
+                MinecraftServer.getServer().getConfigurationManager().playerEntityList.remove(fakePlayer);
             }
         }
     }
 
     @Override
     public void onReady(ReadyEvent event) {
+        ChikachiDiscord.Log("Logged in as " + event.getJDA().getSelfInfo().getUsername());
+
         DiscordClient client = DiscordClient.getInstance();
+
+        TextChannel channel = client.getChannel();
+        if (channel == null) {
+            return;
+        }
+
         List<String> queue = client.queue;
         queue.forEach(client::sendMessage);
         client.queue.clear();
 
-        minecraftServer = MinecraftServer.getServer();
-
-        List<User> users = client.channel.getUsers();
-        users.forEach(this::userOnline);
+        if (Configuration.isExperimentalFakePlayersEnabled()) {
+            List<User> users = channel.getUsers();
+            users.forEach(this::userOnline);
+        }
     }
 
     @Override
     public void onUserOnlineStatusUpdate(UserOnlineStatusUpdateEvent event) {
+        if (!Configuration.isExperimentalFakePlayersEnabled()) return;
+
         User user = event.getUser();
         OnlineStatus before = event.getPreviousOnlineStatus();
         OnlineStatus now = user.getOnlineStatus();
