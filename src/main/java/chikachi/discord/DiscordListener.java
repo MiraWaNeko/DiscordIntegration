@@ -5,6 +5,7 @@ import net.dv8tion.jda.OnlineStatus;
 import net.dv8tion.jda.entities.TextChannel;
 import net.dv8tion.jda.entities.User;
 import net.dv8tion.jda.events.ReadyEvent;
+import net.dv8tion.jda.events.guild.GuildAvailableEvent;
 import net.dv8tion.jda.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.events.user.UserOnlineStatusUpdateEvent;
 import net.dv8tion.jda.hooks.ListenerAdapter;
@@ -70,6 +71,11 @@ class DiscordListener extends ListenerAdapter {
             List<User> users = channel.getUsers();
             users.forEach(this::userOnline);
         }
+    }
+
+    @Override
+    public void onGuildAvailable(GuildAvailableEvent event) {
+        ChikachiDiscord.Log("GuildAvailable - " + event.getGuild().getName());
     }
 
     @Override

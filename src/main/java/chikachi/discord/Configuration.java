@@ -1,6 +1,7 @@
 package chikachi.discord;
 
 import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 
@@ -9,7 +10,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
-class Configuration {
+public class Configuration {
     private static File config;
     private static String token = "";
     private static String channel = "";
@@ -44,18 +45,27 @@ class Configuration {
         boolean enabled = false;
         String message = "";
 
-        reader.beginObject();
-        while (reader.hasNext()) {
-            name = reader.nextName();
-            if (name.equalsIgnoreCase("enabled")) {
-                enabled = reader.nextBoolean();
-            } else if (name.equalsIgnoreCase("message")) {
-                message = reader.nextString();
-            } else {
-                reader.skipValue();
+        JsonToken type = reader.peek();
+
+        if (type == JsonToken.BEGIN_OBJECT) {
+            reader.beginObject();
+            while (reader.hasNext()) {
+                name = reader.nextName();
+                if (name.equalsIgnoreCase("enabled")) {
+                    enabled = reader.nextBoolean();
+                } else if (name.equalsIgnoreCase("message")) {
+                    message = reader.nextString();
+                } else {
+                    reader.skipValue();
+                }
             }
+            reader.endObject();
+        } else if (type == JsonToken.STRING) {
+            message = reader.nextString();
+            enabled = !message.equals("");
+        } else {
+            reader.skipValue();
         }
-        reader.endObject();
 
         return new EnableMessageTuple(enabled, message);
     }
@@ -74,7 +84,7 @@ class Configuration {
         writer.endObject();
     }
 
-    private static void load() {
+    public static void load() {
         if (config == null) {
             return;
         }
@@ -89,15 +99,15 @@ class Configuration {
 
                 writer.beginObject();
                 writer.name("token");
-                writer.value("");
+                writer.value(token);
                 writer.name("channel");
-                writer.value("");
+                writer.value(channel);
 
                 writer.name("commands");
 
                 writer.beginObject();
                 writer.name("online");
-                writer.value(true);
+                writer.value(commandOnline);
                 writer.endObject();
                 writer.endObject();
 
@@ -107,19 +117,19 @@ class Configuration {
                 writer.name("discord");
 
                 writer.beginObject();
-                writeEnableMessageCombo(writer, "chat", "<__%s__> %s");
-                writeEnableMessageCombo(writer, "death", "__%s__ %s");
-                writeEnableMessageCombo(writer, "achievement", "__%s__ have gotten the achievement **[%s]**");
-                writeEnableMessageCombo(writer, "join", "__%s__ joined the server!");
-                writeEnableMessageCombo(writer, "leave", "__%s__ left the server!");
-                writeEnableMessageCombo(writer, "startup", "**Server started**", false);
-                writeEnableMessageCombo(writer, "shutdown", "**Server shutdown**", false);
+                writeEnableMessageCombo(writer, "chat", discordChat.getMessage(), discordChat.isEnabled());
+                writeEnableMessageCombo(writer, "death", discordDeath.getMessage(), discordDeath.isEnabled());
+                writeEnableMessageCombo(writer, "achievement", discordAchievement.getMessage(), discordAchievement.isEnabled());
+                writeEnableMessageCombo(writer, "join", discordJoin.getMessage(), discordJoin.isEnabled());
+                writeEnableMessageCombo(writer, "leave", discordLeave.getMessage(), discordLeave.isEnabled());
+                writeEnableMessageCombo(writer, "startup", discordStartup.getMessage(), discordStartup.isEnabled());
+                writeEnableMessageCombo(writer, "shutdown", discordShutdown.getMessage(), discordShutdown.isEnabled());
                 writer.endObject();
 
                 writer.name("minecraft");
 
                 writer.beginObject();
-                writeEnableMessageCombo(writer, "chat", "<%s> %s");
+                writeEnableMessageCombo(writer, "chat", minecraftChat.getMessage(), minecraftChat.isEnabled());
                 writer.endObject();
                 writer.endObject();
 
@@ -127,7 +137,7 @@ class Configuration {
 
                 writer.beginObject();
                 writer.name("fakePlayers");
-                writer.value(false);
+                writer.value(experimentalFakePlayers);
                 writer.endObject();
 
                 writer.endObject();
@@ -145,19 +155,19 @@ class Configuration {
                 reader.beginObject();
                 while (reader.hasNext()) {
                     name = reader.nextName();
-                    if (name.equalsIgnoreCase("discord")) {
+                    if (name.equalsIgnoreCase("discord") && reader.peek() == JsonToken.BEGIN_OBJECT) {
                         reader.beginObject();
                         while (reader.hasNext()) {
                             name = reader.nextName();
-                            if (name.equalsIgnoreCase("token")) {
+                            if (name.equalsIgnoreCase("token") && reader.peek() == JsonToken.STRING) {
                                 token = reader.nextString();
-                            } else if (name.equalsIgnoreCase("channel")) {
+                            } else if (name.equalsIgnoreCase("channel") && reader.peek() == JsonToken.STRING) {
                                 channel = reader.nextString();
-                            } else if (name.equalsIgnoreCase("commands")) {
+                            } else if (name.equalsIgnoreCase("commands") && reader.peek() == JsonToken.BEGIN_OBJECT) {
                                 reader.beginObject();
                                 while (reader.hasNext()) {
                                     name = reader.nextName();
-                                    if (name.equalsIgnoreCase("online")) {
+                                    if (name.equalsIgnoreCase("online") && reader.peek() == JsonToken.BOOLEAN) {
                                         commandOnline = reader.nextBoolean();
                                     } else {
                                         reader.skipValue();
@@ -169,11 +179,11 @@ class Configuration {
                             }
                         }
                         reader.endObject();
-                    } else if (name.equalsIgnoreCase("messages")) {
+                    } else if (name.equalsIgnoreCase("messages") && reader.peek() == JsonToken.BEGIN_OBJECT) {
                         reader.beginObject();
                         while (reader.hasNext()) {
                             name = reader.nextName();
-                            if (name.equalsIgnoreCase("discord")) {
+                            if (name.equalsIgnoreCase("discord") && reader.peek() == JsonToken.BEGIN_OBJECT) {
                                 reader.beginObject();
                                 while (reader.hasNext()) {
                                     name = reader.nextName();
@@ -196,7 +206,7 @@ class Configuration {
                                     }
                                 }
                                 reader.endObject();
-                            } else if (name.equalsIgnoreCase("minecraft")) {
+                            } else if (name.equalsIgnoreCase("minecraft") && reader.peek() == JsonToken.BEGIN_OBJECT) {
                                 reader.beginObject();
                                 while (reader.hasNext()) {
                                     name = reader.nextName();
@@ -212,11 +222,11 @@ class Configuration {
                             }
                         }
                         reader.endObject();
-                    } else if (name.equalsIgnoreCase("experimental")) {
+                    } else if (name.equalsIgnoreCase("experimental") && reader.peek() == JsonToken.BEGIN_OBJECT) {
                         reader.beginObject();
                         while (reader.hasNext()) {
                             name = reader.nextName();
-                            if (name.equalsIgnoreCase("fakePlayers")) {
+                            if (name.equalsIgnoreCase("fakePlayers") && reader.peek() == JsonToken.BOOLEAN) {
                                 experimentalFakePlayers = reader.nextBoolean();
                             } else {
                                 reader.skipValue();

@@ -11,7 +11,7 @@ import java.util.List;
 
 class DiscordClient {
     private static DiscordClient instance;
-    JDA jda;
+    private JDA jda;
     private DiscordListener listener = new DiscordListener();
     private TextChannel channel;
     List<String> queue = new ArrayList<>();
@@ -29,6 +29,11 @@ class DiscordClient {
     }
 
     void connect() {
+        if (this.jda != null) {
+            ChikachiDiscord.Log("Is already connected", true);
+            return;
+        }
+
         String token = Configuration.getToken();
 
         if (token.isEmpty()) {
@@ -42,6 +47,16 @@ class DiscordClient {
             ChikachiDiscord.Log("Failed to connect to Discord", true);
             e.printStackTrace();
         }
+    }
+
+    void disconnect() {
+        if (this.jda == null) {
+            ChikachiDiscord.Log("Is already disconnected", true);
+            return;
+        }
+
+        this.jda.shutdown();
+        this.jda = null;
     }
 
     TextChannel getChannel() {
@@ -76,6 +91,7 @@ class DiscordClient {
 
         TextChannel channel = getChannel();
         if (channel == null) {
+            this.queue.add(message);
             return false;
         }
 
@@ -85,8 +101,8 @@ class DiscordClient {
             List<User> users = this.channel.getGuild().getUsers();
 
             for (User user : users) {
-                if (message.contains("@" + user.getUsername() + " ")) {
-                    message = message.replace("@" + user.getUsername() + " ", user.getAsMention() + " ");
+                if (message.toLowerCase().contains("@" + user.getUsername().toLowerCase() + " ")) {
+                    message = message.replaceAll("(?i)@" + user.getUsername() + " ", user.getAsMention() + " ");
                 }
             }
 

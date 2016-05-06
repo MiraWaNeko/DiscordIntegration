@@ -1,16 +1,41 @@
 package chikachi.discord;
 
+import com.google.common.base.Joiner;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.stats.StatisticsFile;
+import net.minecraftforge.event.CommandEvent;
 import net.minecraftforge.event.ServerChatEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.AchievementEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 
+import java.util.Arrays;
+
 @SuppressWarnings("unused")
 class MinecraftListener {
+    @SubscribeEvent
+    public void onCommand(CommandEvent event) {
+        String commandName = event.command.getCommandName();
+
+        if (commandName.equalsIgnoreCase("say")) {
+            EnableMessageTuple setting = Configuration.getDiscordChat();
+
+            if (!setting.isEnabled()) return;
+
+            String message = Joiner.on(" ").join(event.parameters);
+
+            DiscordClient.getInstance().sendMessage(
+                    String.format(
+                            setting.getMessage(),
+                            event.sender.getName(),
+                            message
+                    )
+            );
+        }
+    }
+
     @SubscribeEvent
     public void onChatMessage(ServerChatEvent event) {
         if (event.player == null) return;

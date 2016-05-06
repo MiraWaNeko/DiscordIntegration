@@ -3,5 +3,5 @@ package chikachi.discord;
 public class Constants {
     static final String MODID = "ChikachiDiscord";
     static final String MODNAME = "Chikachi's Discord";
-    static final String VERSION = "0.1.3";
+    static final String VERSION = "0.2.0";
 }

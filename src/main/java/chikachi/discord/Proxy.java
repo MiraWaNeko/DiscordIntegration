@@ -1,10 +1,7 @@
 package chikachi.discord;
 
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLServerStartedEvent;
-import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
-import net.minecraftforge.fml.common.event.FMLServerStoppingEvent;
+import net.minecraftforge.fml.common.event.*;
 
 @SuppressWarnings("UnusedParameters")
 class Proxy {
@@ -14,15 +11,19 @@ class Proxy {
         MinecraftForge.EVENT_BUS.register(new MinecraftListener());
     }
 
-    void onServerStarting(FMLServerStartingEvent event) {
+    void onServerAboutToStart(FMLServerAboutToStartEvent event) {
         DiscordClient.getInstance().connect();
+    }
+
+    void onServerStarting(FMLServerStartingEvent event) {
+        //DiscordClient.getInstance().connect();
     }
 
     void onServerStarted(FMLServerStartedEvent event) {
         EnableMessageTuple setting = Configuration.getDiscordStartup();
 
         if (setting.isEnabled()) {
-            DiscordClient.getInstance().queue.add(setting.getMessage());
+            DiscordClient.getInstance().sendMessage(setting.getMessage());
         }
     }
 
@@ -33,6 +34,6 @@ class Proxy {
             DiscordClient.getInstance().sendMessage(setting.getMessage());
         }
 
-        DiscordClient.getInstance().jda.shutdown();
+        DiscordClient.getInstance().disconnect();
     }
 }
