@@ -1,5 +1,10 @@
 # Changelog
 
+### 0.3.0
+- Added `!tps` command for Discord
+- Highlight player's name in Discord messages
+- Highlight `@everyone` (Only from people with permission to mention everyone)
+
 ### 0.2.0
 - Added command
 	- If ChikachiLib is detected, /chikachi discord

@@ -15,7 +15,8 @@ public class Configuration {
     private static String token = "";
     private static String channel = "";
 
-    private static boolean commandOnline = false;
+    private static boolean commandOnline = true;
+    private static boolean commandTps = true;
 
     private static boolean experimentalFakePlayers = false;
 
@@ -169,6 +170,8 @@ public class Configuration {
                                     name = reader.nextName();
                                     if (name.equalsIgnoreCase("online") && reader.peek() == JsonToken.BOOLEAN) {
                                         commandOnline = reader.nextBoolean();
+                                    } else if (name.equalsIgnoreCase("tps") && reader.peek() == JsonToken.BOOLEAN) {
+                                        commandTps = reader.nextBoolean();
                                     } else {
                                         reader.skipValue();
                                     }
@@ -250,6 +253,10 @@ public class Configuration {
 
     static String getChannel() {
         return channel;
+    }
+
+    static boolean isCommandTpsEnabled() {
+        return commandTps;
     }
 
     static boolean isCommandOnlineEnabled() {

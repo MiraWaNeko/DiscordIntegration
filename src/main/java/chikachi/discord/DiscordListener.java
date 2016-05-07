@@ -2,6 +2,7 @@ package chikachi.discord;
 
 import com.google.common.base.Joiner;
 import net.dv8tion.jda.OnlineStatus;
+import net.dv8tion.jda.Permission;
 import net.dv8tion.jda.entities.TextChannel;
 import net.dv8tion.jda.entities.User;
 import net.dv8tion.jda.events.ReadyEvent;
@@ -9,20 +10,27 @@ import net.dv8tion.jda.events.guild.GuildAvailableEvent;
 import net.dv8tion.jda.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.events.user.UserOnlineStatusUpdateEvent;
 import net.dv8tion.jda.hooks.ListenerAdapter;
-import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.ServerConfigurationManager;
+import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IChatComponent;
+import net.minecraft.util.StatCollector;
+import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.util.FakePlayer;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.regex.Pattern;
+import java.util.stream.LongStream;
 
 class DiscordListener extends ListenerAdapter {
+    private static final DecimalFormat timeFormatter = new DecimalFormat("########0.000");
+    private static final Pattern everyonePattern = Pattern.compile("(^|\\W)@everyone\\b");
     private HashMap<String, FakePlayer> fakePlayers = new HashMap<>();
 
     private void userOnline(User user) {
@@ -102,7 +110,9 @@ class DiscordListener extends ListenerAdapter {
         // Ignore other channels
         if (!event.getMessage().getChannelId().equals(Configuration.getChannel())) return;
 
+        TextChannel channel = event.getTextChannel();
         String content = event.getMessage().getContent().trim();
+        MinecraftServer minecraftServer = MinecraftServer.getServer();
 
         if (content.startsWith("!")) {
             List<String> args = new ArrayList<>(Arrays.asList(content.substring(1).split(" ")));
@@ -129,7 +139,7 @@ class DiscordListener extends ListenerAdapter {
                 if (playersOnline == 1) {
                     DiscordClient.getInstance().sendMessage(
                             String.format(
-                                    "Current player online: %s",
+                                    "Currently 1 player online: %s",
                                     Joiner.on(", ").join(playerNames)
                             )
                     );
@@ -138,9 +148,42 @@ class DiscordListener extends ListenerAdapter {
 
                 DiscordClient.getInstance().sendMessage(
                         String.format(
-                                "Current players online (%d): %s",
+                                "Currently %d players online: %s",
                                 playersOnline,
                                 Joiner.on(", ").join(playerNames)
+                        )
+                );
+            } else if (Configuration.isCommandTpsEnabled() && cmd.equalsIgnoreCase("tps")) {
+                List<String> tpsTimes = new ArrayList<>();
+
+                for (Integer dimId : DimensionManager.getIDs()) {
+                    double worldTickTime = this.mean(minecraftServer.worldTickTimes.get(dimId)) * 1.0E-6D;
+                    double worldTPS = Math.min(1000.0 / worldTickTime, 20);
+                    tpsTimes.add(
+                            StatCollector.translateToLocalFormatted(
+                                    "commands.forge.tps.summary",
+                                    String.format("Dim %d", dimId),
+                                    timeFormatter.format(worldTickTime),
+                                    timeFormatter.format(worldTPS)
+                            )
+                    );
+                }
+
+                double meanTickTime = this.mean(minecraftServer.tickTimeArray) * 1.0E-6D;
+                double meanTPS = Math.min(1000.0 / meanTickTime, 20);
+                tpsTimes.add(
+                        StatCollector.translateToLocalFormatted(
+                                "commands.forge.tps.summary",
+                                "Overall",
+                                timeFormatter.format(meanTickTime),
+                                timeFormatter.format(meanTPS)
+                        )
+                );
+
+                DiscordClient.getInstance().sendMessage(
+                        String.format(
+                                "\n```\n%s\n```",
+                                Joiner.on("\n").join(tpsTimes)
                         )
                 );
             }
@@ -150,6 +193,10 @@ class DiscordListener extends ListenerAdapter {
         EnableMessageTuple setting = Configuration.getMinecraftChat();
         if (!setting.isEnabled()) return;
 
+        if (channel.checkPermission(event.getAuthor(), Permission.MESSAGE_MENTION_EVERYONE) && content.contains("@everyone")) {
+            content = everyonePattern.matcher(content).replaceAll("$1" + EnumChatFormatting.BLUE + "@everyone" + EnumChatFormatting.RESET);
+        }
+
         String messageText = String.format(
                 setting.getMessage(),
                 event.getAuthor().getUsername(),
@@ -158,12 +205,27 @@ class DiscordListener extends ListenerAdapter {
 
         IChatComponent chatComponent = ForgeHooks.newChatWithLinks(messageText, false);
 
-        if (MinecraftServer.getServer() != null && MinecraftServer.getServer().getConfigurationManager() != null && !MinecraftServer.getServer().isSinglePlayer()) {
-            MinecraftServer.getServer().getConfigurationManager().sendChatMsg(chatComponent);
-        } else {
-            if (Minecraft.getMinecraft().thePlayer != null) {
-                Minecraft.getMinecraft().thePlayer.addChatMessage(chatComponent);
+        List<EntityPlayerMP> players = minecraftServer.getConfigurationManager().getPlayerList();
+
+        for (EntityPlayerMP player : players) {
+            if (content.contains(player.getDisplayNameString())) {
+                String playerName = player.getDisplayNameString();
+
+                String playerMessageText = String.format(
+                        setting.getMessage(),
+                        event.getAuthor().getUsername(),
+                        content.replaceAll("\\b" + playerName + "\\b", EnumChatFormatting.BLUE + playerName + EnumChatFormatting.RESET)
+                );
+
+                player.addChatMessage(ForgeHooks.newChatWithLinks(playerMessageText, false));
+                continue;
             }
+
+            player.addChatMessage(chatComponent);
         }
+    }
+
+    private long mean(long[] values) {
+        return LongStream.of(values).sum() / values.length;
     }
 }
