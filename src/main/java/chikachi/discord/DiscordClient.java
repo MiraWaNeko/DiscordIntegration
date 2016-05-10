@@ -1,5 +1,6 @@
 package chikachi.discord;
 
+import chikachi.discord.config.Configuration;
 import net.dv8tion.jda.JDA;
 import net.dv8tion.jda.JDABuilder;
 import net.dv8tion.jda.entities.TextChannel;
@@ -98,11 +99,12 @@ class DiscordClient {
         if (message.contains("@")) {
             message = " " + message + " ";
 
-            List<User> users = this.channel.getGuild().getUsers();
+            List<User> users = new ArrayList<>(this.channel.getGuild().getUsers());
+            users.sort((o1, o2) -> o2.getUsername().length() - o1.getUsername().length());
 
             for (User user : users) {
-                if (message.toLowerCase().contains("@" + user.getUsername().toLowerCase() + " ")) {
-                    message = message.replaceAll("(?i)@" + user.getUsername() + " ", user.getAsMention() + " ");
+                if (message.toLowerCase().contains("@" + user.getUsername().toLowerCase())) {
+                    message = message.replaceAll("(?i)@" + user.getUsername() + "\\W", user.getAsMention());
                 }
             }
 

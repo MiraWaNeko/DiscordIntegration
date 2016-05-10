@@ -1,20 +1,19 @@
 package chikachi.discord.command;
 
-import chikachi.discord.ChikachiDiscord;
 import chikachi.lib.common.command.sub.CommandChikachiBase;
 import chikachi.lib.common.utils.PlayerUtils;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
 
 @SuppressWarnings("unused")
-public class ChikachiLibIntegration extends CommandChikachiBase {
-    public ChikachiLibIntegration() {
+public class LibCommandHandler extends CommandChikachiBase {
+    public LibCommandHandler() {
         super("discord");
     }
 
     @Override
     public void execute(ICommandSender sender, String[] args) {
-        ChikachiDiscord.processCommand(sender, args);
+        CommandProcessor.processCommand(sender, args);
     }
 
     @Override

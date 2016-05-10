@@ -1,8 +1,11 @@
 package chikachi.discord;
 
+import chikachi.discord.config.Configuration;
+import chikachi.discord.config.EnableMessageTuple;
 import com.google.common.base.Joiner;
 import net.dv8tion.jda.OnlineStatus;
 import net.dv8tion.jda.Permission;
+import net.dv8tion.jda.entities.Role;
 import net.dv8tion.jda.entities.TextChannel;
 import net.dv8tion.jda.entities.User;
 import net.dv8tion.jda.events.ReadyEvent;
@@ -117,7 +120,7 @@ class DiscordListener extends ListenerAdapter {
         if (content.startsWith("!")) {
             List<String> args = new ArrayList<>(Arrays.asList(content.substring(1).split(" ")));
             String cmd = args.remove(0);
-            if (Configuration.isCommandOnlineEnabled() && cmd.equalsIgnoreCase("online")) {
+            if (Configuration.isCommandOnlineEnabled() && cmd.equalsIgnoreCase("online") && Configuration.getCommandOnline().canExecute(event)) {
                 List<String> playerNames = new ArrayList<>();
 
                 List<EntityPlayerMP> players = MinecraftServer.getServer().getConfigurationManager().getPlayerList();
@@ -139,7 +142,7 @@ class DiscordListener extends ListenerAdapter {
                 if (playersOnline == 1) {
                     DiscordClient.getInstance().sendMessage(
                             String.format(
-                                    "Currently 1 player online: %s",
+                                    "Currently 1 player online: `%s`",
                                     Joiner.on(", ").join(playerNames)
                             )
                     );
@@ -148,12 +151,12 @@ class DiscordListener extends ListenerAdapter {
 
                 DiscordClient.getInstance().sendMessage(
                         String.format(
-                                "Currently %d players online: %s",
+                                "Currently %d players online:\n`%s`",
                                 playersOnline,
-                                Joiner.on(", ").join(playerNames)
+                                Joiner.on("`, `").join(playerNames)
                         )
                 );
-            } else if (Configuration.isCommandTpsEnabled() && cmd.equalsIgnoreCase("tps")) {
+            } else if (Configuration.isCommandTpsEnabled() && cmd.equalsIgnoreCase("tps") && Configuration.getCommandTps().canExecute(event)) {
                 List<String> tpsTimes = new ArrayList<>();
 
                 for (Integer dimId : DimensionManager.getIDs()) {
@@ -184,7 +187,14 @@ class DiscordListener extends ListenerAdapter {
                         String.format(
                                 "\n```\n%s\n```",
                                 Joiner.on("\n").join(tpsTimes)
-                        )
+                        ).replace("\\:", ":")
+                );
+            } else if (cmd.equalsIgnoreCase("roles")) {
+                List<Role> roles = new ArrayList<>(event.getGuild().getRolesForUser(event.getAuthor()));
+                roles.sort((r1, r2) -> r2.getPosition() - r1.getPosition());
+
+                DiscordClient.getInstance().sendMessage(
+                        Joiner.on("\n").join(roles)
                 );
             }
             return;
@@ -193,15 +203,17 @@ class DiscordListener extends ListenerAdapter {
         EnableMessageTuple setting = Configuration.getMinecraftChat();
         if (!setting.isEnabled()) return;
 
-        if (channel.checkPermission(event.getAuthor(), Permission.MESSAGE_MENTION_EVERYONE) && content.contains("@everyone")) {
+        if (Configuration.getMinecraftChatMaxLength() > 0 && content.length() > Configuration.getMinecraftChatMaxLength()) {
+            content = content.substring(0, Configuration.getMinecraftChatMaxLength());
+        }
+
+        if (content.contains("@everyone") && channel.checkPermission(event.getAuthor(), Permission.MESSAGE_MENTION_EVERYONE)) {
             content = everyonePattern.matcher(content).replaceAll("$1" + EnumChatFormatting.BLUE + "@everyone" + EnumChatFormatting.RESET);
         }
 
-        String messageText = String.format(
-                setting.getMessage(),
-                event.getAuthor().getUsername(),
-                content
-        );
+        String messageText = setting.getMessage()
+                .replace("%USER%", event.getAuthor().getUsername())
+                .replace("%MESSAGE%", content);
 
         IChatComponent chatComponent = ForgeHooks.newChatWithLinks(messageText, false);
 
@@ -211,11 +223,13 @@ class DiscordListener extends ListenerAdapter {
             if (content.contains(player.getDisplayNameString())) {
                 String playerName = player.getDisplayNameString();
 
-                String playerMessageText = String.format(
-                        setting.getMessage(),
-                        event.getAuthor().getUsername(),
-                        content.replaceAll("\\b" + playerName + "\\b", EnumChatFormatting.BLUE + playerName + EnumChatFormatting.RESET)
-                );
+
+                String playerMessageText = setting.getMessage()
+                        .replace("%USER%", event.getAuthor().getUsername())
+                        .replace("%MESSAGE%", content.replaceAll(
+                                "\\b" + playerName + "\\b",
+                                EnumChatFormatting.BLUE + playerName + EnumChatFormatting.RESET
+                        ));
 
                 player.addChatMessage(ForgeHooks.newChatWithLinks(playerMessageText, false));
                 continue;

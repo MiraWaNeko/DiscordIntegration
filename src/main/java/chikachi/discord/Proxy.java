@@ -1,5 +1,7 @@
 package chikachi.discord;
 
+import chikachi.discord.config.Configuration;
+import chikachi.discord.config.EnableMessageTuple;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.event.*;
 
@@ -16,7 +18,6 @@ class Proxy {
     }
 
     void onServerStarting(FMLServerStartingEvent event) {
-        //DiscordClient.getInstance().connect();
     }
 
     void onServerStarted(FMLServerStartedEvent event) {

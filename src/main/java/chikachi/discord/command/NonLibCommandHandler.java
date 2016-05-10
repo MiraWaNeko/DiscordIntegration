@@ -1,11 +1,10 @@
 package chikachi.discord.command;
 
-import chikachi.discord.ChikachiDiscord;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 
-public class ChikachiDiscordCommand extends CommandBase {
+public class NonLibCommandHandler extends CommandBase {
     @Override
     public String getCommandName() {
         return "discord";
@@ -18,6 +17,6 @@ public class ChikachiDiscordCommand extends CommandBase {
 
     @Override
     public void processCommand(ICommandSender sender, String[] args) throws CommandException {
-        ChikachiDiscord.processCommand(sender, args);
+        CommandProcessor.processCommand(sender, args);
     }
 }

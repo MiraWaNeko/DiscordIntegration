@@ -1,9 +1,12 @@
 package chikachi.discord;
 
+import chikachi.discord.config.Configuration;
+import chikachi.discord.config.EnableMessageTuple;
 import com.google.common.base.Joiner;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.stats.StatisticsFile;
+import net.minecraft.util.ChatComponentText;
 import net.minecraftforge.event.CommandEvent;
 import net.minecraftforge.event.ServerChatEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
@@ -11,9 +14,6 @@ import net.minecraftforge.event.entity.player.AchievementEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 
-import java.util.Arrays;
-
-@SuppressWarnings("unused")
 class MinecraftListener {
     @SubscribeEvent
     public void onCommand(CommandEvent event) {
@@ -25,13 +25,14 @@ class MinecraftListener {
             if (!setting.isEnabled()) return;
 
             String message = Joiner.on(" ").join(event.parameters);
+            message = message.replaceAll("§.", "");
+
+            ChatComponentText chatComponent = new ChatComponentText(message);
 
             DiscordClient.getInstance().sendMessage(
-                    String.format(
-                            setting.getMessage(),
-                            event.sender.getName(),
-                            message
-                    )
+                    setting.getMessage()
+                            .replace("%USER%", event.sender.getName())
+                            .replace("%MESSAGE%", chatComponent.getUnformattedText())
             );
         }
     }
@@ -44,12 +45,13 @@ class MinecraftListener {
 
         if (!setting.isEnabled()) return;
 
+        String message = event.message;
+        message = message.replaceAll("§.", "");
+
         DiscordClient.getInstance().sendMessage(
-                String.format(
-                        setting.getMessage(),
-                        event.username,
-                        event.message
-                )
+                setting.getMessage()
+                        .replace("%USER%", event.username)
+                        .replace("%MESSAGE%", message)
         );
     }
 
@@ -65,11 +67,9 @@ class MinecraftListener {
             if (!setting.isEnabled()) return;
 
             DiscordClient.getInstance().sendMessage(
-                    String.format(
-                            setting.getMessage(),
-                            entityPlayer.getDisplayNameString(),
-                            entityPlayer.getCombatTracker().getDeathMessage().getUnformattedText().replace(entityPlayer.getDisplayNameString(), "").trim()
-                    )
+                    setting.getMessage()
+                            .replace("%USER%", entityPlayer.getDisplayNameString())
+                            .replace("%MESSAGE%", entityPlayer.getCombatTracker().getDeathMessage().getUnformattedText().replace(entityPlayer.getDisplayNameString(), "").trim())
             );
         }
     }
@@ -91,11 +91,9 @@ class MinecraftListener {
 
 
             DiscordClient.getInstance().sendMessage(
-                    String.format(
-                            setting.getMessage(),
-                            event.entityPlayer.getDisplayNameString(),
-                            event.achievement.getStatName().getUnformattedText()
-                    )
+                    setting.getMessage()
+                            .replace("%USER%", event.entityPlayer.getDisplayNameString())
+                            .replace("%ACHIEVEMENT%", event.achievement.getStatName().getUnformattedText())
             );
         }
     }
@@ -109,10 +107,8 @@ class MinecraftListener {
         if (!setting.isEnabled()) return;
 
         DiscordClient.getInstance().sendMessage(
-                String.format(
-                        setting.getMessage(),
-                        event.player.getDisplayNameString()
-                )
+                setting.getMessage()
+                        .replace("%USER%", event.player.getDisplayNameString())
         );
     }
 
@@ -125,10 +121,8 @@ class MinecraftListener {
         if (!setting.isEnabled()) return;
 
         DiscordClient.getInstance().sendMessage(
-                String.format(
-                        setting.getMessage(),
-                        event.player.getDisplayNameString()
-                )
+                setting.getMessage()
+                        .replace("%USER%", event.player.getDisplayNameString())
         );
     }
 }

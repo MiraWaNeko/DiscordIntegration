@@ -1,6 +1,6 @@
-package chikachi.discord;
+package chikachi.discord.config;
 
-class EnableMessageTuple {
+public class EnableMessageTuple {
     private boolean enabled;
     private String message;
 
@@ -9,11 +9,11 @@ class EnableMessageTuple {
         this.message = message;
     }
 
-    boolean isEnabled() {
+    public boolean isEnabled() {
         return enabled;
     }
 
-    String getMessage() {
+    public String getMessage() {
         return message;
     }
 }
