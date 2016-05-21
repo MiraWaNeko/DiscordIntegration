@@ -1,4 +1,4 @@
-package chikachi.discord;
+package chikachi.discord.config.experimental;
 
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.NetHandlerPlayServer;

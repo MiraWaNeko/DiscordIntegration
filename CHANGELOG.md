@@ -1,5 +1,15 @@
 # Changelog
 
+### 0.5.0
+- Added ability for command aliases
+- Added `!unstuck <player>` command to send a player to spawn
+	- Works for both online and offline players
+	- Will kick online players, as the client doesn't always update location
+- Changed the way all messages are handled
+	- Now supports some of Discord's formatting (`**Bold**`, `*Italic*` and `__Underline__`)
+	- Removes formatting from `~~Line through~~` and ``` `code` ```
+- Mention a Discord user by clicking the name
+
 ### 0.4.0
 - Added max length on relayed Discord messages (Default -1, meaning disabled)
 - Added limit of commands to roles (by role name)

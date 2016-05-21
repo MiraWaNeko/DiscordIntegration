@@ -2,6 +2,14 @@ package chikachi.discord.config;
 
 import chikachi.discord.ChikachiDiscord;
 import chikachi.discord.Constants;
+import chikachi.discord.config.command.CommandConfig;
+import chikachi.discord.config.command.OnlineCommandConfig;
+import chikachi.discord.config.command.TpsCommandConfig;
+import chikachi.discord.config.command.UnstuckCommandConfig;
+import chikachi.discord.config.message.AchievementMessageConfig;
+import chikachi.discord.config.message.DiscordChatMessageConfig;
+import chikachi.discord.config.message.GenericMessageConfig;
+import chikachi.discord.config.message.MinecraftChatMessageConfig;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
@@ -17,21 +25,21 @@ public class Configuration {
     private static String token = "";
     private static String channel = "";
 
-    private static CommandConfig commandOnline = new CommandConfig("online");
-    private static CommandConfig commandTps = new CommandConfig("tps");
+    private static OnlineCommandConfig commandOnline = new OnlineCommandConfig();
+    private static TpsCommandConfig commandTps = new TpsCommandConfig();
+    private static UnstuckCommandConfig commandUnstuck = new UnstuckCommandConfig();
 
     private static boolean experimentalFakePlayers = false;
 
-    private static EnableMessageTuple discordChat = new EnableMessageTuple(true, "<__%USER%__> %MESSAGE%");
-    private static EnableMessageTuple discordDeath = new EnableMessageTuple(true, "__%USER%__ %MESSAGE%");
-    private static EnableMessageTuple discordAchievement = new EnableMessageTuple(true, "Congrats to __%USER%__ for earning the achievement **[%ACHIEVEMENT%]**");
-    private static EnableMessageTuple discordJoin = new EnableMessageTuple(true, "__%USER%__ has joined the server!");
-    private static EnableMessageTuple discordLeave = new EnableMessageTuple(true, "__%USER%__ left the server!");
-    private static EnableMessageTuple discordStartup = new EnableMessageTuple(false, "**Server started**");
-    private static EnableMessageTuple discordShutdown = new EnableMessageTuple(false, "**Server shutdown**");
+    private static MinecraftChatMessageConfig discordChat = new MinecraftChatMessageConfig(true, "<__%USER%__> %MESSAGE%");
+    private static GenericMessageConfig discordDeath = new GenericMessageConfig("death", true, "__%USER%__ %MESSAGE%");
+    private static AchievementMessageConfig discordAchievement = new AchievementMessageConfig(true, "Congrats to __%USER%__ for earning the achievement **[%ACHIEVEMENT%]**");
+    private static GenericMessageConfig discordJoin = new GenericMessageConfig("join", true, "__%USER%__ has joined the server!");
+    private static GenericMessageConfig discordLeave = new GenericMessageConfig("leave", true, "__%USER%__ left the server!");
+    private static GenericMessageConfig discordStartup = new GenericMessageConfig("startup", false, "**Server started**");
+    private static GenericMessageConfig discordShutdown = new GenericMessageConfig("shutdown", false, "**Server shutdown**");
 
-    private static EnableMessageTuple minecraftChat = new EnableMessageTuple(true, "<__%USER%__> %MESSAGE%");
-    private static int minecraftChatMaxLength = -1;
+    private static DiscordChatMessageConfig minecraftChat = new DiscordChatMessageConfig(true, "<__%USER%__> %MESSAGE%");
 
     public static void onPreInit(FMLPreInitializationEvent event) {
         File directory = new File(event.getModConfigurationDirectory().getAbsolutePath() + File.separator + "Chikachi");
@@ -41,47 +49,6 @@ public class Configuration {
         config = new File(directory, Constants.MODID + ".json");
 
         load();
-    }
-
-    private static EnableMessageTuple readEnableMessageCombo(JsonReader reader) throws IOException {
-        String name;
-
-        boolean enabled = false;
-        String message = "";
-
-        JsonToken type = reader.peek();
-
-        if (type == JsonToken.BEGIN_OBJECT) {
-            reader.beginObject();
-            while (reader.hasNext()) {
-                name = reader.nextName();
-                if (name.equalsIgnoreCase("enabled") && reader.peek() == JsonToken.BOOLEAN) {
-                    enabled = reader.nextBoolean();
-                } else if (name.equalsIgnoreCase("message") && reader.peek() == JsonToken.STRING) {
-                    message = reader.nextString();
-                } else {
-                    reader.skipValue();
-                }
-            }
-            reader.endObject();
-        } else if (type == JsonToken.STRING) {
-            message = reader.nextString();
-            enabled = !message.equals("");
-        } else {
-            reader.skipValue();
-        }
-
-        return new EnableMessageTuple(enabled, message);
-    }
-
-    private static void writeEnableMessageCombo(JsonWriter writer, String key, String message, boolean enabled) throws IOException {
-        writer.name(key);
-        writer.beginObject();
-        writer.name("enabled");
-        writer.value(enabled);
-        writer.name("message");
-        writer.value(message);
-        writer.endObject();
     }
 
     public static void load() {
@@ -95,52 +62,45 @@ public class Configuration {
 
                 writer.beginObject();
 
-                    writer.name("discord");
-                    writer.beginObject();
-                        writer.name("token");
-                        writer.value(token);
-                        writer.name("channel");
-                        writer.value(channel);
+                writer.name("discord");
+                writer.beginObject();
+                writer.name("token");
+                writer.value(token);
+                writer.name("channel");
+                writer.value(channel);
 
-                        writer.name("commands");
-                        writer.beginObject();
-                            commandOnline.write(writer);
-                            commandTps.write(writer);
-                        writer.endObject();
-                    writer.endObject();
+                writer.name("commands");
+                writer.beginObject();
+                commandOnline.write(writer);
+                commandTps.write(writer);
+                commandUnstuck.write(writer);
+                writer.endObject();
+                writer.endObject();
 
-                    writer.name("messages");
-                    writer.beginObject();
-                        writer.name("discord");
-                        writer.beginObject();
-                            writeEnableMessageCombo(writer, "chat", discordChat.getMessage(), discordChat.isEnabled());
-                            writeEnableMessageCombo(writer, "death", discordDeath.getMessage(), discordDeath.isEnabled());
-                            writeEnableMessageCombo(writer, "achievement", discordAchievement.getMessage(), discordAchievement.isEnabled());
-                            writeEnableMessageCombo(writer, "join", discordJoin.getMessage(), discordJoin.isEnabled());
-                            writeEnableMessageCombo(writer, "leave", discordLeave.getMessage(), discordLeave.isEnabled());
-                            writeEnableMessageCombo(writer, "startup", discordStartup.getMessage(), discordStartup.isEnabled());
-                            writeEnableMessageCombo(writer, "shutdown", discordShutdown.getMessage(), discordShutdown.isEnabled());
-                        writer.endObject();
+                writer.name("messages");
+                writer.beginObject();
+                writer.name("discord");
+                writer.beginObject();
+                discordChat.write(writer);
+                discordDeath.write(writer);
+                discordAchievement.write(writer);
+                discordJoin.write(writer);
+                discordLeave.write(writer);
+                discordStartup.write(writer);
+                discordShutdown.write(writer);
+                writer.endObject();
 
-                        writer.name("minecraft");
-                        writer.beginObject();
-                            writer.name("chat");
-                            writer.beginObject();
-                                writer.name("enabled");
-                                writer.value(minecraftChat.isEnabled());
-                                writer.name("message");
-                                writer.value(minecraftChat.getMessage());
-                                writer.name("maxLength");
-                                writer.value(minecraftChatMaxLength);
-                            writer.endObject();
-                        writer.endObject();
-                    writer.endObject();
+                writer.name("minecraft");
+                writer.beginObject();
+                minecraftChat.write(writer);
+                writer.endObject();
+                writer.endObject();
 
-                    writer.name("experimental");
-                    writer.beginObject();
-                        writer.name("fakePlayers");
-                        writer.value(experimentalFakePlayers);
-                    writer.endObject();
+                writer.name("experimental");
+                writer.beginObject();
+                writer.name("fakePlayers");
+                writer.value(experimentalFakePlayers);
+                writer.endObject();
 
                 writer.endObject();
 
@@ -169,10 +129,12 @@ public class Configuration {
                                 reader.beginObject();
                                 while (reader.hasNext()) {
                                     name = reader.nextName();
-                                    if (name.equalsIgnoreCase("online")) {
+                                    if (name.equalsIgnoreCase(commandOnline.getName())) {
                                         commandOnline.read(reader);
-                                    } else if (name.equalsIgnoreCase("tps")) {
+                                    } else if (name.equalsIgnoreCase(commandTps.getName())) {
                                         commandTps.read(reader);
+                                    } else if (name.equalsIgnoreCase(commandUnstuck.getName())) {
+                                        commandUnstuck.read(reader);
                                     } else {
                                         reader.skipValue();
                                     }
@@ -192,19 +154,19 @@ public class Configuration {
                                 while (reader.hasNext()) {
                                     name = reader.nextName();
                                     if (name.equalsIgnoreCase("chat")) {
-                                        discordChat = readEnableMessageCombo(reader);
+                                        discordChat.read(reader);
                                     } else if (name.equalsIgnoreCase("death")) {
-                                        discordDeath = readEnableMessageCombo(reader);
+                                        discordDeath.read(reader);
                                     } else if (name.equalsIgnoreCase("achievement")) {
-                                        discordAchievement = readEnableMessageCombo(reader);
+                                        discordAchievement.read(reader);
                                     } else if (name.equalsIgnoreCase("join")) {
-                                        discordJoin = readEnableMessageCombo(reader);
+                                        discordJoin.read(reader);
                                     } else if (name.equalsIgnoreCase("leave")) {
-                                        discordLeave = readEnableMessageCombo(reader);
+                                        discordLeave.read(reader);
                                     } else if (name.equalsIgnoreCase("startup")) {
-                                        discordStartup = readEnableMessageCombo(reader);
+                                        discordStartup.read(reader);
                                     } else if (name.equalsIgnoreCase("shutdown")) {
-                                        discordShutdown = readEnableMessageCombo(reader);
+                                        discordShutdown.read(reader);
                                     } else {
                                         reader.skipValue();
                                     }
@@ -214,26 +176,8 @@ public class Configuration {
                                 reader.beginObject();
                                 while (reader.hasNext()) {
                                     name = reader.nextName();
-                                    if (name.equalsIgnoreCase("chat") && reader.peek() == JsonToken.BEGIN_OBJECT) {
-                                        boolean enabled = minecraftChat.isEnabled();
-                                        String message = minecraftChat.getMessage();
-
-                                        reader.beginObject();
-                                        while (reader.hasNext()) {
-                                            name = reader.nextName();
-                                            if (name.equalsIgnoreCase("enabled") && reader.peek() == JsonToken.BOOLEAN) {
-                                                enabled = reader.nextBoolean();
-                                            } else if (name.equalsIgnoreCase("message") && reader.peek() == JsonToken.STRING) {
-                                                message = reader.nextString();
-                                            } else if (name.equalsIgnoreCase("maxlength") && reader.peek() == JsonToken.NUMBER) {
-                                                minecraftChatMaxLength = reader.nextInt();
-                                            } else {
-                                                reader.skipValue();
-                                            }
-                                        }
-                                        reader.endObject();
-
-                                        minecraftChat = new EnableMessageTuple(enabled, message);
+                                    if (name.equalsIgnoreCase("chat")) {
+                                        minecraftChat.read(reader);
                                     } else {
                                         reader.skipValue();
                                     }
@@ -274,59 +218,51 @@ public class Configuration {
         return channel;
     }
 
-    public static CommandConfig getCommandOnline() {
+    public static OnlineCommandConfig getCommandOnline() {
         return commandOnline;
     }
 
-    public static CommandConfig getCommandTps() {
+    public static TpsCommandConfig getCommandTps() {
         return commandTps;
     }
 
-    public static boolean isCommandOnlineEnabled() {
-        return commandOnline.isEnabled();
-    }
-
-    public static boolean isCommandTpsEnabled() {
-        return commandTps.isEnabled();
+    public static UnstuckCommandConfig getCommandUnstuck() {
+        return commandUnstuck;
     }
 
     public static boolean isExperimentalFakePlayersEnabled() {
         return experimentalFakePlayers;
     }
 
-    public static EnableMessageTuple getDiscordChat() {
+    public static MinecraftChatMessageConfig getDiscordChat() {
         return discordChat;
     }
 
-    public static EnableMessageTuple getDiscordDeath() {
+    public static GenericMessageConfig getDiscordDeath() {
         return discordDeath;
     }
 
-    public static EnableMessageTuple getDiscordAchievement() {
+    public static AchievementMessageConfig getDiscordAchievement() {
         return discordAchievement;
     }
 
-    public static EnableMessageTuple getDiscordJoin() {
+    public static GenericMessageConfig getDiscordJoin() {
         return discordJoin;
     }
 
-    public static EnableMessageTuple getDiscordLeave() {
+    public static GenericMessageConfig getDiscordLeave() {
         return discordLeave;
     }
 
-    public static EnableMessageTuple getDiscordStartup() {
+    public static GenericMessageConfig getDiscordStartup() {
         return discordStartup;
     }
 
-    public static EnableMessageTuple getDiscordShutdown() {
+    public static GenericMessageConfig getDiscordShutdown() {
         return discordShutdown;
     }
 
-    public static EnableMessageTuple getMinecraftChat() {
+    public static DiscordChatMessageConfig getMinecraftChat() {
         return minecraftChat;
-    }
-
-    public static int getMinecraftChatMaxLength() {
-        return minecraftChatMaxLength;
     }
 }

@@ -1,6 +1,8 @@
 package chikachi.discord;
 
 import chikachi.discord.config.Configuration;
+import chikachi.discord.config.experimental.ExperimentalDiscordListener;
+import chikachi.discord.config.listener.DiscordListener;
 import net.dv8tion.jda.JDA;
 import net.dv8tion.jda.JDABuilder;
 import net.dv8tion.jda.entities.TextChannel;
@@ -10,14 +12,15 @@ import javax.security.auth.login.LoginException;
 import java.util.ArrayList;
 import java.util.List;
 
-class DiscordClient {
+public class DiscordClient {
     private static DiscordClient instance;
     private JDA jda;
     private DiscordListener listener = new DiscordListener();
+    private ExperimentalDiscordListener experimentalListener = new ExperimentalDiscordListener();
     private TextChannel channel;
-    List<String> queue = new ArrayList<>();
+    public List<String> queue = new ArrayList<>();
 
-    static DiscordClient getInstance() {
+    public static DiscordClient getInstance() {
         if (instance == null) {
             instance = new DiscordClient();
         }
@@ -43,7 +46,11 @@ class DiscordClient {
         }
 
         try {
-            this.jda = new JDABuilder().setBotToken(token).addListener(this.listener).buildAsync();
+            this.jda = new JDABuilder()
+                    .setBotToken(token)
+                    .addListener(this.listener)
+                    .addListener(this.experimentalListener)
+                    .buildAsync();
         } catch (LoginException e) {
             ChikachiDiscord.Log("Failed to connect to Discord", true);
             e.printStackTrace();
@@ -60,19 +67,7 @@ class DiscordClient {
         this.jda = null;
     }
 
-    TextChannel getChannel() {
-        /*ChikachiDiscord.Log("=== Guild ===");
-        List<Guild> guilds = this.jda.getGuilds();
-        for (Guild guild : guilds) {
-            ChikachiDiscord.Log(String.format("%s (%s)", guild.getName(), guild.getId()));
-        }
-
-        ChikachiDiscord.Log("=== Channels ===");
-        List<TextChannel> channels = this.jda.getTextChannels();
-        for (TextChannel channel : channels) {
-            ChikachiDiscord.Log(String.format("%s (%s)", channel.getName(), channel.getId()));
-        }*/
-
+    public TextChannel getChannel() {
         if (this.channel == null) {
             this.channel = this.jda.getTextChannelById(Configuration.getChannel());
             if (this.channel == null) {
@@ -84,7 +79,7 @@ class DiscordClient {
         return this.channel;
     }
 
-    boolean sendMessage(String message) {
+    public boolean sendMessage(String message) {
         if (this.jda == null) {
             this.queue.add(message);
             return true;

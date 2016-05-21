@@ -1,7 +1,8 @@
 package chikachi.discord;
 
 import chikachi.discord.config.Configuration;
-import chikachi.discord.config.EnableMessageTuple;
+import chikachi.discord.config.listener.MinecraftListener;
+import chikachi.discord.config.message.GenericMessageConfig;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.event.*;
 
@@ -21,7 +22,7 @@ class Proxy {
     }
 
     void onServerStarted(FMLServerStartedEvent event) {
-        EnableMessageTuple setting = Configuration.getDiscordStartup();
+        GenericMessageConfig setting = Configuration.getDiscordStartup();
 
         if (setting.isEnabled()) {
             DiscordClient.getInstance().sendMessage(setting.getMessage());
@@ -29,7 +30,7 @@ class Proxy {
     }
 
     void onServerShutdown(FMLServerStoppingEvent event) {
-        EnableMessageTuple setting = Configuration.getDiscordShutdown();
+        GenericMessageConfig setting = Configuration.getDiscordShutdown();
 
         if (setting.isEnabled()) {
             DiscordClient.getInstance().sendMessage(setting.getMessage());

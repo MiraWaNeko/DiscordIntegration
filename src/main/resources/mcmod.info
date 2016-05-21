@@ -1,5 +1,4 @@
-[
-{
+[{
   "modid": "ChikachiDiscord",
   "name": "Chikachi's Discord Mod",
   "description": "MC <=> Discord communication",
@@ -12,5 +11,4 @@
   "logoFile": "",
   "screenshots": [],
   "dependencies": []
-}
-]
+}]

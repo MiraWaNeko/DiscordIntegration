@@ -47,17 +47,17 @@ public class ChikachiDiscord {
                             if (registerCommandHandlerMethod != null) {
                                 registerCommandHandlerMethod.invoke(obj, subCommandHandlerClass.newInstance());
                                 Log("Hooked into ChikachiLib", false);
-                                return;
                             }
                         }
                     }
                 }
             } catch (ClassNotFoundException | NoSuchFieldException | NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
                 Log("Failed to hook into ChikachiLib", false);
+                event.registerServerCommand(new NonLibCommandHandler());
             }
+        } else {
+            event.registerServerCommand(new NonLibCommandHandler());
         }
-
-        event.registerServerCommand(new NonLibCommandHandler());
     }
 
     @Mod.EventHandler
