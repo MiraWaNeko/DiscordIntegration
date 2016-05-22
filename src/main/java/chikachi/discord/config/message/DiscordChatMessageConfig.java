@@ -20,6 +20,7 @@ import java.util.List;
 
 public class DiscordChatMessageConfig extends BaseMessageConfig {
     private int maxChatLength = -1;
+    private EnumChatFormatting usernameColor = EnumChatFormatting.RED;
 
     public DiscordChatMessageConfig(boolean enabled, String message) {
         super("chat", enabled, message);
@@ -37,6 +38,10 @@ public class DiscordChatMessageConfig extends BaseMessageConfig {
 
         TextChannel channel = event.getTextChannel();
         MinecraftServer minecraftServer = MinecraftServer.getServer();
+        List<EntityPlayerMP> players = minecraftServer.getConfigurationManager().getPlayerList();
+        if (players.size() == 0) {
+            return;
+        }
 
         if (content.contains("@everyone") && channel.checkPermission(event.getAuthor(), Permission.MESSAGE_MENTION_EVERYONE)) {
             content = Patterns.everyonePattern.matcher(content).replaceAll("$1" + EnumChatFormatting.BLUE + "@everyone" + EnumChatFormatting.RESET);
@@ -63,6 +68,7 @@ public class DiscordChatMessageConfig extends BaseMessageConfig {
         ClickEvent usernameClickEvent = new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "@" + event.getAuthor().getUsername() + " ");
 
         usernameComponent.getChatStyle()
+                .setColor(this.usernameColor)
                 .setChatClickEvent(usernameClickEvent)
                 .setChatHoverEvent(usernameHoverEvent);
 
@@ -74,8 +80,6 @@ public class DiscordChatMessageConfig extends BaseMessageConfig {
                     messageParts[i]
             );
         }
-
-        List<EntityPlayerMP> players = minecraftServer.getConfigurationManager().getPlayerList();
 
         for (EntityPlayerMP player : players) {
             if (content.contains(player.getDisplayNameString())) {
@@ -118,6 +122,11 @@ public class DiscordChatMessageConfig extends BaseMessageConfig {
                     return;
                 }
                 break;
+            case "usernameColor":
+                if (reader.peek() == JsonToken.STRING) {
+                    this.usernameColor = EnumChatFormatting.getValueByName(reader.nextString());
+                    return;
+                }
         }
 
         reader.skipValue();
@@ -127,5 +136,7 @@ public class DiscordChatMessageConfig extends BaseMessageConfig {
     protected void writeExtra(JsonWriter writer) throws IOException {
         writer.name("maxLength");
         writer.value(this.maxChatLength);
+        writer.name("usernameColor");
+        writer.value(this.usernameColor.getFriendlyName());
     }
 }

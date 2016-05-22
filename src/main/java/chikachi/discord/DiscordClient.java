@@ -99,7 +99,7 @@ public class DiscordClient {
 
             for (User user : users) {
                 if (message.toLowerCase().contains("@" + user.getUsername().toLowerCase())) {
-                    message = message.replaceAll("(?i)@" + user.getUsername() + "\\W", user.getAsMention());
+                    message = message.replaceAll("(?i)@" + user.getUsername() + "(\\W)", user.getAsMention() + "$1");
                 }
             }
 

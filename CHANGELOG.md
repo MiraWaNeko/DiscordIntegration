@@ -1,5 +1,10 @@
 # Changelog
 
+#### 0.5.1
+- Fix color of Discord usernames
+	- Added `usernameColor` to Minecraft chat config
+- Fix missing characters after MC => Discord mention in Discord message
+
 ### 0.5.0
 - Added ability for command aliases
 - Added `!unstuck <player>` command to send a player to spawn

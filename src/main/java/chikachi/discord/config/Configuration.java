@@ -2,7 +2,6 @@ package chikachi.discord.config;
 
 import chikachi.discord.ChikachiDiscord;
 import chikachi.discord.Constants;
-import chikachi.discord.config.command.CommandConfig;
 import chikachi.discord.config.command.OnlineCommandConfig;
 import chikachi.discord.config.command.TpsCommandConfig;
 import chikachi.discord.config.command.UnstuckCommandConfig;
