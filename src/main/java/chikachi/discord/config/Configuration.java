@@ -37,6 +37,7 @@ public class Configuration {
     private static GenericMessageConfig discordLeave = new GenericMessageConfig("leave", true, "__%USER%__ left the server!");
     private static GenericMessageConfig discordStartup = new GenericMessageConfig("startup", false, "**Server started**");
     private static GenericMessageConfig discordShutdown = new GenericMessageConfig("shutdown", false, "**Server shutdown**");
+    private static GenericMessageConfig discordCrash = new GenericMessageConfig("crash", true, "**Server crash detected**");
 
     private static DiscordChatMessageConfig minecraftChat = new DiscordChatMessageConfig(true, "<__%USER%__> %MESSAGE%");
 
@@ -263,5 +264,9 @@ public class Configuration {
 
     public static DiscordChatMessageConfig getMinecraftChat() {
         return minecraftChat;
+    }
+
+    public static GenericMessageConfig getDiscordCrash() {
+        return discordCrash;
     }
 }

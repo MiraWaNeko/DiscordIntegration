@@ -13,6 +13,12 @@ public class GenericMessageConfig extends BaseMessageConfig {
         );
     }
 
+    public void sendMessage() {
+        if (!this.isEnabled()) return;
+
+        doSendMessage(this.getMessage());
+    }
+
     public void sendMessage(String username) {
         if (!this.isEnabled()) return;
 

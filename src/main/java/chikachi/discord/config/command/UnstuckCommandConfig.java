@@ -10,6 +10,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.ServerConfigurationManager;
 import net.minecraft.util.BlockPos;
 import net.minecraft.world.WorldServer;
+import net.minecraft.world.storage.IPlayerFileData;
 import net.minecraftforge.common.DimensionManager;
 
 import java.util.List;
@@ -70,7 +71,8 @@ public class UnstuckCommandConfig extends CommandConfig {
             }
 
             DiscordFakePlayer fakePlayer = new DiscordFakePlayer(server.worldServers[0], playerProfile);
-            NBTTagCompound playerData = configurationManager.readPlayerDataFromFile(fakePlayer);
+            IPlayerFileData saveHandler = server.worldServers[0].getSaveHandler().getPlayerNBTManager();
+            NBTTagCompound playerData = saveHandler.readPlayerData(fakePlayer);
 
             if (playerData == null) {
                 DiscordClient.getInstance().sendMessage("Player not found on server");
@@ -83,9 +85,7 @@ public class UnstuckCommandConfig extends CommandConfig {
 
             fakePlayer.dimension = 0;
 
-            configurationManager.playerEntityList.add(fakePlayer);
-            configurationManager.saveAllPlayerData();
-            configurationManager.playerEntityList.remove(fakePlayer);
+            saveHandler.writePlayerData(fakePlayer);
         }
 
         DiscordClient.getInstance().sendMessage("Player sent to spawn");

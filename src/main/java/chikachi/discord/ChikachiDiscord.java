@@ -18,6 +18,8 @@ public class ChikachiDiscord {
 
     private static final Logger logger = LogManager.getLogger(Constants.MODID);
 
+    private static boolean receivedStoppingEvent = false;
+
     @Mod.EventHandler
     public void onPreInit(FMLPreInitializationEvent event) {
         proxy.onPreInit(event);
@@ -25,12 +27,12 @@ public class ChikachiDiscord {
 
     @Mod.EventHandler
     public void onServerAboutToStart(FMLServerAboutToStartEvent event) {
-        proxy.onServerAboutToStart(event);
+        proxy.onServerAboutToStart();
     }
 
     @Mod.EventHandler
     public void onServerStarting(FMLServerStartingEvent event) {
-        proxy.onServerStarting(event);
+        proxy.onServerStarting();
 
         if (Loader.isModLoaded("ChikachiLib")) {
             Log("Trying to hook into ChikachiLib", false);
@@ -62,12 +64,20 @@ public class ChikachiDiscord {
 
     @Mod.EventHandler
     public void onServerStarted(FMLServerStartedEvent event) {
-        proxy.onServerStarted(event);
+        proxy.onServerStarted();
     }
 
     @Mod.EventHandler
     public void onServerShutdown(FMLServerStoppingEvent event) {
-        proxy.onServerShutdown(event);
+        proxy.onServerShutdown();
+        receivedStoppingEvent = true;
+    }
+
+    @Mod.EventHandler
+    public void onServerStopped(FMLServerStoppedEvent event) {
+        if (!receivedStoppingEvent) {
+            proxy.onServerCrash();
+        }
     }
 
     @SuppressWarnings("WeakerAccess")

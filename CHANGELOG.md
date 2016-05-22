@@ -1,5 +1,10 @@
 # Changelog
 
+### 0.6.0
+- Added ability for message when detecting server crashing
+- Added support for other Discord formatting for `_Italic_`
+- Improved handling of `!unstuck` command
+
 #### 0.5.1
 - Fix color of Discord usernames
 	- Added `usernameColor` to Minecraft chat config

@@ -49,6 +49,7 @@ public class DiscordChatMessageConfig extends BaseMessageConfig {
 
         content = Patterns.boldPattern.matcher(content).replaceAll(EnumChatFormatting.BOLD + "$1" + EnumChatFormatting.RESET);
         content = Patterns.italicPattern.matcher(content).replaceAll(EnumChatFormatting.ITALIC + "$1" + EnumChatFormatting.RESET);
+        content = Patterns.italicMePattern.matcher(content).replaceAll(EnumChatFormatting.ITALIC + "$1" + EnumChatFormatting.RESET);
         content = Patterns.underlinePattern.matcher(content).replaceAll(EnumChatFormatting.UNDERLINE + "$1" + EnumChatFormatting.RESET);
         content = Patterns.lineThroughPattern.matcher(content).replaceAll("$1");
         content = Patterns.multiCodePattern.matcher(content).replaceAll("$1");

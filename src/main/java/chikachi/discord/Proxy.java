@@ -4,9 +4,8 @@ import chikachi.discord.config.Configuration;
 import chikachi.discord.config.listener.MinecraftListener;
 import chikachi.discord.config.message.GenericMessageConfig;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.event.*;
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 
-@SuppressWarnings("UnusedParameters")
 class Proxy {
     void onPreInit(FMLPreInitializationEvent event) {
         Configuration.onPreInit(event);
@@ -14,27 +13,31 @@ class Proxy {
         MinecraftForge.EVENT_BUS.register(new MinecraftListener());
     }
 
-    void onServerAboutToStart(FMLServerAboutToStartEvent event) {
+    void onServerAboutToStart() {
         DiscordClient.getInstance().connect();
     }
 
-    void onServerStarting(FMLServerStartingEvent event) {
+    void onServerStarting() {
     }
 
-    void onServerStarted(FMLServerStartedEvent event) {
+    void onServerStarted() {
         GenericMessageConfig setting = Configuration.getDiscordStartup();
 
-        if (setting.isEnabled()) {
-            DiscordClient.getInstance().sendMessage(setting.getMessage());
-        }
+        setting.sendMessage();
     }
 
-    void onServerShutdown(FMLServerStoppingEvent event) {
+    void onServerShutdown() {
         GenericMessageConfig setting = Configuration.getDiscordShutdown();
 
-        if (setting.isEnabled()) {
-            DiscordClient.getInstance().sendMessage(setting.getMessage());
-        }
+        setting.sendMessage();
+
+        DiscordClient.getInstance().disconnect();
+    }
+
+    void onServerCrash() {
+        GenericMessageConfig setting = Configuration.getDiscordCrash();
+
+        setting.sendMessage();
 
         DiscordClient.getInstance().disconnect();
     }
