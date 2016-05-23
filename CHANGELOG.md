@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.0 - Out of Alpha!
+![RELEASE](https://media.giphy.com/media/duGmnxv5TZDy/giphy.gif)
+- Improved the `!tps` response text
+- Switched to asynchronous sending messages to Discord
+
 ### 0.6.0
 - Added ability for message when detecting server crashing
 - Added support for other Discord formatting for `_Italic_`

@@ -4,8 +4,6 @@ import chikachi.discord.ChikachiDiscord;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
-import net.dv8tion.jda.events.message.MessageReceivedEvent;
-import net.minecraftforge.fml.common.eventhandler.Event;
 
 import java.io.IOException;
 

@@ -32,7 +32,7 @@ public class DiscordClient {
 
     }
 
-    void connect() {
+    public void connect() {
         if (this.jda != null) {
             ChikachiDiscord.Log("Is already connected", true);
             return;
@@ -106,7 +106,8 @@ public class DiscordClient {
             message = message.trim();
         }
 
-        this.channel.sendMessage(message);
+        this.channel.sendMessageAsync(message, sentMessage -> {
+        });
         return true;
     }
 }

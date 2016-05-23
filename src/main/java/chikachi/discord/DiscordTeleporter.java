@@ -34,7 +34,8 @@ public class DiscordTeleporter extends Teleporter {
     }
 
     @Override
-    public void removeStalePortalLocations(long worldTime) {}
+    public void removeStalePortalLocations(long worldTime) {
+    }
 
     @Override
     public void placeInPortal(Entity entity, float r) {
