@@ -4,9 +4,10 @@ import chikachi.discord.config.Configuration;
 import chikachi.discord.config.message.AchievementMessageConfig;
 import chikachi.discord.config.message.GenericMessageConfig;
 import chikachi.discord.config.message.MinecraftChatMessageConfig;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.stats.StatisticsFile;
+import net.minecraft.stats.StatisticsManagerServer;
 import net.minecraftforge.event.CommandEvent;
 import net.minecraftforge.event.ServerChatEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
@@ -17,7 +18,7 @@ import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 public class MinecraftListener {
     @SubscribeEvent
     public void onCommand(CommandEvent event) {
-        String commandName = event.command.getCommandName();
+        String commandName = event.getCommand().getCommandName();
 
         if (commandName.equalsIgnoreCase("say")) {
             MinecraftChatMessageConfig messageConfig = Configuration.getDiscordChat();
@@ -27,7 +28,7 @@ public class MinecraftListener {
 
     @SubscribeEvent
     public void onChatMessage(ServerChatEvent event) {
-        if (event.player == null) return;
+        if (event.getPlayer() == null) return;
 
         MinecraftChatMessageConfig messageConfig = Configuration.getDiscordChat();
         messageConfig.handleChatEvent(event);
@@ -35,10 +36,12 @@ public class MinecraftListener {
 
     @SubscribeEvent
     public void onPlayerDeath(LivingDeathEvent event) {
-        if (event.entityLiving == null) return;
+        EntityLivingBase entityLiving = event.getEntityLiving();
 
-        if (event.entityLiving instanceof EntityPlayer) {
-            EntityPlayer entityPlayer = (EntityPlayer) event.entityLiving;
+        if (entityLiving == null) return;
+
+        if (entityLiving instanceof EntityPlayer) {
+            EntityPlayer entityPlayer = (EntityPlayer) entityLiving;
 
             GenericMessageConfig messageConfig = Configuration.getDiscordDeath();
             messageConfig.sendMessage(
@@ -50,12 +53,14 @@ public class MinecraftListener {
 
     @SubscribeEvent
     public void onPlayerAchievement(AchievementEvent event) {
-        if (event.entityPlayer == null) return;
+        EntityPlayer entityPlayer = event.getEntityPlayer();
 
-        if (event.entityPlayer instanceof EntityPlayerMP) {
-            StatisticsFile playerStats = ((EntityPlayerMP) event.entityPlayer).getStatFile();
+        if (entityPlayer == null) return;
 
-            if (playerStats.hasAchievementUnlocked(event.achievement) || !playerStats.canUnlockAchievement(event.achievement)) {
+        if (entityPlayer instanceof EntityPlayerMP) {
+            StatisticsManagerServer playerStats = ((EntityPlayerMP) entityPlayer).getStatFile();
+
+            if (playerStats.hasAchievementUnlocked(event.getAchievement()) || !playerStats.canUnlockAchievement(event.getAchievement())) {
                 return;
             }
 

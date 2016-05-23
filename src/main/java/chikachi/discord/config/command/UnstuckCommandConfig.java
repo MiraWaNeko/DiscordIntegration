@@ -4,11 +4,12 @@ import chikachi.discord.DiscordClient;
 import chikachi.discord.DiscordTeleporter;
 import chikachi.discord.config.experimental.DiscordFakePlayer;
 import com.mojang.authlib.GameProfile;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.management.ServerConfigurationManager;
-import net.minecraft.util.BlockPos;
+import net.minecraft.server.management.PlayerList;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.storage.IPlayerFileData;
 import net.minecraftforge.common.DimensionManager;
@@ -21,7 +22,7 @@ public class UnstuckCommandConfig extends CommandConfig {
     }
 
     @Override
-    public void execute(List<String> args) {
+    public void execute(MinecraftServer minecraftServer, List<String> args) {
         if (args.size() == 0) {
             DiscordClient.getInstance().sendMessage("Missing player");
             return;
@@ -34,25 +35,25 @@ public class UnstuckCommandConfig extends CommandConfig {
 
         WorldServer overworld = DimensionManager.getWorld(0);
         BlockPos spawnpoint = overworld.getSpawnPoint();
+        IBlockState blockState = overworld.getBlockState(spawnpoint);
 
-        while (overworld.getBlockState(spawnpoint).getBlock().isOpaqueCube()) {
+        while (blockState.getBlock().isOpaqueCube(blockState)) {
             spawnpoint = spawnpoint.up(2);
+            blockState = overworld.getBlockState(spawnpoint);
         }
 
         double x = spawnpoint.getX() + 0.5;
         double y = spawnpoint.getY();
         double z = spawnpoint.getZ() + 0.5;
 
-        MinecraftServer server = MinecraftServer.getServer();
-        ServerConfigurationManager configurationManager = server.getConfigurationManager();
-
-        EntityPlayerMP playerEntity = configurationManager.getPlayerByUsername(playerName);
+        PlayerList playerList = minecraftServer.getPlayerList();
+        EntityPlayerMP playerEntity = playerList.getPlayerByUsername(playerName);
 
         if (playerEntity != null) {
             int fromDimId = playerEntity.dimension;
 
             if (fromDimId != 0) {
-                configurationManager.transferPlayerToDimension(playerEntity, 0, new DiscordTeleporter(overworld));
+                playerList.transferPlayerToDimension(playerEntity, 0, new DiscordTeleporter(overworld));
 
                 if (fromDimId == 1 && playerEntity.isEntityAlive()) {
                     overworld.spawnEntityInWorld(playerEntity);
@@ -61,17 +62,17 @@ public class UnstuckCommandConfig extends CommandConfig {
             }
 
             playerEntity.setPositionAndUpdate(x, y, z);
-            playerEntity.playerNetServerHandler.kickPlayerFromServer("You are getting sent to spawn, please connect again!");
+            playerEntity.connection.kickPlayerFromServer("You are getting sent to spawn, please connect again!");
         } else {
-            GameProfile playerProfile = server.getPlayerProfileCache().getGameProfileForUsername(playerName);
+            GameProfile playerProfile = minecraftServer.getPlayerProfileCache().getGameProfileForUsername(playerName);
 
             if (playerProfile == null || !playerProfile.isComplete()) {
                 DiscordClient.getInstance().sendMessage("Player not found");
                 return;
             }
 
-            DiscordFakePlayer fakePlayer = new DiscordFakePlayer(server.worldServers[0], playerProfile);
-            IPlayerFileData saveHandler = server.worldServers[0].getSaveHandler().getPlayerNBTManager();
+            DiscordFakePlayer fakePlayer = new DiscordFakePlayer(minecraftServer.worldServers[0], playerProfile);
+            IPlayerFileData saveHandler = minecraftServer.worldServers[0].getSaveHandler().getPlayerNBTManager();
             NBTTagCompound playerData = saveHandler.readPlayerData(fakePlayer);
 
             if (playerData == null) {

@@ -13,11 +13,11 @@ import java.util.UUID;
 public class DiscordFakePlayer extends FakePlayer {
     public DiscordFakePlayer(WorldServer world, GameProfile name) {
         super(world, name);
-        this.playerNetServerHandler = new DiscordFakeNetServerHandler(new NetworkManager(EnumPacketDirection.SERVERBOUND), this);
+        this.connection = new DiscordFakeNetServerHandler(world.getMinecraftServer(), new NetworkManager(EnumPacketDirection.SERVERBOUND), this);
     }
 
-    DiscordFakePlayer(User user) {
-        this(MinecraftServer.getServer().worldServers[0], new GameProfile(UUID.randomUUID(), "@" + user.getUsername()));
+    DiscordFakePlayer(MinecraftServer minecraftServer, User user) {
+        this(minecraftServer.worldServers[0], new GameProfile(UUID.randomUUID(), "@" + user.getUsername()));
 
         this.dimension = Integer.MIN_VALUE;
     }

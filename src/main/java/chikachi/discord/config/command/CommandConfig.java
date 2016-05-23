@@ -6,6 +6,7 @@ import com.google.gson.stream.JsonWriter;
 import net.dv8tion.jda.entities.Role;
 import net.dv8tion.jda.entities.User;
 import net.dv8tion.jda.events.message.MessageReceivedEvent;
+import net.minecraft.server.MinecraftServer;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -44,7 +45,7 @@ public abstract class CommandConfig {
         return this.isEnabled() && this.checkCommand(command) && this.checkPermission(event);
     }
 
-    public abstract void execute(List<String> args);
+    public abstract void execute(MinecraftServer minecraftServer, List<String> args);
 
     private boolean checkCommand(String command) {
         return this.name.equalsIgnoreCase(command) || this.aliases.contains(command.toLowerCase());

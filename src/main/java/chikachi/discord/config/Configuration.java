@@ -2,6 +2,7 @@ package chikachi.discord.config;
 
 import chikachi.discord.ChikachiDiscord;
 import chikachi.discord.Constants;
+import chikachi.discord.DiscordClient;
 import chikachi.discord.config.command.OnlineCommandConfig;
 import chikachi.discord.config.command.TpsCommandConfig;
 import chikachi.discord.config.command.UnstuckCommandConfig;
@@ -13,6 +14,8 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLServerAboutToStartEvent;
+import net.minecraftforge.fml.common.event.FMLServerStartedEvent;
 
 import java.io.File;
 import java.io.FileReader;
@@ -30,16 +33,16 @@ public class Configuration {
 
     private static boolean experimentalFakePlayers = false;
 
-    private static MinecraftChatMessageConfig discordChat = new MinecraftChatMessageConfig(true, "<__%USER%__> %MESSAGE%");
-    private static GenericMessageConfig discordDeath = new GenericMessageConfig("death", true, "__%USER%__ %MESSAGE%");
-    private static AchievementMessageConfig discordAchievement = new AchievementMessageConfig(true, "Congrats to __%USER%__ for earning the achievement **[%ACHIEVEMENT%]**");
-    private static GenericMessageConfig discordJoin = new GenericMessageConfig("join", true, "__%USER%__ has joined the server!");
-    private static GenericMessageConfig discordLeave = new GenericMessageConfig("leave", true, "__%USER%__ left the server!");
-    private static GenericMessageConfig discordStartup = new GenericMessageConfig("startup", false, "**Server started**");
-    private static GenericMessageConfig discordShutdown = new GenericMessageConfig("shutdown", false, "**Server shutdown**");
-    private static GenericMessageConfig discordCrash = new GenericMessageConfig("crash", true, "**Server crash detected**");
+    private static MinecraftChatMessageConfig discordChat;
+    private static GenericMessageConfig discordDeath;
+    private static AchievementMessageConfig discordAchievement;
+    private static GenericMessageConfig discordJoin;
+    private static GenericMessageConfig discordLeave;
+    private static GenericMessageConfig discordStartup;
+    private static GenericMessageConfig discordShutdown;
+    private static GenericMessageConfig discordCrash;
 
-    private static DiscordChatMessageConfig minecraftChat = new DiscordChatMessageConfig(true, "<__%USER%__> %MESSAGE%");
+    private static DiscordChatMessageConfig minecraftChat;
 
     public static void onPreInit(FMLPreInitializationEvent event) {
         File directory = new File(event.getModConfigurationDirectory().getAbsolutePath() + File.separator + "Chikachi");
@@ -47,8 +50,23 @@ public class Configuration {
         directory.mkdirs();
 
         config = new File(directory, Constants.MODID + ".json");
+    }
+
+    public static void onServerStarting(FMLServerAboutToStartEvent event) {
+        discordChat = new MinecraftChatMessageConfig(true, "<__%USER%__> %MESSAGE%");
+        discordDeath = new GenericMessageConfig("death", true, "__%USER%__ %MESSAGE%");
+        discordAchievement = new AchievementMessageConfig(true, "Congrats to __%USER%__ for earning the achievement **[%ACHIEVEMENT%]**");
+        discordJoin = new GenericMessageConfig("join", true, "__%USER%__ has joined the server!");
+        discordLeave = new GenericMessageConfig("leave", true, "__%USER%__ left the server!");
+        discordStartup = new GenericMessageConfig("startup", false, "**Server started**");
+        discordShutdown = new GenericMessageConfig("shutdown", false, "**Server shutdown**");
+        discordCrash = new GenericMessageConfig("crash", true, "**Server crash detected**");
+
+        minecraftChat = new DiscordChatMessageConfig(event.getServer(), true, "<__%USER%__> %MESSAGE%");
 
         load();
+
+        DiscordClient.getInstance().connect(event.getServer());
     }
 
     public static void load() {

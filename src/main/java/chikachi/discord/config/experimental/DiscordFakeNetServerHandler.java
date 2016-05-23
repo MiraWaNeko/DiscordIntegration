@@ -7,13 +7,16 @@ import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.*;
 import net.minecraft.server.MinecraftServer;
 
+import javax.annotation.ParametersAreNonnullByDefault;
+
+@ParametersAreNonnullByDefault
 class DiscordFakeNetServerHandler extends NetHandlerPlayServer {
-    DiscordFakeNetServerHandler(NetworkManager networkManagerIn, EntityPlayerMP playerIn) {
-        super(null, networkManagerIn, playerIn);
+    DiscordFakeNetServerHandler(MinecraftServer minecraftServer, NetworkManager networkManager, EntityPlayerMP player) {
+        super(minecraftServer, networkManager, player);
     }
 
     @Override
-    public void sendPacket(Packet packetIn) {
+    public void sendPacket(Packet packet) {
     }
 
     @Override
@@ -22,35 +25,30 @@ class DiscordFakeNetServerHandler extends NetHandlerPlayServer {
 
     @Override
     public void kickPlayerFromServer(String reason) {
-        MinecraftServer.getServer().getConfigurationManager().playerEntityList.remove(playerEntity);
-    }
-
-    @Override
-    public void processKeepAlive(C00PacketKeepAlive packetIn) {
 
     }
 
     @Override
-    public NetworkManager getNetworkManager() {
-        return null;
-    }
-
-    @Override
-    public void handleResourcePackStatus(C19PacketResourcePackStatus packetIn) {
-    }
-
-    @Override
-    public void processClickWindow(C0EPacketClickWindow packetIn) {
+    public void processKeepAlive(CPacketKeepAlive packet) {
 
     }
 
     @Override
-    public void processPlayerBlockPlacement(C08PacketPlayerBlockPlacement packetIn) {
+    public void handleResourcePackStatus(CPacketResourcePackStatus packet) {
+    }
+
+    @Override
+    public void processClickWindow(CPacketClickWindow packet) {
 
     }
 
     @Override
-    public void processVanilla250Packet(C17PacketCustomPayload packetIn) {
+    public void processPlayerBlockPlacement(CPacketPlayerTryUseItem packet) {
+
+    }
+
+    @Override
+    public void processCustomPayload(CPacketCustomPayload packet) {
 
     }
 

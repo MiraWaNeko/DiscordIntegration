@@ -9,25 +9,27 @@ import net.dv8tion.jda.events.ReadyEvent;
 import net.dv8tion.jda.events.user.UserOnlineStatusUpdateEvent;
 import net.dv8tion.jda.hooks.ListenerAdapter;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.management.ServerConfigurationManager;
 import net.minecraftforge.common.util.FakePlayer;
 
 import java.util.HashMap;
 import java.util.List;
 
 public class ExperimentalDiscordListener extends ListenerAdapter {
+    private final MinecraftServer minecraftServer;
     private HashMap<String, FakePlayer> fakePlayers = new HashMap<>();
+
+    public ExperimentalDiscordListener(MinecraftServer minecraftServer) {
+        this.minecraftServer = minecraftServer;
+    }
 
     private void userOnline(User user) {
         if (user == null) return;
         if (user.getOnlineStatus() == OnlineStatus.OFFLINE) return;
         if (!Configuration.isExperimentalFakePlayersEnabled()) return;
 
-        DiscordFakePlayer discordFakePlayer = new DiscordFakePlayer(user);
+        DiscordFakePlayer discordFakePlayer = new DiscordFakePlayer(this.minecraftServer, user);
 
-        ServerConfigurationManager configurationManager = MinecraftServer.getServer().getConfigurationManager();
-
-        configurationManager.playerEntityList.add(discordFakePlayer);
+        this.minecraftServer.getPlayerList().playerLoggedIn(discordFakePlayer);
 
         fakePlayers.put(user.getUsername(), discordFakePlayer);
     }
@@ -40,7 +42,8 @@ public class ExperimentalDiscordListener extends ListenerAdapter {
         if (fakePlayers.containsKey(user.getUsername())) {
             FakePlayer fakePlayer = fakePlayers.get(user.getUsername());
             if (fakePlayer != null) {
-                MinecraftServer.getServer().getConfigurationManager().playerEntityList.remove(fakePlayer);
+                this.minecraftServer.getPlayerList().playerLoggedOut(fakePlayer);
+                fakePlayers.remove(user.getUsername());
             }
         }
     }

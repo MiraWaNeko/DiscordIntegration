@@ -3,7 +3,7 @@ package chikachi.discord.config.command;
 import chikachi.discord.DiscordClient;
 import com.google.common.base.Joiner;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.StatCollector;
+import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.common.DimensionManager;
 
 import java.text.DecimalFormat;
@@ -84,15 +84,14 @@ public class TpsCommandConfig extends CommandConfig {
     }
 
     @Override
-    public void execute(List<String> args) {
-        MinecraftServer minecraftServer = MinecraftServer.getServer();
+    public void execute(MinecraftServer minecraftServer, List<String> args) {
         List<String> tpsTimes = new ArrayList<>();
 
         Integer[] dimensionIds = DimensionManager.getIDs();
         HashMap<Integer, String> dimensionMap = new HashMap<>();
 
         for (Integer dimensionId : dimensionIds) {
-            dimensionMap.put(dimensionId, DimensionManager.getProvider(dimensionId).getDimensionName());
+            dimensionMap.put(dimensionId, DimensionManager.getProviderType(dimensionId).getName());
         }
 
         int maxDimensionIdLength = Math.max(getMinValue(dimensionMap.keySet()).toString().length(), getMaxValue(dimensionMap.keySet()).toString().length());
@@ -111,7 +110,7 @@ public class TpsCommandConfig extends CommandConfig {
             double worldTPS = Math.min(1000.0 / worldTickTime, 20);
 
             tpsTimes.add(
-                    StatCollector.translateToLocalFormatted(
+                    I18n.translateToLocalFormatted(
                             "commands.forge.tps.summary",
                             String.format(
                                     "Dim %s%d (%s)%s",
@@ -129,7 +128,7 @@ public class TpsCommandConfig extends CommandConfig {
         double meanTickTime = this.mean(minecraftServer.tickTimeArray) * 1.0E-6D;
         double meanTPS = Math.min(1000.0 / meanTickTime, 20);
         tpsTimes.add(
-                StatCollector.translateToLocalFormatted(
+                I18n.translateToLocalFormatted(
                         "commands.forge.tps.summary",
                         String.format(
                                 "Overall%s",

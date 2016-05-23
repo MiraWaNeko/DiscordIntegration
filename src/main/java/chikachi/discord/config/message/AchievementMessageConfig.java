@@ -15,8 +15,8 @@ public class AchievementMessageConfig extends BaseMessageConfig {
 
         DiscordClient.getInstance().sendMessage(
                 this.getMessage()
-                        .replace("%USER%", event.entityPlayer.getDisplayNameString())
-                        .replace("%ACHIEVEMENT%", event.achievement.getStatName().getUnformattedText())
+                        .replace("%USER%", event.getEntityPlayer().getDisplayNameString())
+                        .replace("%ACHIEVEMENT%", event.getAchievement().getStatName().getUnformattedText())
         );
     }
 }

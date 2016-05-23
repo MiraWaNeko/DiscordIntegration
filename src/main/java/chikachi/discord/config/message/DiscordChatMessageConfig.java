@@ -7,23 +7,25 @@ import net.dv8tion.jda.Permission;
 import net.dv8tion.jda.entities.TextChannel;
 import net.dv8tion.jda.events.message.MessageReceivedEvent;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.event.ClickEvent;
-import net.minecraft.event.HoverEvent;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.ChatComponentText;
-import net.minecraft.util.EnumChatFormatting;
-import net.minecraft.util.IChatComponent;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.event.ClickEvent;
+import net.minecraft.util.text.event.HoverEvent;
 import net.minecraftforge.common.ForgeHooks;
 
 import java.io.IOException;
 import java.util.List;
 
 public class DiscordChatMessageConfig extends BaseMessageConfig {
+    private final MinecraftServer minecraftServer;
     private int maxChatLength = -1;
-    private EnumChatFormatting usernameColor = EnumChatFormatting.RED;
+    private TextFormatting usernameColor = TextFormatting.RED;
 
-    public DiscordChatMessageConfig(boolean enabled, String message) {
+    public DiscordChatMessageConfig(MinecraftServer minecraftServer, boolean enabled, String message) {
         super("chat", enabled, message);
+        this.minecraftServer = minecraftServer;
     }
 
     public void handleEvent(MessageReceivedEvent event) {
@@ -37,20 +39,19 @@ public class DiscordChatMessageConfig extends BaseMessageConfig {
         }
 
         TextChannel channel = event.getTextChannel();
-        MinecraftServer minecraftServer = MinecraftServer.getServer();
-        List<EntityPlayerMP> players = minecraftServer.getConfigurationManager().getPlayerList();
+        List<EntityPlayerMP> players = minecraftServer.getPlayerList().getPlayerList();
         if (players.size() == 0) {
             return;
         }
 
         if (content.contains("@everyone") && channel.checkPermission(event.getAuthor(), Permission.MESSAGE_MENTION_EVERYONE)) {
-            content = Patterns.everyonePattern.matcher(content).replaceAll("$1" + EnumChatFormatting.BLUE + "@everyone" + EnumChatFormatting.RESET);
+            content = Patterns.everyonePattern.matcher(content).replaceAll("$1" + TextFormatting.BLUE + "@everyone" + TextFormatting.RESET);
         }
 
-        content = Patterns.boldPattern.matcher(content).replaceAll(EnumChatFormatting.BOLD + "$1" + EnumChatFormatting.RESET);
-        content = Patterns.italicPattern.matcher(content).replaceAll(EnumChatFormatting.ITALIC + "$1" + EnumChatFormatting.RESET);
-        content = Patterns.italicMePattern.matcher(content).replaceAll(EnumChatFormatting.ITALIC + "$1" + EnumChatFormatting.RESET);
-        content = Patterns.underlinePattern.matcher(content).replaceAll(EnumChatFormatting.UNDERLINE + "$1" + EnumChatFormatting.RESET);
+        content = Patterns.boldPattern.matcher(content).replaceAll(TextFormatting.BOLD + "$1" + TextFormatting.RESET);
+        content = Patterns.italicPattern.matcher(content).replaceAll(TextFormatting.ITALIC + "$1" + TextFormatting.RESET);
+        content = Patterns.italicMePattern.matcher(content).replaceAll(TextFormatting.ITALIC + "$1" + TextFormatting.RESET);
+        content = Patterns.underlinePattern.matcher(content).replaceAll(TextFormatting.UNDERLINE + "$1" + TextFormatting.RESET);
         content = Patterns.lineThroughPattern.matcher(content).replaceAll("$1");
         content = Patterns.multiCodePattern.matcher(content).replaceAll("$1");
         content = Patterns.singleCodePattern.matcher(content).replaceAll("$1");
@@ -63,17 +64,17 @@ public class DiscordChatMessageConfig extends BaseMessageConfig {
                 )
                 .split("%USER%");
 
-        IChatComponent usernameComponent = new ChatComponentText(event.getAuthor().getUsername());
+        ITextComponent usernameComponent = new TextComponentString(event.getAuthor().getUsername());
 
-        HoverEvent usernameHoverEvent = new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ChatComponentText("Mention user (Clears current message)"));
+        HoverEvent usernameHoverEvent = new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString("Mention user (Clears current message)"));
         ClickEvent usernameClickEvent = new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "@" + event.getAuthor().getUsername() + " ");
 
-        usernameComponent.getChatStyle()
+        usernameComponent.getStyle()
                 .setColor(this.usernameColor)
-                .setChatClickEvent(usernameClickEvent)
-                .setChatHoverEvent(usernameHoverEvent);
+                .setClickEvent(usernameClickEvent)
+                .setHoverEvent(usernameHoverEvent);
 
-        IChatComponent chatComponent = new ChatComponentText(messageParts[0]);
+        ITextComponent chatComponent = new TextComponentString(messageParts[0]);
         for (int i = 1, j = messageParts.length; i < j; i++) {
             chatComponent.appendSibling(
                     usernameComponent
@@ -91,13 +92,13 @@ public class DiscordChatMessageConfig extends BaseMessageConfig {
                                 ForgeHooks.newChatWithLinks(
                                         content.replaceAll(
                                                 "\\b" + playerName + "\\b",
-                                                EnumChatFormatting.BLUE + playerName + EnumChatFormatting.RESET
+                                                TextFormatting.BLUE + playerName + TextFormatting.RESET
                                         ), false
                                 ).getFormattedText()
                         )
                         .split("%USER%");
 
-                IChatComponent playerChatComponent = new ChatComponentText(playerMessageParts[0]);
+                ITextComponent playerChatComponent = new TextComponentString(playerMessageParts[0]);
                 for (int i = 1, j = playerMessageParts.length; i < j; i++) {
                     playerChatComponent.appendSibling(
                             usernameComponent
@@ -125,7 +126,7 @@ public class DiscordChatMessageConfig extends BaseMessageConfig {
                 break;
             case "usernameColor":
                 if (reader.peek() == JsonToken.STRING) {
-                    this.usernameColor = EnumChatFormatting.getValueByName(reader.nextString());
+                    this.usernameColor = TextFormatting.getValueByName(reader.nextString());
                     return;
                 }
         }

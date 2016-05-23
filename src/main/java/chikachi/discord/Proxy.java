@@ -13,13 +13,6 @@ class Proxy {
         MinecraftForge.EVENT_BUS.register(new MinecraftListener());
     }
 
-    void onServerAboutToStart() {
-        DiscordClient.getInstance().connect();
-    }
-
-    void onServerStarting() {
-    }
-
     void onServerStarted() {
         GenericMessageConfig setting = Configuration.getDiscordStartup();
 

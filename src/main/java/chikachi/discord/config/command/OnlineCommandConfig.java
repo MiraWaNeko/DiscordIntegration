@@ -14,10 +14,10 @@ public class OnlineCommandConfig extends CommandConfig {
     }
 
     @Override
-    public void execute(List<String> args) {
+    public void execute(MinecraftServer minecraftServer, List<String> args) {
         List<String> playerNames = new ArrayList<>();
 
-        List<EntityPlayerMP> players = MinecraftServer.getServer().getConfigurationManager().getPlayerList();
+        List<EntityPlayerMP> players = minecraftServer.getPlayerList().getPlayerList();
 
         for (EntityPlayerMP player : players) {
             String playerName = player.getDisplayNameString();

@@ -7,6 +7,7 @@ import net.dv8tion.jda.JDA;
 import net.dv8tion.jda.JDABuilder;
 import net.dv8tion.jda.entities.TextChannel;
 import net.dv8tion.jda.entities.User;
+import net.minecraft.server.MinecraftServer;
 
 import javax.security.auth.login.LoginException;
 import java.util.ArrayList;
@@ -15,8 +16,6 @@ import java.util.List;
 public class DiscordClient {
     private static DiscordClient instance;
     private JDA jda;
-    private DiscordListener listener = new DiscordListener();
-    private ExperimentalDiscordListener experimentalListener = new ExperimentalDiscordListener();
     private TextChannel channel;
     public List<String> queue = new ArrayList<>();
 
@@ -32,7 +31,7 @@ public class DiscordClient {
 
     }
 
-    public void connect() {
+    public void connect(MinecraftServer minecraftServer) {
         if (this.jda != null) {
             ChikachiDiscord.Log("Is already connected", true);
             return;
@@ -48,8 +47,8 @@ public class DiscordClient {
         try {
             this.jda = new JDABuilder()
                     .setBotToken(token)
-                    .addListener(this.listener)
-                    .addListener(this.experimentalListener)
+                    .addListener(new DiscordListener(minecraftServer))
+                    .addListener(new ExperimentalDiscordListener(minecraftServer))
                     .buildAsync();
         } catch (LoginException e) {
             ChikachiDiscord.Log("Failed to connect to Discord", true);

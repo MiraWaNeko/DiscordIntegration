@@ -1,6 +1,7 @@
 package chikachi.discord;
 
 import chikachi.discord.command.NonLibCommandHandler;
+import chikachi.discord.config.Configuration;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.*;
@@ -27,13 +28,11 @@ public class ChikachiDiscord {
 
     @Mod.EventHandler
     public void onServerAboutToStart(FMLServerAboutToStartEvent event) {
-        proxy.onServerAboutToStart();
+        Configuration.onServerStarting(event);
     }
 
     @Mod.EventHandler
     public void onServerStarting(FMLServerStartingEvent event) {
-        proxy.onServerStarting();
-
         if (Loader.isModLoaded("ChikachiLib")) {
             Log("Trying to hook into ChikachiLib", false);
             try {

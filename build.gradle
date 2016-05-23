@@ -7,7 +7,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.1-SNAPSHOT'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT'
     }
 }
 
@@ -27,8 +27,8 @@ repositories {
 
 apply plugin: 'net.minecraftforge.gradle.forge'
 
-def mcVersion = '1.8.9'
-def forgeVersion = '11.15.1.1722'
+def mcVersion = '1.9.4'
+def forgeVersion = '12.17.0.1910'
 
 version = "1.0.0"
 group = "chikachi.discord"
@@ -38,7 +38,7 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 minecraft {
-    version = mcVersion + '-' + forgeVersion
+    version = mcVersion + '-' + forgeVersion + '-' + mcVersion
 
     if (file('../run').exists()) {
         runDir = '../run'
@@ -46,7 +46,7 @@ minecraft {
         runDir = 'run'
     }
 
-    mappings = "stable_22"
+    mappings = "snapshot_20160520"
 }
 
 def printDebug(message) {

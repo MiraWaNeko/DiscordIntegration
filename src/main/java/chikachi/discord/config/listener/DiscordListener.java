@@ -8,12 +8,18 @@ import net.dv8tion.jda.entities.TextChannel;
 import net.dv8tion.jda.events.ReadyEvent;
 import net.dv8tion.jda.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.hooks.ListenerAdapter;
+import net.minecraft.server.MinecraftServer;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class DiscordListener extends ListenerAdapter {
+    private final MinecraftServer minecraftServer;
+
+    public DiscordListener(MinecraftServer minecraftServer) {
+        this.minecraftServer = minecraftServer;
+    }
 
     @Override
     public void onReady(ReadyEvent event) {
@@ -43,19 +49,19 @@ public class DiscordListener extends ListenerAdapter {
 
             // Online
             if (Configuration.getCommandOnline().shouldExecute(cmd, event)) {
-                Configuration.getCommandOnline().execute(args);
+                Configuration.getCommandOnline().execute(this.minecraftServer, args);
                 return;
             }
 
             // TPS
             if (Configuration.getCommandTps().shouldExecute(cmd, event)) {
-                Configuration.getCommandTps().execute(args);
+                Configuration.getCommandTps().execute(this.minecraftServer, args);
                 return;
             }
 
             // Unstuck
             if (Configuration.getCommandUnstuck().shouldExecute(cmd, event)) {
-                Configuration.getCommandUnstuck().execute(args);
+                Configuration.getCommandUnstuck().execute(this.minecraftServer, args);
                 return;
             }
 
