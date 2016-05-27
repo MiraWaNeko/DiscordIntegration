@@ -127,8 +127,8 @@ public class TpsCommandConfig extends CommandConfig {
             double worldTPS = Math.min(1000.0 / worldTickTime, 20);
 
             tpsTimes.add(
-                    I18n.translateToLocalFormatted(
-                            "commands.forge.tps.summary",
+                    String.format(
+                            "%s : Mean tick time: %s ms. Mean TPS: %s",
                             String.format(
                                     "Dim %s%d (%s)%s",
                                     dimensionIdPrefixString,
@@ -145,8 +145,8 @@ public class TpsCommandConfig extends CommandConfig {
         double meanTickTime = this.mean(minecraftServer.tickTimeArray) * 1.0E-6D;
         double meanTPS = Math.min(1000.0 / meanTickTime, 20);
         tpsTimes.add(
-                I18n.translateToLocalFormatted(
-                        "commands.forge.tps.summary",
+                String.format(
+                        "%s : Mean tick time: %s ms. Mean TPS: %s",
                         String.format(
                                 "Overall%s",
                                 new String(new char[maxDimensionIdLength + maxDimensionNameLength]).replace("\0", " ")
