@@ -71,7 +71,7 @@ public class Configuration {
     public static void onServerStarting(FMLServerAboutToStartEvent event) {
         discordChat = new MinecraftChatMessageConfig(true, "<__%USER%__> %MESSAGE%");
         discordDeath = new GenericMessageConfig("death", true, "__%USER%__ %MESSAGE%");
-        discordAchievement = new AchievementMessageConfig(true, "Congrats to __%USER%__ for earning the achievement **[%ACHIEVEMENT%]**");
+        discordAchievement = new AchievementMessageConfig(true, "Congrats to __%USER%__ for earning the achievement **%ACHIEVEMENT%** (%DESCRIPTION%)");
         discordJoin = new GenericMessageConfig("join", true, "__%USER%__ has joined the server!");
         discordLeave = new GenericMessageConfig("leave", true, "__%USER%__ left the server!");
         discordStartup = new GenericMessageConfig("startup", false, "**Server started**");
