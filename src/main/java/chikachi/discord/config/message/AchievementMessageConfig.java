@@ -34,6 +34,7 @@ public class AchievementMessageConfig extends BaseMessageConfig {
                 this.getMessage()
                         .replace("%USER%", event.entityPlayer.getDisplayNameString())
                         .replace("%ACHIEVEMENT%", event.achievement.getStatName().getUnformattedText())
+                        .replace("%DESCRIPTION%", event.achievement.getDescription())
         );
     }
 }
