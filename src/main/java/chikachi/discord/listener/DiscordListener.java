@@ -15,7 +15,7 @@
  * along with this program.  If not, see http://www.gnu.org/licenses.
  */
 
-package chikachi.discord.config.listener;
+package chikachi.discord.listener;
 
 import chikachi.discord.ChikachiDiscord;
 import chikachi.discord.DiscordClient;

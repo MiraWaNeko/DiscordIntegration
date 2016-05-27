@@ -15,26 +15,26 @@
  * along with this program.  If not, see http://www.gnu.org/licenses.
  */
 
-package chikachi.discord.command;
+package chikachi.discord.command.mc;
 
-import chikachi.lib.common.command.sub.CommandChikachiBase;
-import chikachi.lib.common.utils.PlayerUtils;
+import net.minecraft.command.CommandBase;
+import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.server.MinecraftServer;
 
-@SuppressWarnings("unused")
-public class LibCommandHandler extends CommandChikachiBase {
-    public LibCommandHandler() {
-        super("discord");
+public class NonLibCommandHandler extends CommandBase {
+    @Override
+    public String getCommandName() {
+        return "discord";
     }
 
     @Override
-    public void execute(ICommandSender sender, String[] args) {
+    public String getCommandUsage(ICommandSender sender) {
+        return "/discord [reload]";
+    }
+
+    @Override
+    public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
         CommandProcessor.processCommand(sender, args);
-    }
-
-    @Override
-    public boolean canCommandSenderUseCommand(ICommandSender sender) {
-        return !(sender instanceof EntityPlayer) || PlayerUtils.IsOP((EntityPlayer) sender);
     }
 }

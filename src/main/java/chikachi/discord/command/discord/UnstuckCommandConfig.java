@@ -15,11 +15,11 @@
  * along with this program.  If not, see http://www.gnu.org/licenses.
  */
 
-package chikachi.discord.config.command;
+package chikachi.discord.command.discord;
 
 import chikachi.discord.DiscordClient;
 import chikachi.discord.DiscordTeleporter;
-import chikachi.discord.config.experimental.DiscordFakePlayer;
+import chikachi.discord.experimental.DiscordFakePlayer;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayerMP;
