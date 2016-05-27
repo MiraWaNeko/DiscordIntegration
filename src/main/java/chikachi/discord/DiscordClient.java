@@ -18,8 +18,8 @@
 package chikachi.discord;
 
 import chikachi.discord.config.Configuration;
-import chikachi.discord.config.experimental.ExperimentalDiscordListener;
-import chikachi.discord.config.listener.DiscordListener;
+import chikachi.discord.experimental.ExperimentalDiscordListener;
+import chikachi.discord.listener.DiscordListener;
 import net.dv8tion.jda.JDA;
 import net.dv8tion.jda.JDABuilder;
 import net.dv8tion.jda.entities.TextChannel;

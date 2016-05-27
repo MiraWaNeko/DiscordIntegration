@@ -15,7 +15,7 @@
  * along with this program.  If not, see http://www.gnu.org/licenses.
  */
 
-package chikachi.discord.config.command;
+package chikachi.discord.command.discord;
 
 import chikachi.discord.DiscordClient;
 import com.google.common.base.Joiner;

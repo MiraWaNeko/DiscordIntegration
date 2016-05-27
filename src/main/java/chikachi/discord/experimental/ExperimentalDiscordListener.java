@@ -15,7 +15,7 @@
  * along with this program.  If not, see http://www.gnu.org/licenses.
  */
 
-package chikachi.discord.config.experimental;
+package chikachi.discord.experimental;
 
 import chikachi.discord.DiscordClient;
 import chikachi.discord.config.Configuration;

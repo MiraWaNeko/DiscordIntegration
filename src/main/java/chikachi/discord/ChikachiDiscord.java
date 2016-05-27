@@ -17,7 +17,7 @@
 
 package chikachi.discord;
 
-import chikachi.discord.command.NonLibCommandHandler;
+import chikachi.discord.command.mc.NonLibCommandHandler;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.*;
@@ -54,7 +54,7 @@ public class ChikachiDiscord {
         if (Loader.isModLoaded("ChikachiLib")) {
             Log("Trying to hook into ChikachiLib", false);
             try {
-                Class subCommandHandlerClass = Class.forName("chikachi.discord.command.LibCommandHandler");
+                Class subCommandHandlerClass = Class.forName("chikachi.discord.command.mc.LibCommandHandler");
                 Class libClass = Class.forName("chikachi.lib.ChikachiLib");
                 Class commandClass = Class.forName("chikachi.lib.common.command.sub.CommandChikachiBase");
                 if (subCommandHandlerClass != null && libClass != null && commandClass != null) {

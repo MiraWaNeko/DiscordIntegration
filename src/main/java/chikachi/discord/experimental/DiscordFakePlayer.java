@@ -15,7 +15,7 @@
  * along with this program.  If not, see http://www.gnu.org/licenses.
  */
 
-package chikachi.discord.config.experimental;
+package chikachi.discord.experimental;
 
 import com.mojang.authlib.GameProfile;
 import net.dv8tion.jda.entities.User;
@@ -33,7 +33,7 @@ public class DiscordFakePlayer extends FakePlayer {
         this.playerNetServerHandler = new DiscordFakeNetServerHandler(new NetworkManager(EnumPacketDirection.SERVERBOUND), this);
     }
 
-    DiscordFakePlayer(User user) {
+    public DiscordFakePlayer(User user) {
         this(MinecraftServer.getServer().worldServers[0], new GameProfile(UUID.randomUUID(), "@" + user.getUsername()));
 
         this.dimension = Integer.MIN_VALUE;

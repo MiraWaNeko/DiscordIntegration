@@ -19,9 +19,9 @@ package chikachi.discord.config;
 
 import chikachi.discord.ChikachiDiscord;
 import chikachi.discord.Constants;
-import chikachi.discord.config.command.OnlineCommandConfig;
-import chikachi.discord.config.command.TpsCommandConfig;
-import chikachi.discord.config.command.UnstuckCommandConfig;
+import chikachi.discord.command.discord.OnlineCommandConfig;
+import chikachi.discord.command.discord.TpsCommandConfig;
+import chikachi.discord.command.discord.UnstuckCommandConfig;
 import chikachi.discord.config.message.AchievementMessageConfig;
 import chikachi.discord.config.message.DiscordChatMessageConfig;
 import chikachi.discord.config.message.GenericMessageConfig;
