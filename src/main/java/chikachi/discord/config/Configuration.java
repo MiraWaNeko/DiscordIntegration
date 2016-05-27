@@ -49,7 +49,7 @@ public class Configuration {
 
     private static MinecraftChatMessageConfig discordChat = new MinecraftChatMessageConfig(true, "<__%USER%__> %MESSAGE%");
     private static GenericMessageConfig discordDeath = new GenericMessageConfig("death", true, "__%USER%__ %MESSAGE%");
-    private static AchievementMessageConfig discordAchievement = new AchievementMessageConfig(true, "Congrats to __%USER%__ for earning the achievement **[%ACHIEVEMENT%]**");
+    private static AchievementMessageConfig discordAchievement = new AchievementMessageConfig(true, "Congrats to __%USER%__ for earning the achievement **%ACHIEVEMENT%** (%DESCRIPTION%)");
     private static GenericMessageConfig discordJoin = new GenericMessageConfig("join", true, "__%USER%__ has joined the server!");
     private static GenericMessageConfig discordLeave = new GenericMessageConfig("leave", true, "__%USER%__ left the server!");
     private static GenericMessageConfig discordStartup = new GenericMessageConfig("startup", false, "**Server started**");
