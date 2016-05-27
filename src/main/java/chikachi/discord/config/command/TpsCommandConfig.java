@@ -20,7 +20,6 @@ package chikachi.discord.config.command;
 import chikachi.discord.DiscordClient;
 import com.google.common.base.Joiner;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.common.DimensionManager;
 
 import java.text.DecimalFormat;
@@ -34,7 +33,15 @@ public class TpsCommandConfig extends CommandConfig {
         super("tps", false);
     }
 
-    private Integer getMinValue(Set<Integer> values) {
+    private static String padLeft(String s, int n) {
+        return String.format("%1$#" + n + "s", s);
+    }
+
+    private static String padRight(String s, int n) {
+        return String.format("%1$-" + n + "s", s);
+    }
+
+    private static Integer getMinValue(Set<Integer> values) {
         if (values.size() == 0) {
             return 0;
         }
@@ -50,7 +57,7 @@ public class TpsCommandConfig extends CommandConfig {
         return value;
     }
 
-    private Integer getMaxValue(Set<Integer> values) {
+    private static Integer getMaxValue(Set<Integer> values) {
         if (values.size() == 0) {
             return 0;
         }
@@ -66,7 +73,7 @@ public class TpsCommandConfig extends CommandConfig {
         return value;
     }
 
-    private Integer getMinLength(Collection<String> strings) {
+    private static Integer getMinLength(Collection<String> strings) {
         if (strings.size() == 0) {
             return 0;
         }
@@ -83,7 +90,7 @@ public class TpsCommandConfig extends CommandConfig {
         return length;
     }
 
-    private Integer getMaxLength(Collection<String> strings) {
+    private static Integer getMaxLength(Collection<String> strings) {
         if (strings.size() == 0) {
             return 0;
         }
