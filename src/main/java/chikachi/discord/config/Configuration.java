@@ -20,6 +20,7 @@ package chikachi.discord.config;
 import chikachi.discord.ChikachiDiscord;
 import chikachi.discord.Constants;
 import chikachi.discord.DiscordClient;
+import chikachi.discord.command.discord.CustomCommandConfig;
 import chikachi.discord.command.discord.OnlineCommandConfig;
 import chikachi.discord.command.discord.TpsCommandConfig;
 import chikachi.discord.command.discord.UnstuckCommandConfig;
@@ -37,6 +38,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Configuration {
     private static File config;
@@ -46,6 +49,7 @@ public class Configuration {
     private static OnlineCommandConfig commandOnline = new OnlineCommandConfig();
     private static TpsCommandConfig commandTps = new TpsCommandConfig();
     private static UnstuckCommandConfig commandUnstuck = new UnstuckCommandConfig();
+    private static List<CustomCommandConfig> customCommands = new ArrayList<>();
 
     private static boolean experimentalFakePlayers = false;
 
@@ -90,6 +94,8 @@ public class Configuration {
             return;
         }
 
+        customCommands.clear();
+
         if (!config.exists()) {
             try {
                 JsonWriter writer = new JsonWriter(new FileWriter(config));
@@ -108,6 +114,9 @@ public class Configuration {
                 commandOnline.write(writer);
                 commandTps.write(writer);
                 commandUnstuck.write(writer);
+                writer.name("custom");
+                writer.beginArray();
+                writer.endArray();
                 writer.endObject();
                 writer.endObject();
 
@@ -169,6 +178,23 @@ public class Configuration {
                                         commandTps.read(reader);
                                     } else if (name.equalsIgnoreCase(commandUnstuck.getName())) {
                                         commandUnstuck.read(reader);
+                                    } else if (name.equalsIgnoreCase("custom")) {
+                                        JsonToken peek = reader.peek();
+                                        if (peek == JsonToken.BEGIN_ARRAY) {
+                                            reader.beginArray();
+                                            while (reader.hasNext()) {
+                                                CustomCommandConfig customCommand = CustomCommandConfig.createFromConfig(reader);
+                                                if (customCommand != null) {
+                                                    customCommands.add(customCommand);
+                                                }
+                                            }
+                                            reader.endArray();
+                                        } else if (peek == JsonToken.BEGIN_OBJECT) {
+                                            CustomCommandConfig customCommand = CustomCommandConfig.createFromConfig(reader);
+                                            if (customCommand != null) {
+                                                customCommands.add(customCommand);
+                                            }
+                                        }
                                     } else {
                                         reader.skipValue();
                                     }
@@ -262,6 +288,10 @@ public class Configuration {
 
     public static UnstuckCommandConfig getCommandUnstuck() {
         return commandUnstuck;
+    }
+
+    public static List<CustomCommandConfig> getCustomCommands() {
+        return customCommands;
     }
 
     public static boolean isExperimentalFakePlayersEnabled() {

@@ -62,7 +62,7 @@ public abstract class CommandConfig {
         return this.isEnabled() && this.checkCommand(command) && this.checkPermission(event);
     }
 
-    public abstract void execute(MinecraftServer minecraftServer, List<String> args);
+    public abstract void execute(MinecraftServer minecraftServer, User user, List<String> args);
 
     private boolean checkCommand(String command) {
         return this.name.equalsIgnoreCase(command) || this.aliases.contains(command.toLowerCase());

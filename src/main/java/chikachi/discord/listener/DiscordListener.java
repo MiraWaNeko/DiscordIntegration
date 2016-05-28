@@ -19,9 +19,11 @@ package chikachi.discord.listener;
 
 import chikachi.discord.ChikachiDiscord;
 import chikachi.discord.DiscordClient;
+import chikachi.discord.command.discord.CustomCommandConfig;
 import chikachi.discord.config.Configuration;
 import chikachi.discord.config.message.DiscordChatMessageConfig;
 import net.dv8tion.jda.entities.TextChannel;
+import net.dv8tion.jda.entities.User;
 import net.dv8tion.jda.events.ReadyEvent;
 import net.dv8tion.jda.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.hooks.ListenerAdapter;
@@ -51,8 +53,10 @@ public class DiscordListener extends ListenerAdapter {
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
+        User author = event.getAuthor();
+
         // Ignore bots
-        if (event.getAuthor().isBot()) return;
+        if (author.isBot()) return;
         // Ignore private messages
         if (!(event.getChannel() instanceof TextChannel)) return;
         // Ignore other channels
@@ -66,20 +70,29 @@ public class DiscordListener extends ListenerAdapter {
 
             // Online
             if (Configuration.getCommandOnline().shouldExecute(cmd, event)) {
-                Configuration.getCommandOnline().execute(this.minecraftServer, args);
+                Configuration.getCommandOnline().execute(this.minecraftServer, author, args);
                 return;
             }
 
             // TPS
             if (Configuration.getCommandTps().shouldExecute(cmd, event)) {
-                Configuration.getCommandTps().execute(this.minecraftServer, args);
+                Configuration.getCommandTps().execute(this.minecraftServer, author, args);
                 return;
             }
 
             // Unstuck
             if (Configuration.getCommandUnstuck().shouldExecute(cmd, event)) {
-                Configuration.getCommandUnstuck().execute(this.minecraftServer, args);
+                Configuration.getCommandUnstuck().execute(this.minecraftServer, author, args);
                 return;
+            }
+
+            // Custom
+            List<CustomCommandConfig> customCommands = Configuration.getCustomCommands();
+            for (CustomCommandConfig customCommand : customCommands) {
+                if (customCommand.shouldExecute(cmd, event)) {
+                    customCommand.execute(this.minecraftServer, author, args);
+                    return;
+                }
             }
 
             return;

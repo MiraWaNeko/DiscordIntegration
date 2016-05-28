@@ -19,6 +19,7 @@ package chikachi.discord.command.discord;
 
 import chikachi.discord.DiscordClient;
 import com.google.common.base.Joiner;
+import net.dv8tion.jda.entities.User;
 import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.common.DimensionManager;
 
@@ -108,7 +109,7 @@ public class TpsCommandConfig extends CommandConfig {
     }
 
     @Override
-    public void execute(MinecraftServer minecraftServer, List<String> args) {
+    public void execute(MinecraftServer minecraftServer, User user, List<String> args) {
         List<String> tpsTimes = new ArrayList<>();
 
         Integer[] dimensionIds = DimensionManager.getIDs();

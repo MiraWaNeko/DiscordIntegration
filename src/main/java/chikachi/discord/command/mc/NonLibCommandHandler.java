@@ -17,11 +17,16 @@
 
 package chikachi.discord.command.mc;
 
+import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.server.MinecraftServer;
 
+import javax.annotation.ParametersAreNonnullByDefault;
+
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class NonLibCommandHandler extends CommandBase {
     @Override
     public String getCommandName() {
@@ -34,7 +39,7 @@ public class NonLibCommandHandler extends CommandBase {
     }
 
     @Override
-    public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
+    public void execute(MinecraftServer minecraftServer, ICommandSender sender, String[] args) throws CommandException {
         CommandProcessor.processCommand(sender, args);
     }
 }
