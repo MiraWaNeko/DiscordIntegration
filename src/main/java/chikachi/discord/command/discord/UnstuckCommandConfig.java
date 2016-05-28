@@ -21,6 +21,7 @@ import chikachi.discord.DiscordClient;
 import chikachi.discord.DiscordTeleporter;
 import chikachi.discord.experimental.DiscordFakePlayer;
 import com.mojang.authlib.GameProfile;
+import net.dv8tion.jda.entities.User;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
@@ -38,7 +39,7 @@ public class UnstuckCommandConfig extends CommandConfig {
     }
 
     @Override
-    public void execute(List<String> args) {
+    public void execute(User user, List<String> args) {
         if (args.size() == 0) {
             DiscordClient.getInstance().sendMessage("Missing player");
             return;

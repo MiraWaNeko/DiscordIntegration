@@ -19,6 +19,7 @@ package chikachi.discord.command.discord;
 
 import chikachi.discord.DiscordClient;
 import com.google.common.base.Joiner;
+import net.dv8tion.jda.entities.User;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 
@@ -31,7 +32,7 @@ public class OnlineCommandConfig extends CommandConfig {
     }
 
     @Override
-    public void execute(List<String> args) {
+    public void execute(User user, List<String> args) {
         List<String> playerNames = new ArrayList<>();
 
         List<EntityPlayerMP> players = MinecraftServer.getServer().getConfigurationManager().getPlayerList();

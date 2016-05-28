@@ -61,7 +61,7 @@ public abstract class CommandConfig {
         return this.isEnabled() && this.checkCommand(command) && this.checkPermission(event);
     }
 
-    public abstract void execute(List<String> args);
+    public abstract void execute(User user, List<String> args);
 
     private boolean checkCommand(String command) {
         return this.name.equalsIgnoreCase(command) || this.aliases.contains(command.toLowerCase());
