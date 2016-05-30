@@ -18,6 +18,7 @@
 package chikachi.discord.config.message;
 
 import chikachi.discord.DiscordClient;
+import net.minecraft.util.StatCollector;
 import net.minecraftforge.event.entity.player.AchievementEvent;
 
 public class AchievementMessageConfig extends BaseMessageConfig {
@@ -34,7 +35,7 @@ public class AchievementMessageConfig extends BaseMessageConfig {
                 this.getMessage()
                         .replace("%USER%", event.entityPlayer.getDisplayNameString())
                         .replace("%ACHIEVEMENT%", event.achievement.getStatName().getUnformattedText())
-                        .replace("%DESCRIPTION%", event.achievement.getDescription())
+                        .replace("%DESCRIPTION%", StatCollector.translateToLocalFormatted(event.achievement.achievementDescription, "KEY"))
         );
     }
 }
