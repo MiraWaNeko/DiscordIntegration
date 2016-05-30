@@ -1,4 +1,11 @@
-# Changelog
+# Changelog (MC 1.9.4)
+
+### 1.1.0
+- Added `%DESCRIPTION%` to Achievement messages
+- Added custom commands (Read more on [the wiki](https://github.com/Chikachi/ChikachiDiscord/wiki/Custom-Commands))
+- `!tps` response is now padded so the times and TPS is lined up
+- `!tps` response is now sorted after dimension ID
+- Removed kick of player when using `!unstuck`
 
 ## 1.0.0 - Out of Alpha!
 ![RELEASE](https://media.giphy.com/media/duGmnxv5TZDy/giphy.gif)

@@ -29,7 +29,7 @@ apply plugin: 'net.minecraftforge.gradle.forge'
 
 def mcVersion = '1.9.4'
 def forgeVersion = '12.17.0.1922'
-def modVersion = '1.0.0'
+def modVersion = '1.1.0'
 
 version = 'mc' + mcVersion + '-' + modVersion
 group = "chikachi.discord"
@@ -126,7 +126,7 @@ processResources {
         include 'mcmod.info'
 
         // replace version and mcversion
-        expand 'version': project.version, 'mcversion': project.minecraft.version
+        expand 'version': modVersion, 'mcversion': project.minecraft.version
     }
 
     // copy everything else, thats not the mcmod.info
