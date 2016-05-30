@@ -80,7 +80,7 @@ public class UnstuckCommandConfig extends CommandConfig {
             }
 
             playerEntity.setPositionAndUpdate(x, y, z);
-            playerEntity.connection.kickPlayerFromServer("You are getting sent to spawn, please connect again!");
+            //playerEntity.connection.kickPlayerFromServer("You are getting sent to spawn, please connect again!");
         } else {
             GameProfile playerProfile = minecraftServer.getPlayerProfileCache().getGameProfileForUsername(playerName);
 
