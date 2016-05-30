@@ -21,6 +21,9 @@ import net.minecraft.entity.Entity;
 import net.minecraft.world.Teleporter;
 import net.minecraft.world.WorldServer;
 
+import javax.annotation.ParametersAreNonnullByDefault;
+
+@ParametersAreNonnullByDefault
 public class DiscordTeleporter extends Teleporter {
     private boolean forcePos = false;
     private double x;

@@ -22,8 +22,6 @@ import net.minecraft.stats.Achievement;
 import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.event.entity.player.AchievementEvent;
 
-import java.lang.reflect.Field;
-
 public class AchievementMessageConfig extends BaseMessageConfig {
     public AchievementMessageConfig(boolean enabled, String message) {
         super("achievement", enabled, message);
