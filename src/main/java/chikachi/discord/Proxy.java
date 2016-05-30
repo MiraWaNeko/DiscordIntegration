@@ -40,15 +40,11 @@ class Proxy {
         GenericMessageConfig setting = Configuration.getDiscordShutdown();
 
         setting.sendMessage();
-
-        DiscordClient.getInstance().disconnect();
     }
 
     void onServerCrash() {
         GenericMessageConfig setting = Configuration.getDiscordCrash();
 
         setting.sendMessage();
-
-        DiscordClient.getInstance().disconnect();
     }
 }

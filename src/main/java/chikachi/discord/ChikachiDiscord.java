@@ -94,6 +94,8 @@ public class ChikachiDiscord {
         if (!receivedStoppingEvent) {
             proxy.onServerCrash();
         }
+
+        DiscordClient.getInstance().disconnect();
     }
 
     @SuppressWarnings("WeakerAccess")
