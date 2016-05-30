@@ -21,7 +21,6 @@ import chikachi.discord.DiscordClient;
 import com.google.common.base.Joiner;
 import net.dv8tion.jda.entities.User;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.StatCollector;
 import net.minecraftforge.common.DimensionManager;
 
 import java.text.DecimalFormat;
@@ -33,6 +32,28 @@ public class TpsCommandConfig extends CommandConfig {
 
     public TpsCommandConfig() {
         super("tps", false);
+    }
+
+    private static String padLeft(String s, int n) {
+        int spaces = n - s.length();
+
+        if (spaces < 1) {
+            return s;
+        }
+
+        String padding = new String(new char[spaces]).replace("\0", " ");
+        return padding + s;
+    }
+
+    private static String padRight(String s, int n) {
+        int spaces = n - s.length();
+
+        if (spaces < 1) {
+            return s;
+        }
+
+        String padding = new String(new char[spaces]).replace("\0", " ");
+        return s + padding;
     }
 
     private Integer getMinValue(Set<Integer> values) {
@@ -116,30 +137,24 @@ public class TpsCommandConfig extends CommandConfig {
         int maxDimensionIdLength = Math.max(getMinValue(dimensionMap.keySet()).toString().length(), getMaxValue(dimensionMap.keySet()).toString().length());
         int maxDimensionNameLength = Math.max(getMinLength(dimensionMap.values()), getMaxLength(dimensionMap.values()));
 
-        Set<Map.Entry<Integer, String>> entries = dimensionMap.entrySet();
+        SortedSet<Integer> sortedDimensionIds = new TreeSet<>(dimensionMap.keySet());
 
-        for (Map.Entry<Integer, String> entry : entries) {
-            Integer dimensionId = entry.getKey();
-            String dimensionName = entry.getValue();
-
-            String dimensionIdPrefixString = new String(new char[maxDimensionIdLength - dimensionId.toString().length()]).replace("\0", " ");
-            String dimensionNamePostfixString = new String(new char[maxDimensionNameLength - dimensionName.length()]).replace("\0", " ");
+        for (Integer dimensionId : sortedDimensionIds) {
+            String dimensionName = dimensionMap.get(dimensionId);
 
             double worldTickTime = this.mean(minecraftServer.worldTickTimes.get(dimensionId)) * 1.0E-6D;
             double worldTPS = Math.min(1000.0 / worldTickTime, 20);
 
             tpsTimes.add(
-                    StatCollector.translateToLocalFormatted(
-                            "commands.forge.tps.summary",
+                    String.format(
+                            "%s : Mean tick time: %s ms. Mean TPS: %s",
                             String.format(
-                                    "Dim %s%d (%s)%s",
-                                    dimensionIdPrefixString,
-                                    dimensionId,
-                                    dimensionName,
-                                    dimensionNamePostfixString
+                                    "Dim %s %s",
+                                    padLeft(dimensionId + "", maxDimensionIdLength),
+                                    padRight(dimensionName, maxDimensionNameLength)
                             ),
-                            timeFormatter.format(worldTickTime),
-                            timeFormatter.format(worldTPS)
+                            padLeft(timeFormatter.format(worldTickTime), 6),
+                            padLeft(timeFormatter.format(worldTPS), 6)
                     )
             );
         }
@@ -147,14 +162,11 @@ public class TpsCommandConfig extends CommandConfig {
         double meanTickTime = this.mean(minecraftServer.tickTimeArray) * 1.0E-6D;
         double meanTPS = Math.min(1000.0 / meanTickTime, 20);
         tpsTimes.add(
-                StatCollector.translateToLocalFormatted(
-                        "commands.forge.tps.summary",
-                        String.format(
-                                "Overall%s",
-                                new String(new char[maxDimensionIdLength + maxDimensionNameLength]).replace("\0", " ")
-                        ),
-                        timeFormatter.format(meanTickTime),
-                        timeFormatter.format(meanTPS)
+                String.format(
+                        "%s : Mean tick time: %s ms. Mean TPS: %s",
+                        padRight("Overall", maxDimensionIdLength + maxDimensionNameLength + 5),
+                        padLeft(timeFormatter.format(meanTickTime), 6),
+                        padLeft(timeFormatter.format(meanTPS), 6)
                 )
         );
 
