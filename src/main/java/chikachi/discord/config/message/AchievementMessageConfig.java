@@ -18,7 +18,11 @@
 package chikachi.discord.config.message;
 
 import chikachi.discord.DiscordClient;
+import net.minecraft.stats.Achievement;
+import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.event.entity.player.AchievementEvent;
+
+import java.lang.reflect.Field;
 
 public class AchievementMessageConfig extends BaseMessageConfig {
     public AchievementMessageConfig(boolean enabled, String message) {
@@ -30,11 +34,13 @@ public class AchievementMessageConfig extends BaseMessageConfig {
             return;
         }
 
+        Achievement achievement = event.getAchievement();
+
         DiscordClient.getInstance().sendMessage(
                 this.getMessage()
                         .replace("%USER%", event.getEntityPlayer().getDisplayNameString())
-                        .replace("%ACHIEVEMENT%", event.getAchievement().getStatName().getUnformattedText())
-                        .replace("%DESCRIPTION%", event.getAchievement().getDescription())
+                        .replace("%ACHIEVEMENT%", achievement.getStatName().getUnformattedText())
+                        .replace("%DESCRIPTION%", I18n.translateToLocalFormatted(achievement.achievementDescription, "KEY"))
         );
     }
 }
