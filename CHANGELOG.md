@@ -1,5 +1,13 @@
 # Changelog (MC 1.9.4)
 
+### 1.2.0
+- Added `colored` option to `!tps` command
+	- This will not show in colors on mobile Discord (At the time of writing)
+	- Colors
+		- Green when `19 <= TPS`
+		- Orange when `15 <= TPS && TPS < 19`
+		- Red when `TPS < 15`
+
 #### 1.1.1
 - Fixed crash on achievements
 

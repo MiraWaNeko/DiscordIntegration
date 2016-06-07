@@ -29,7 +29,7 @@ apply plugin: 'net.minecraftforge.gradle.forge'
 
 def mcVersion = '1.9.4'
 def forgeVersion = '12.17.0.1954'
-def modVersion = '1.1.1'
+def modVersion = '1.2.0'
 
 version = 'mc' + mcVersion + '-' + modVersion
 group = "chikachi.discord"
@@ -72,7 +72,7 @@ class CurseForgeDependencyInfo {
 
 // Dependencies on CurseForge
 List<CurseForgeDependencyInfo> curseForgeDependencies = new ArrayList<CurseForgeDependencyInfo>();
-curseForgeDependencies.add(new CurseForgeDependencyInfo("ChikachiLib", "1.7.10-0.1.0", "jar", "2269757"));
+curseForgeDependencies.add(new CurseForgeDependencyInfo("ChikachiLib", "1.9.4-0.2.0", "jar", "2305916"));
 
 dependencies {
     compile 'net.dv8tion:JDA:2.0.0_242:withDependencies'

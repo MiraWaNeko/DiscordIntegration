@@ -19,16 +19,21 @@ package chikachi.discord.command.discord;
 
 import chikachi.discord.DiscordClient;
 import com.google.common.base.Joiner;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
+import com.google.gson.stream.JsonWriter;
 import net.dv8tion.jda.entities.User;
 import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.common.DimensionManager;
 
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.*;
 import java.util.stream.LongStream;
 
 public class TpsCommandConfig extends CommandConfig {
     private static final DecimalFormat timeFormatter = new DecimalFormat("########0.000");
+    private boolean colored = false;
 
     public TpsCommandConfig() {
         super("tps", false);
@@ -122,6 +127,20 @@ public class TpsCommandConfig extends CommandConfig {
         return length;
     }
 
+    private static String tpsToColorString(double tps) {
+        if (19 <= tps) {
+            return "+ ";
+        } else if (15 <= tps) {
+            return "! ";
+        } else {
+            return "- ";
+        }
+    }
+
+    private long mean(long[] values) {
+        return LongStream.of(values).sum() / values.length;
+    }
+
     @Override
     public void execute(MinecraftServer minecraftServer, User user, List<String> args) {
         List<String> tpsTimes = new ArrayList<>();
@@ -146,7 +165,8 @@ public class TpsCommandConfig extends CommandConfig {
 
             tpsTimes.add(
                     String.format(
-                            "%s : Mean tick time: %s ms. Mean TPS: %s",
+                            "%s%s : Mean tick time: %s ms. Mean TPS: %s",
+                            this.colored ? tpsToColorString(worldTPS) : "",
                             String.format(
                                     "Dim %s %s",
                                     padLeft(dimensionId + "", maxDimensionIdLength),
@@ -162,7 +182,8 @@ public class TpsCommandConfig extends CommandConfig {
         double meanTPS = Math.min(1000.0 / meanTickTime, 20);
         tpsTimes.add(
                 String.format(
-                        "%s : Mean tick time: %s ms. Mean TPS: %s",
+                        "%s%s : Mean tick time: %s ms. Mean TPS: %s",
+                        this.colored ? tpsToColorString(meanTPS) : "",
                         padRight("Overall", maxDimensionIdLength + maxDimensionNameLength + 5),
                         padLeft(timeFormatter.format(meanTickTime), 6),
                         padLeft(timeFormatter.format(meanTPS), 6)
@@ -171,13 +192,25 @@ public class TpsCommandConfig extends CommandConfig {
 
         DiscordClient.getInstance().sendMessage(
                 String.format(
-                        "\n```\n%s\n```",
+                        "\n```%s\n%s\n```",
+                        this.colored ? "diff" : "lua",
                         Joiner.on("\n").join(tpsTimes)
                 ).replace("\\:", ":")
         );
     }
 
-    private long mean(long[] values) {
-        return LongStream.of(values).sum() / values.length;
+    @Override
+    protected void readExtra(JsonReader reader, String name) throws IOException {
+        if (name.equalsIgnoreCase("colored") && reader.peek() == JsonToken.BOOLEAN) {
+            this.colored = reader.nextBoolean();
+        } else {
+            reader.skipValue();
+        }
+    }
+
+    @Override
+    protected void writeExtra(JsonWriter writer) throws IOException {
+        writer.name("colored");
+        writer.value(this.colored);
     }
 }
