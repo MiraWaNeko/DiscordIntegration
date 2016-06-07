@@ -28,8 +28,8 @@ repositories {
 apply plugin: 'net.minecraftforge.gradle.forge'
 
 def mcVersion = '1.9.4'
-def forgeVersion = '12.17.0.1922'
-def modVersion = '1.1.0'
+def forgeVersion = '12.17.0.1954'
+def modVersion = '1.1.1'
 
 version = 'mc' + mcVersion + '-' + modVersion
 group = "chikachi.discord"
@@ -39,7 +39,7 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 minecraft {
-    version = mcVersion + '-' + forgeVersion + '-' + mcVersion
+    version = mcVersion + '-' + forgeVersion
 
     if (file('../run').exists()) {
         runDir = '../run'
@@ -47,7 +47,7 @@ minecraft {
         runDir = 'run'
     }
 
-    mappings = "snapshot_20160526"
+    mappings = "snapshot_20160607"
 }
 
 def printDebug(message) {
@@ -89,6 +89,14 @@ dependencies {
             continue;
         }
         compile group: dependency.GetFileId(), name: dependency.module, version: dependency.version, ext: dependency.ext
+    }
+}
+
+jar {
+    manifest {
+        attributes(
+                "FMLAT": 'chikachidiscord_at.cfg'
+        )
     }
 }
 

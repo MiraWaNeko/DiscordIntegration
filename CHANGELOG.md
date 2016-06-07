@@ -1,5 +1,8 @@
 # Changelog (MC 1.9.4)
 
+#### 1.1.1
+- Fixed crash on achievements
+
 ### 1.1.0
 - Added `%DESCRIPTION%` to Achievement messages
 - Added custom commands (Read more on [the wiki](https://github.com/Chikachi/ChikachiDiscord/wiki/Custom-Commands))
