@@ -29,7 +29,7 @@ apply plugin: 'net.minecraftforge.gradle.forge'
 
 def mcVersion = '1.8.9'
 def forgeVersion = '11.15.1.1722'
-def modVersion = '1.1.0'
+def modVersion = '1.1.1'
 
 version = 'mc' + mcVersion + '-' + modVersion
 group = "chikachi.discord"
@@ -89,6 +89,14 @@ dependencies {
             continue;
         }
         compile group: dependency.GetFileId(), name: dependency.module, version: dependency.version, ext: dependency.ext
+    }
+}
+
+jar {
+    manifest {
+        attributes(
+                "FMLAT": 'chikachidiscord_at.cfg'
+        )
     }
 }
 
