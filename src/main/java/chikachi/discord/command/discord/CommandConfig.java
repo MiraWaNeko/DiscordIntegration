@@ -89,7 +89,7 @@ public abstract class CommandConfig {
         return false;
     }
 
-    public void read(JsonReader reader) throws IOException {
+    public final void read(JsonReader reader) throws IOException {
         JsonToken type = reader.peek();
 
         if (type == JsonToken.BOOLEAN) {
@@ -120,14 +120,18 @@ public abstract class CommandConfig {
                     }
                     reader.endArray();
                 } else {
-                    reader.skipValue();
+                    readExtra(reader, name);
                 }
             }
             reader.endObject();
         }
     }
 
-    public void write(JsonWriter writer) throws IOException {
+    protected void readExtra(JsonReader reader, String name) throws IOException {
+        reader.skipValue();
+    }
+
+    public final void write(JsonWriter writer) throws IOException {
         writer.name(this.name);
         writer.beginObject();
         writer.name("enabled");
@@ -144,6 +148,10 @@ public abstract class CommandConfig {
             writer.value(alias);
         }
         writer.endArray();
+        writeExtra(writer);
         writer.endObject();
+    }
+
+    protected void writeExtra(JsonWriter writer) throws IOException {
     }
 }
