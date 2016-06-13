@@ -29,8 +29,18 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-@Mod(modid = Constants.MODID, name = Constants.MODNAME, version = Constants.VERSION, serverSideOnly = true, acceptableRemoteVersions = "*")
+@Mod(
+        modid = Constants.MODID,
+        name = Constants.MODNAME,
+        version = Constants.VERSION,
+        serverSideOnly = true,
+        dependencies = "after:ChikachiLib",
+        acceptableRemoteVersions = "*"
+)
 public class ChikachiDiscord {
+    @Mod.Instance
+    public static ChikachiDiscord instance;
+
     private static Proxy proxy = new Proxy();
 
     private static final Logger logger = LogManager.getLogger(Constants.MODID);
@@ -97,6 +107,13 @@ public class ChikachiDiscord {
         }
 
         DiscordClient.getInstance().disconnect();
+    }
+
+    @Mod.EventHandler
+    public void imcReceived(FMLInterModComms.IMCEvent event) {
+        for (FMLInterModComms.IMCMessage imcMessage : event.getMessages()) {
+            IMCHandler.onMessageReceived(imcMessage);
+        }
     }
 
     @SuppressWarnings("WeakerAccess")

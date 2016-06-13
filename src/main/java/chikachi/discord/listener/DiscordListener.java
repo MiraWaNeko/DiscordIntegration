@@ -19,6 +19,8 @@ package chikachi.discord.listener;
 
 import chikachi.discord.ChikachiDiscord;
 import chikachi.discord.DiscordClient;
+import chikachi.discord.IMCHandler;
+import chikachi.discord.Utils;
 import chikachi.discord.command.discord.CustomCommandConfig;
 import chikachi.discord.config.Configuration;
 import chikachi.discord.config.message.DiscordChatMessageConfig;
@@ -27,6 +29,8 @@ import net.dv8tion.jda.entities.User;
 import net.dv8tion.jda.events.ReadyEvent;
 import net.dv8tion.jda.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.hooks.ListenerAdapter;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraftforge.fml.common.event.FMLInterModComms;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -57,6 +61,19 @@ public class DiscordListener extends ListenerAdapter {
         if (!event.getMessage().getChannelId().equals(Configuration.getChannel())) return;
 
         String content = event.getMessage().getContent().trim();
+
+        List<String> listenerMods = IMCHandler.getRegisteredIMCMods();
+        if (listenerMods.size() > 0) {
+            NBTTagCompound eventTagCompound = new NBTTagCompound();
+            eventTagCompound.setString("type", "chat");
+
+            eventTagCompound.setTag("user", Utils.UserToNBT(event.getAuthor()));
+            eventTagCompound.setString("message", content);
+
+            for (String listenerMod : listenerMods) {
+                FMLInterModComms.sendRuntimeMessage(ChikachiDiscord.instance, listenerMod, "event", eventTagCompound);
+            }
+        }
 
         if (content.startsWith("!")) {
             List<String> args = new ArrayList<>(Arrays.asList(content.substring(1).split(" ")));

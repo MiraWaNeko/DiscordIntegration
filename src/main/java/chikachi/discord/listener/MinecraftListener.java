@@ -17,6 +17,8 @@
 
 package chikachi.discord.listener;
 
+import chikachi.discord.ChikachiDiscord;
+import chikachi.discord.IMCHandler;
 import chikachi.discord.config.Configuration;
 import chikachi.discord.config.message.AchievementMessageConfig;
 import chikachi.discord.config.message.GenericMessageConfig;
@@ -28,8 +30,12 @@ import net.minecraftforge.event.CommandEvent;
 import net.minecraftforge.event.ServerChatEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.AchievementEvent;
+import net.minecraftforge.fml.common.event.FMLInterModComms;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
+
+import java.util.List;
 
 public class MinecraftListener {
     @SubscribeEvent
@@ -95,5 +101,11 @@ public class MinecraftListener {
 
         GenericMessageConfig messageConfig = Configuration.getDiscordLeave();
         messageConfig.sendMessage(event.player.getDisplayNameString());
+    }
+
+    @SubscribeEvent
+    public void onServerTick(TickEvent.ServerTickEvent event) {
+        List<FMLInterModComms.IMCMessage> imcMessages = FMLInterModComms.fetchRuntimeMessages(ChikachiDiscord.instance);
+        imcMessages.forEach(IMCHandler::onMessageReceived);
     }
 }
