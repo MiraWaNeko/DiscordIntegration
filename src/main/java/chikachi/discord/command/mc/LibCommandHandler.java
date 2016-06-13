@@ -22,6 +22,8 @@ import chikachi.lib.common.utils.PlayerUtils;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
 
+import java.util.List;
+
 @SuppressWarnings("unused")
 public class LibCommandHandler extends CommandChikachiBase {
     public LibCommandHandler() {
@@ -36,5 +38,15 @@ public class LibCommandHandler extends CommandChikachiBase {
     @Override
     public boolean canCommandSenderUseCommand(ICommandSender sender) {
         return !(sender instanceof EntityPlayer) || PlayerUtils.IsOP((EntityPlayer) sender);
+    }
+
+    @Override
+    public boolean isUsernameIndex(String[] args, int i) {
+        return false;
+    }
+
+    @Override
+    public List addTabCompletionOptions(ICommandSender sender, String[] args) {
+        return null;
     }
 }

@@ -30,7 +30,7 @@ import chikachi.discord.config.message.MinecraftChatMessageConfig;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 
 import java.io.File;
 import java.io.FileReader;

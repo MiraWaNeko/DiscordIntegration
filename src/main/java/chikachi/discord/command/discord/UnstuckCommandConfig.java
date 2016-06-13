@@ -26,7 +26,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.ServerConfigurationManager;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.storage.IPlayerFileData;
 import net.minecraftforge.common.DimensionManager;
@@ -51,20 +51,20 @@ public class UnstuckCommandConfig extends CommandConfig {
         }
 
         WorldServer overworld = DimensionManager.getWorld(0);
-        BlockPos spawnpoint = overworld.getSpawnPoint();
+        ChunkCoordinates spawnpoint = overworld.getSpawnPoint();
+        double y = spawnpoint.posY;
 
-        while (overworld.getBlockState(spawnpoint).getBlock().isOpaqueCube()) {
-            spawnpoint = spawnpoint.up(2);
+        while (overworld.getBlock(spawnpoint.posX, (int) y, spawnpoint.posZ).isOpaqueCube()) {
+            y += 2;
         }
 
-        double x = spawnpoint.getX() + 0.5;
-        double y = spawnpoint.getY();
-        double z = spawnpoint.getZ() + 0.5;
+        double x = spawnpoint.posX + 0.5;
+        double z = spawnpoint.posZ + 0.5;
 
         MinecraftServer server = MinecraftServer.getServer();
         ServerConfigurationManager configurationManager = server.getConfigurationManager();
 
-        EntityPlayerMP playerEntity = configurationManager.getPlayerByUsername(playerName);
+        EntityPlayerMP playerEntity = configurationManager.func_152612_a(playerName);
 
         if (playerEntity != null) {
             int fromDimId = playerEntity.dimension;
@@ -81,7 +81,7 @@ public class UnstuckCommandConfig extends CommandConfig {
             playerEntity.setPositionAndUpdate(x, y, z);
             playerEntity.playerNetServerHandler.kickPlayerFromServer("You are getting sent to spawn, please connect again!");
         } else {
-            GameProfile playerProfile = server.getPlayerProfileCache().getGameProfileForUsername(playerName);
+            GameProfile playerProfile = server.func_152358_ax().func_152655_a(playerName);
 
             if (playerProfile == null || !playerProfile.isComplete()) {
                 DiscordClient.getInstance().sendMessage("Player not found");
@@ -89,7 +89,7 @@ public class UnstuckCommandConfig extends CommandConfig {
             }
 
             DiscordFakePlayer fakePlayer = new DiscordFakePlayer(server.worldServers[0], playerProfile);
-            IPlayerFileData saveHandler = server.worldServers[0].getSaveHandler().getPlayerNBTManager();
+            IPlayerFileData saveHandler = server.worldServers[0].getSaveHandler().getSaveHandler();
             NBTTagCompound playerData = saveHandler.readPlayerData(fakePlayer);
 
             if (playerData == null) {

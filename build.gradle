@@ -1,13 +1,17 @@
 buildscript {
     repositories {
-        jcenter()
+        mavenCentral()
         maven {
             name = "forge"
             url = "http://files.minecraftforge.net/maven"
         }
+        maven {
+            name 'Tethys (drakon.io)'
+            url "http://tethys.drakon.io/maven"
+        }
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.1-SNAPSHOT'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:1.2-SNAPSHOT'
     }
 }
 
@@ -25,11 +29,11 @@ repositories {
     }
 }
 
-apply plugin: 'net.minecraftforge.gradle.forge'
+apply plugin: 'forge'
 
-def mcVersion = '1.8.9'
-def forgeVersion = '11.15.1.1722'
-def modVersion = '1.2.0'
+def mcVersion = "1.7.10"
+def forgeVersion = "10.13.4.1558"
+def modVersion = '1.3.0'
 
 version = 'mc' + mcVersion + '-' + modVersion
 group = "chikachi.discord"
@@ -39,19 +43,33 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 minecraft {
-    version = mcVersion + '-' + forgeVersion
-
+    version = mcVersion + "-" + forgeVersion + "-" + mcVersion
     if (file('../run').exists()) {
-        runDir = '../run'
+        runDir = "../run"
     } else {
-        runDir = 'run'
+        runDir = "run"
     }
 
-    mappings = "stable_22"
+    srgExtra "PK: com/mashape/unirest chikachi/discord/repack/com/mashape/unirest"
+    srgExtra "PK: com/neovisionaries/ws/client chikachi/discord/repack/com/neovisionaries/ws/client"
+    srgExtra "PK: com/sun/jna chikachi/discord/repack/com/sun/jna"
+    srgExtra "PK: javax/sound chikachi/discord/repack/javax/sound"
+    srgExtra "PK: javazoom chikachi/discord/repack/javazoom"
+    srgExtra "PK: net/dv8tion/jda chikachi/discord/repack/net/dv8tion/jda"
+    srgExtra "PK: net/sourceforge/jaad chikachi/discord/repack/net/sourceforge/jaad"
+    srgExtra "PK: org/json chikachi/discord/repack/org/json"
+    srgExtra "PK: org/kc7bfi/jflac chikachi/discord/repack/orgkc7bfi/jflac"
+    srgExtra "PK: org/tritonus chikachi/discord/repack/org/tritonus"
+    srgExtra "PK: tomp2p/opuswrapper chikachi/discord/repack/tomp2p/opuswrapper"
 }
 
 def printDebug(message) {
-    println '[' + archivesBaseName + '] ' + message
+    println "[" + archivesBaseName + "] " + message
+}
+
+configurations {
+    shade
+    compile.extendsFrom shade
 }
 
 class CurseForgeDependencyInfo {
@@ -72,10 +90,10 @@ class CurseForgeDependencyInfo {
 
 // Dependencies on CurseForge
 List<CurseForgeDependencyInfo> curseForgeDependencies = new ArrayList<CurseForgeDependencyInfo>();
-curseForgeDependencies.add(new CurseForgeDependencyInfo("ChikachiLib", "1.8.9-0.2.0", "jar", "2305915"));
+curseForgeDependencies.add(new CurseForgeDependencyInfo("ChikachiLib", "1.7.10-0.1.0", "jar", "2269757"));
 
 dependencies {
-    compile 'net.dv8tion:JDA:2.0.0_242:withDependencies'
+    shade 'net.dv8tion:JDA:2.0.0_242:withDependencies'
 
     for (CurseForgeDependencyInfo dependency : curseForgeDependencies) {
         if (file('../' + dependency.module).exists()) {
@@ -93,34 +111,15 @@ dependencies {
 }
 
 jar {
+    configurations.shade.each { dep ->
+        from(project.zipTree(dep)){
+            exclude 'META-INF', 'META-INF/**'
+        }
+    }
     manifest {
         attributes(
                 "FMLAT": 'chikachidiscord_at.cfg'
         )
-    }
-}
-
-shadowJar {
-    classifier = ""
-    relocate "com.mashape.unirest", "chikachi.discord.repack.com.mashape.unirest"
-    relocate "com.neovisionaries.ws.client", "chikachi.discord.repack.com.neovisionaries.ws.client"
-    relocate "com.sun.jna", "chikachi.discord.repack.com.sun.jna"
-    relocate "javax.sound", "chikachi.discord.repack.javax.sound"
-    relocate "javazoom", "chikachi.discord.repack.javazoom"
-    relocate "net.dv8tion.jda", "chikachi.discord.repack.net.dv8tion.jda"
-    relocate "net.sourceforge.jaad", "chikachi.discord.repack.net.sourceforge.jaad"
-    relocate "org.apache.commons.codec", "chikachi.discord.repack.org.apache.commons.codec"
-    relocate "org.apache.commons.lang3", "chikachi.discord.repack.org.apache.commons.lang3"
-    relocate "org.json", "chikachi.discord.repack.org.json"
-    relocate "org.kc7bfi.jflac", "chikachi.discord.repack.orgkc7bfi.jflac"
-    relocate "org.tritonus", "chikachi.discord.repack.org.tritonus"
-    relocate "tomp2p.opuswrapper", "chikachi.discord.repack.tomp2p.opuswrapper"
-
-    relocate "org.apache.http", "chikachi.discord.repack.org.apache.http"
-    relocate "org.apache.commons.logging", "chikachi.discord.repack.org.apache.commons.logging"
-
-    dependencies {
-        include(dependency('net.dv8tion:JDA:2.0.0_242:withDependencies'))
     }
 }
 
@@ -134,7 +133,7 @@ processResources {
         include 'mcmod.info'
 
         // replace version and mcversion
-        expand 'version': modVersion, 'mcversion': project.minecraft.version
+        expand 'version': project.version, 'mcversion': project.minecraft.version
     }
 
     // copy everything else, thats not the mcmod.info
@@ -142,8 +141,5 @@ processResources {
         exclude 'mcmod.info'
     }
 }
-
-reobf { shadowJar { mappingType = "SEARGE" } }
-tasks.reobfShadowJar.mustRunAfter shadowJar
 
 idea { module { inheritOutputDirs = true } }

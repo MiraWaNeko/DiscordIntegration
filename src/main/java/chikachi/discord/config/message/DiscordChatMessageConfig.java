@@ -23,17 +23,17 @@ import com.google.gson.stream.JsonWriter;
 import net.dv8tion.jda.Permission;
 import net.dv8tion.jda.entities.TextChannel;
 import net.dv8tion.jda.events.message.MessageReceivedEvent;
-import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.event.ClickEvent;
 import net.minecraft.event.HoverEvent;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.management.ServerConfigurationManager;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IChatComponent;
 import net.minecraftforge.common.ForgeHooks;
 
 import java.io.IOException;
-import java.util.List;
 
 public class DiscordChatMessageConfig extends BaseMessageConfig {
     private int maxChatLength = -1;
@@ -54,9 +54,9 @@ public class DiscordChatMessageConfig extends BaseMessageConfig {
         }
 
         TextChannel channel = event.getTextChannel();
-        MinecraftServer minecraftServer = MinecraftServer.getServer();
-        List<EntityPlayerMP> players = minecraftServer.getConfigurationManager().getPlayerList();
-        if (players.size() == 0) {
+        ServerConfigurationManager serverConfigurationManager = MinecraftServer.getServer().getConfigurationManager();
+        String[] playerNames = serverConfigurationManager.getAllUsernames();
+        if (playerNames.length == 0) {
             return;
         }
 
@@ -73,11 +73,7 @@ public class DiscordChatMessageConfig extends BaseMessageConfig {
         content = Patterns.singleCodePattern.matcher(content).replaceAll("$1");
 
         String[] messageParts = this.message
-                .replace("%MESSAGE%",
-                        ForgeHooks.newChatWithLinks(
-                                content
-                        ).getFormattedText()
-                )
+                .replace("%MESSAGE%", content)
                 .split("%USER%");
 
         IChatComponent usernameComponent = new ChatComponentText(event.getAuthor().getUsername());
@@ -99,17 +95,21 @@ public class DiscordChatMessageConfig extends BaseMessageConfig {
             );
         }
 
-        for (EntityPlayerMP player : players) {
-            if (content.contains(player.getDisplayNameString())) {
-                String playerName = player.getDisplayNameString();
+        for (String playerName : playerNames) {
+            EntityPlayer player = serverConfigurationManager.func_152612_a(playerName);
 
+            if (player == null) {
+                continue;
+            }
+
+            if (content.contains(playerName)) {
                 String[] playerMessageParts = this.message
                         .replace("%MESSAGE%",
                                 ForgeHooks.newChatWithLinks(
                                         content.replaceAll(
                                                 "\\b" + playerName + "\\b",
                                                 EnumChatFormatting.BLUE + playerName + EnumChatFormatting.RESET
-                                        ), false
+                                        )
                                 ).getFormattedText()
                         )
                         .split("%USER%");

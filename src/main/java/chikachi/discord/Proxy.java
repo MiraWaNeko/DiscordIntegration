@@ -20,14 +20,18 @@ package chikachi.discord;
 import chikachi.discord.config.Configuration;
 import chikachi.discord.config.message.GenericMessageConfig;
 import chikachi.discord.listener.MinecraftListener;
+import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 
 class Proxy {
+    private static final MinecraftListener eventListener = new MinecraftListener();
+
     void onPreInit(FMLPreInitializationEvent event) {
         Configuration.onPreInit(event);
 
-        MinecraftForge.EVENT_BUS.register(new MinecraftListener());
+        FMLCommonHandler.instance().bus().register(eventListener);
+        MinecraftForge.EVENT_BUS.register(eventListener);
     }
 
     void onServerAboutToStart() {

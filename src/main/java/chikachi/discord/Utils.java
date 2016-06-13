@@ -37,7 +37,7 @@ public class Utils {
         NBTTagCompound tagCompound = new NBTTagCompound();
 
         tagCompound.setString("id", player.getGameProfile().getId().toString());
-        tagCompound.setString("username", player.getDisplayNameString());
+        tagCompound.setString("username", player.getDisplayName());
 
         return tagCompound;
     }
@@ -46,7 +46,7 @@ public class Utils {
         NBTTagCompound tagCompound = new NBTTagCompound();
 
         tagCompound.setString("id", "-1");
-        tagCompound.setString("username", sender.getName());
+        tagCompound.setString("username", sender.getCommandSenderName());
 
         return tagCompound;
     }

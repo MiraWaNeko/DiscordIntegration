@@ -17,8 +17,8 @@
 
 package chikachi.discord;
 
+import cpw.mods.fml.common.event.FMLInterModComms;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraftforge.fml.common.event.FMLInterModComms;
 
 import java.util.ArrayList;
 import java.util.List;

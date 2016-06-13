@@ -39,7 +39,7 @@ public class MinecraftChatMessageConfig extends BaseMessageConfig {
             return;
         }
 
-        String username = event.sender.getName();
+        String username = event.sender.getCommandSenderName();
 
         String message = Joiner.on(" ").join(event.parameters);
         message = message.replaceAll("§.", "");

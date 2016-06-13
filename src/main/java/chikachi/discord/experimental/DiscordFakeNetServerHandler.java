@@ -21,7 +21,10 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.NetHandlerPlayServer;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
-import net.minecraft.network.play.client.*;
+import net.minecraft.network.play.client.C00PacketKeepAlive;
+import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement;
+import net.minecraft.network.play.client.C0EPacketClickWindow;
+import net.minecraft.network.play.client.C17PacketCustomPayload;
 import net.minecraft.server.MinecraftServer;
 
 class DiscordFakeNetServerHandler extends NetHandlerPlayServer {
@@ -34,10 +37,6 @@ class DiscordFakeNetServerHandler extends NetHandlerPlayServer {
     }
 
     @Override
-    public void update() {
-    }
-
-    @Override
     public void kickPlayerFromServer(String reason) {
         MinecraftServer.getServer().getConfigurationManager().playerEntityList.remove(playerEntity);
     }
@@ -45,15 +44,6 @@ class DiscordFakeNetServerHandler extends NetHandlerPlayServer {
     @Override
     public void processKeepAlive(C00PacketKeepAlive packetIn) {
 
-    }
-
-    @Override
-    public NetworkManager getNetworkManager() {
-        return null;
-    }
-
-    @Override
-    public void handleResourcePackStatus(C19PacketResourcePackStatus packetIn) {
     }
 
     @Override

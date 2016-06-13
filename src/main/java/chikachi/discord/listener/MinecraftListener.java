@@ -23,6 +23,10 @@ import chikachi.discord.config.Configuration;
 import chikachi.discord.config.message.AchievementMessageConfig;
 import chikachi.discord.config.message.GenericMessageConfig;
 import chikachi.discord.config.message.MinecraftChatMessageConfig;
+import cpw.mods.fml.common.event.FMLInterModComms;
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import cpw.mods.fml.common.gameevent.PlayerEvent;
+import cpw.mods.fml.common.gameevent.TickEvent;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.stats.StatisticsFile;
@@ -30,10 +34,6 @@ import net.minecraftforge.event.CommandEvent;
 import net.minecraftforge.event.ServerChatEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.AchievementEvent;
-import net.minecraftforge.fml.common.event.FMLInterModComms;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.PlayerEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 import java.util.List;
 
@@ -65,8 +65,8 @@ public class MinecraftListener {
 
             GenericMessageConfig messageConfig = Configuration.getDiscordDeath();
             messageConfig.sendMessage(
-                    entityPlayer.getDisplayNameString(),
-                    entityPlayer.getCombatTracker().getDeathMessage().getUnformattedText().replace(entityPlayer.getDisplayNameString(), "").trim()
+                    entityPlayer.getDisplayName(),
+                    entityPlayer.func_110142_aN().func_151521_b().getUnformattedText().replace(entityPlayer.getDisplayName(), "").trim()
             );
         }
     }
@@ -76,7 +76,7 @@ public class MinecraftListener {
         if (event.entityPlayer == null) return;
 
         if (event.entityPlayer instanceof EntityPlayerMP) {
-            StatisticsFile playerStats = ((EntityPlayerMP) event.entityPlayer).getStatFile();
+            StatisticsFile playerStats = ((EntityPlayerMP) event.entityPlayer).func_147099_x();
 
             if (playerStats.hasAchievementUnlocked(event.achievement) || !playerStats.canUnlockAchievement(event.achievement)) {
                 return;
@@ -92,7 +92,7 @@ public class MinecraftListener {
         if (event.player == null) return;
 
         GenericMessageConfig messageConfig = Configuration.getDiscordJoin();
-        messageConfig.sendMessage(event.player.getDisplayNameString());
+        messageConfig.sendMessage(event.player.getDisplayName());
     }
 
     @SubscribeEvent
@@ -100,7 +100,7 @@ public class MinecraftListener {
         if (event.player == null) return;
 
         GenericMessageConfig messageConfig = Configuration.getDiscordLeave();
-        messageConfig.sendMessage(event.player.getDisplayNameString());
+        messageConfig.sendMessage(event.player.getDisplayName());
     }
 
     @SubscribeEvent

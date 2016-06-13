@@ -18,9 +18,9 @@
 package chikachi.discord;
 
 import chikachi.discord.command.mc.NonLibCommandHandler;
-import net.minecraftforge.fml.common.Loader;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.event.*;
+import cpw.mods.fml.common.Loader;
+import cpw.mods.fml.common.Mod;
+import cpw.mods.fml.common.event.*;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -33,7 +33,6 @@ import java.lang.reflect.Method;
         modid = Constants.MODID,
         name = Constants.MODNAME,
         version = Constants.VERSION,
-        serverSideOnly = true,
         dependencies = "after:ChikachiLib",
         acceptableRemoteVersions = "*"
 )
@@ -111,9 +110,7 @@ public class ChikachiDiscord {
 
     @Mod.EventHandler
     public void imcReceived(FMLInterModComms.IMCEvent event) {
-        for (FMLInterModComms.IMCMessage imcMessage : event.getMessages()) {
-            IMCHandler.onMessageReceived(imcMessage);
-        }
+        event.getMessages().forEach(IMCHandler::onMessageReceived);
     }
 
     @SuppressWarnings("WeakerAccess")

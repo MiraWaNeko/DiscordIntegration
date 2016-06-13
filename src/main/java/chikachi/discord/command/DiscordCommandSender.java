@@ -19,14 +19,11 @@ package chikachi.discord.command;
 
 import chikachi.discord.DiscordClient;
 import net.dv8tion.jda.entities.User;
-import net.minecraft.command.CommandResultStats;
 import net.minecraft.command.ICommandSender;
-import net.minecraft.entity.Entity;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.util.IChatComponent;
-import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
 public class DiscordCommandSender implements ICommandSender {
@@ -37,13 +34,13 @@ public class DiscordCommandSender implements ICommandSender {
     }
 
     @Override
-    public String getName() {
+    public String getCommandSenderName() {
         return "@" + this.user.getUsername();
     }
 
     @Override
-    public IChatComponent getDisplayName() {
-        return new ChatComponentText(this.getName());
+    public IChatComponent func_145748_c_() {
+        return new ChatComponentText(this.getCommandSenderName());
     }
 
     @Override
@@ -57,32 +54,12 @@ public class DiscordCommandSender implements ICommandSender {
     }
 
     @Override
-    public BlockPos getPosition() {
-        return BlockPos.ORIGIN;
-    }
-
-    @Override
-    public Vec3 getPositionVector() {
-        return new Vec3(0, 0, 0);
+    public ChunkCoordinates getPlayerCoordinates() {
+        return MinecraftServer.getServer().getPlayerCoordinates();
     }
 
     @Override
     public World getEntityWorld() {
         return MinecraftServer.getServer().worldServers[0];
-    }
-
-    @Override
-    public Entity getCommandSenderEntity() {
-        return null;
-    }
-
-    @Override
-    public boolean sendCommandFeedback() {
-        return false;
-    }
-
-    @Override
-    public void setCommandStat(CommandResultStats.Type type, int amount) {
-
     }
 }

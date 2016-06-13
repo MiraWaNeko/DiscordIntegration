@@ -46,7 +46,7 @@ public class DiscordTeleporter extends Teleporter {
     }
 
     @Override
-    public boolean placeInExistingPortal(Entity entity, float r) {
+    public boolean placeInExistingPortal(Entity entity, double x, double y, double z, float yaw) {
         return true;
     }
 
@@ -55,7 +55,7 @@ public class DiscordTeleporter extends Teleporter {
     }
 
     @Override
-    public void placeInPortal(Entity entity, float r) {
+    public void placeInPortal(Entity entity, double x, double y, double z, float yaw) {
         if (this.forcePos) {
             entity.setLocationAndAngles(this.x, this.y, this.z, entity.rotationYaw, entity.rotationPitch);
         }

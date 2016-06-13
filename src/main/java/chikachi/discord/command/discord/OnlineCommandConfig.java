@@ -20,7 +20,6 @@ package chikachi.discord.command.discord;
 import chikachi.discord.DiscordClient;
 import com.google.common.base.Joiner;
 import net.dv8tion.jda.entities.User;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 
 import java.util.ArrayList;
@@ -35,14 +34,13 @@ public class OnlineCommandConfig extends CommandConfig {
     public void execute(User user, List<String> args) {
         List<String> playerNames = new ArrayList<>();
 
-        List<EntityPlayerMP> players = MinecraftServer.getServer().getConfigurationManager().getPlayerList();
+        String[] players = MinecraftServer.getServer().getConfigurationManager().getAllUsernames();
 
-        for (EntityPlayerMP player : players) {
-            String playerName = player.getDisplayNameString();
-            if (playerName.startsWith("@")) {
+        for (String player : players) {
+            if (player.startsWith("@")) {
                 continue;
             }
-            playerNames.add(playerName);
+            playerNames.add(player);
         }
 
         int playersOnline = playerNames.size();

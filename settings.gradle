@@ -1,2 +1,2 @@
-include ':ChikachiLib'
-project(':ChikachiLib').projectDir = new File(settingsDir, '../ChikachiLib')
+include ":ChikachiLib";
+project(":ChikachiLib").projectDir = new File("../ChikachiLib");
