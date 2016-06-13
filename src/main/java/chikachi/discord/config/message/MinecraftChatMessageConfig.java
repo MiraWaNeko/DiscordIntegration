@@ -19,17 +19,24 @@ package chikachi.discord.config.message;
 
 import chikachi.discord.DiscordClient;
 import com.google.common.base.Joiner;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
+import com.google.gson.stream.JsonWriter;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.event.CommandEvent;
 import net.minecraftforge.event.ServerChatEvent;
 
+import java.io.IOException;
+
 public class MinecraftChatMessageConfig extends BaseMessageConfig {
+    private boolean relaySayCommand;
+
     public MinecraftChatMessageConfig(boolean enabled, String message) {
         super("chat", enabled, message);
     }
 
     public void handleCommandEvent(CommandEvent event) {
-        if (!this.isEnabled()) {
+        if (!this.isEnabled() || !this.relaySayCommand) {
             return;
         }
 
@@ -56,5 +63,21 @@ public class MinecraftChatMessageConfig extends BaseMessageConfig {
                         .replace("%USER%", event.getUsername())
                         .replace("%MESSAGE%", message)
         );
+    }
+
+    @Override
+    protected void readExtra(JsonReader reader, String name) throws IOException {
+        if (name.equalsIgnoreCase("relaySayCommand") && reader.peek() == JsonToken.BOOLEAN) {
+            this.relaySayCommand = reader.nextBoolean();
+            return;
+        }
+
+        reader.skipValue();
+    }
+
+    @Override
+    protected void writeExtra(JsonWriter writer) throws IOException {
+        writer.name("relaySayCommand");
+        writer.value(this.relaySayCommand);
     }
 }

@@ -32,6 +32,9 @@ import java.lang.reflect.Method;
 
 @Mod(modid = Constants.MODID, name = Constants.MODNAME, version = Constants.VERSION, serverSideOnly = true, acceptableRemoteVersions = "*")
 public class ChikachiDiscord {
+    @Mod.Instance
+    public static ChikachiDiscord instance;
+
     private static Proxy proxy = new Proxy();
 
     private static final Logger logger = LogManager.getLogger(Constants.MODID);
@@ -96,6 +99,11 @@ public class ChikachiDiscord {
         }
 
         DiscordClient.getInstance().disconnect();
+    }
+
+    @Mod.EventHandler
+    public void imcReceived(FMLInterModComms.IMCEvent event) {
+        event.getMessages().forEach(IMCHandler::onMessageReceived);
     }
 
     @SuppressWarnings("WeakerAccess")

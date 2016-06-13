@@ -153,5 +153,6 @@ public abstract class CommandConfig {
         writer.endObject();
     }
 
-    protected void writeExtra(JsonWriter writer) throws IOException {}
+    protected void writeExtra(JsonWriter writer) throws IOException {
+    }
 }
