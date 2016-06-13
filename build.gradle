@@ -29,7 +29,7 @@ apply plugin: 'net.minecraftforge.gradle.forge'
 
 def mcVersion = '1.8.9'
 def forgeVersion = '11.15.1.1722'
-def modVersion = '1.2.0'
+def modVersion = '1.3.0'
 
 version = 'mc' + mcVersion + '-' + modVersion
 group = "chikachi.discord"

@@ -1,5 +1,13 @@
 # Changelog (MC 1.8.9)
 
+### 1.3.0
+- Added IMC support
+	- Mods can now register/unregister as listener for events
+		- Currently only `chat` events are sent
+	- Mods can send messages to Discord
+		- Messages will be prefixed with `[modid]`
+- Added `relaySayCommand` option to Minecraft chat config
+
 ### 1.2.0
 - Added `colored` option to `!tps` command
 	- This will not show in colors on mobile Discord (At the time of writing)
