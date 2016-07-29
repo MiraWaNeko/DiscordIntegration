@@ -1,4 +1,4 @@
-# Changelog (MC 1.9.4)
+# Changelog (MC 1.10.2)
 
 ### 1.3.0
 - Added IMC support
