@@ -20,6 +20,7 @@ package chikachi.discord.config.message;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
+import com.vdurmont.emoji.EmojiParser;
 import net.dv8tion.jda.Permission;
 import net.dv8tion.jda.entities.TextChannel;
 import net.dv8tion.jda.events.message.MessageReceivedEvent;
@@ -34,6 +35,7 @@ import net.minecraft.util.IChatComponent;
 import net.minecraftforge.common.ForgeHooks;
 
 import java.io.IOException;
+import java.util.*;
 
 public class DiscordChatMessageConfig extends BaseMessageConfig {
     private int maxChatLength = -1;
@@ -71,6 +73,8 @@ public class DiscordChatMessageConfig extends BaseMessageConfig {
         content = Patterns.lineThroughPattern.matcher(content).replaceAll("$1");
         content = Patterns.multiCodePattern.matcher(content).replaceAll("$1");
         content = Patterns.singleCodePattern.matcher(content).replaceAll("$1");
+
+        content = EmojiParser.parseToAliases(content, EmojiParser.FitzpatrickAction.REMOVE);
 
         String[] messageParts = this.message
                 .replace("%MESSAGE%", content)

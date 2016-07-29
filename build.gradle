@@ -20,12 +20,10 @@ plugins {
 }
 
 repositories {
+    jcenter()
     ivy {
         name "CurseForge"
         artifactPattern 'http://addons-origin.cursecdn.com/files/[organisation]/[module]-[revision].[ext]'
-    }
-    flatDir {
-        dirs "libs"
     }
 }
 
@@ -53,6 +51,7 @@ minecraft {
     srgExtra "PK: com/mashape/unirest chikachi/discord/repack/com/mashape/unirest"
     srgExtra "PK: com/neovisionaries/ws/client chikachi/discord/repack/com/neovisionaries/ws/client"
     srgExtra "PK: com/sun/jna chikachi/discord/repack/com/sun/jna"
+    srgExtra "PK: com/vdurmont/emoji chikachi/discord/repack/com/vdurmont/emoji"
     srgExtra "PK: javax/sound chikachi/discord/repack/javax/sound"
     srgExtra "PK: javazoom chikachi/discord/repack/javazoom"
     srgExtra "PK: net/dv8tion/jda chikachi/discord/repack/net/dv8tion/jda"
@@ -94,7 +93,8 @@ List<CurseForgeDependencyInfo> curseForgeDependencies = new ArrayList<CurseForge
 curseForgeDependencies.add(new CurseForgeDependencyInfo("ChikachiLib", "1.7.10-0.1.0", "jar", "2269757"));
 
 dependencies {
-    shade 'net.dv8tion:JDA:2.0.0_242:withDependencies'
+    shade 'net.dv8tion:JDA:2.2.0_334'
+    shade 'com.vdurmont:emoji-java:3.1.3'
 
     for (CurseForgeDependencyInfo dependency : curseForgeDependencies) {
         if (file('../' + dependency.module).exists()) {

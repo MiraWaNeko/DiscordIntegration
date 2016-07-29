@@ -26,9 +26,51 @@ import net.minecraftforge.event.CommandEvent;
 import net.minecraftforge.event.ServerChatEvent;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 public class MinecraftChatMessageConfig extends BaseMessageConfig {
+    private static Map<String, String> emoteMap;
+
+    static {
+        emoteMap = new HashMap<>();
+        emoteMap.put(":)", ":slight_smile:");
+        emoteMap.put(":D", ":smile:");
+        emoteMap.put(";)", ":wink:");
+        emoteMap.put(";D", ":wink:");
+        emoteMap.put("xD", ":laughing:");
+        emoteMap.put("XD", ":laughing:");
+        emoteMap.put(":p", ":stuck_out_tongue:");
+        emoteMap.put(":P", ":stuck_out_tongue:");
+        emoteMap.put(";p", ":stuck_out_tongue_winking_eye:");
+        emoteMap.put(";P", ":stuck_out_tongue_winking_eye:");
+        emoteMap.put("xp", ":stuck_out_tongue_closed_eyes:");
+        emoteMap.put("xP", ":stuck_out_tongue_closed_eyes:");
+        emoteMap.put("Xp", ":stuck_out_tongue_closed_eyes:");
+        emoteMap.put("XP", ":stuck_out_tongue_closed_eyes:");
+        emoteMap.put(":O", ":open_mouth:");
+        emoteMap.put(":o", ":open_mouth:");
+        emoteMap.put("xO", ":dizzy_face:");
+        emoteMap.put("XO", ":dizzy_face:");
+        emoteMap.put(":|", ":neutral_face:");
+        emoteMap.put("B)", ":sunglasses:");
+        emoteMap.put(":*", ":kissing:");
+        emoteMap.put(";.;", ":sob:");
+        emoteMap.put(";_;", ":cry:");
+        emoteMap.put("<3", ":heart:");
+        emoteMap.put("</3", ":broken_heart:");
+        emoteMap.put("(y)", ":thumbsup:");
+        emoteMap.put("(Y)", ":thumbsup:");
+        emoteMap.put("(yes)", ":thumbsup:");
+        emoteMap.put("(n)", ":thumbsdown:");
+        emoteMap.put("(N)", ":thumbsdown:");
+        emoteMap.put("(no)", ":thumbsdown:");
+        emoteMap.put("(ok)", ":ok_hand:");
+    }
+
     private boolean relaySayCommand = true;
+    private boolean useEmotes = true;
 
     public MinecraftChatMessageConfig(boolean enabled, String message) {
         super("chat", enabled, message);
@@ -39,25 +81,41 @@ public class MinecraftChatMessageConfig extends BaseMessageConfig {
             return;
         }
 
-        String username = event.sender.getCommandSenderName();
-
-        String message = Joiner.on(" ").join(event.parameters);
-        message = message.replaceAll("§.", "");
-
-        DiscordClient.getInstance().sendMessage(
-                this.getMessage()
-                        .replace("%USER%", username)
-                        .replace("%MESSAGE%", message)
+        sendMessage(
+                event.sender.getCommandSenderName(),
+                Joiner.on(" ").join(event.parameters)
         );
     }
 
     public void handleChatEvent(ServerChatEvent event) {
         if (!this.isEnabled()) return;
 
-        String username = event.username;
+        sendMessage(
+                event.username,
+                event.message
+        );
+    }
 
-        String message = event.message;
+    private void sendMessage(String username, String message) {
         message = message.replaceAll("§.", "");
+
+        if (this.useEmotes) {
+            String[] words = message.split(" ");
+
+            Set<Map.Entry<String, String>> entries = emoteMap.entrySet();
+
+            for (int i = 0, j = words.length; i < j; i++) {
+                String word = words[i];
+
+                for (Map.Entry<String, String> entry : entries) {
+                    if (word.equals(entry.getKey())) {
+                        words[i] = entry.getValue();
+                    }
+                }
+            }
+
+            message = Joiner.on(" ").join(words);
+        }
 
         DiscordClient.getInstance().sendMessage(
                 this.getMessage()
@@ -71,6 +129,9 @@ public class MinecraftChatMessageConfig extends BaseMessageConfig {
         if (name.equalsIgnoreCase("relaySayCommand") && reader.peek() == JsonToken.BOOLEAN) {
             this.relaySayCommand = reader.nextBoolean();
             return;
+        } else if (name.equalsIgnoreCase("useEmotes") && reader.peek() == JsonToken.BOOLEAN) {
+            this.useEmotes = reader.nextBoolean();
+            return;
         }
 
         reader.skipValue();
@@ -80,5 +141,7 @@ public class MinecraftChatMessageConfig extends BaseMessageConfig {
     protected void writeExtra(JsonWriter writer) throws IOException {
         writer.name("relaySayCommand");
         writer.value(this.relaySayCommand);
+        writer.name("useEmotes");
+        writer.value(this.useEmotes);
     }
 }
