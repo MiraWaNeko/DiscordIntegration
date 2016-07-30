@@ -27,9 +27,50 @@ import net.minecraftforge.event.CommandEvent;
 import net.minecraftforge.event.ServerChatEvent;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MinecraftChatMessageConfig extends BaseMessageConfig {
-    private boolean relaySayCommand;
+    private static Map<String, String> emoteMap;
+
+    static {
+        emoteMap = new HashMap<>();
+        emoteMap.put(":)", ":slight_smile:");
+        emoteMap.put(":D", ":smile:");
+        emoteMap.put(";)", ":wink:");
+        emoteMap.put(";D", ":wink:");
+        emoteMap.put("xD", ":laughing:");
+        emoteMap.put("XD", ":laughing:");
+        emoteMap.put(":p", ":stuck_out_tongue:");
+        emoteMap.put(":P", ":stuck_out_tongue:");
+        emoteMap.put(";p", ":stuck_out_tongue_winking_eye:");
+        emoteMap.put(";P", ":stuck_out_tongue_winking_eye:");
+        emoteMap.put("xp", ":stuck_out_tongue_closed_eyes:");
+        emoteMap.put("xP", ":stuck_out_tongue_closed_eyes:");
+        emoteMap.put("Xp", ":stuck_out_tongue_closed_eyes:");
+        emoteMap.put("XP", ":stuck_out_tongue_closed_eyes:");
+        emoteMap.put(":O", ":open_mouth:");
+        emoteMap.put(":o", ":open_mouth:");
+        emoteMap.put("xO", ":dizzy_face:");
+        emoteMap.put("XO", ":dizzy_face:");
+        emoteMap.put(":|", ":neutral_face:");
+        emoteMap.put("B)", ":sunglasses:");
+        emoteMap.put(":*", ":kissing:");
+        emoteMap.put(";.;", ":sob:");
+        emoteMap.put(";_;", ":cry:");
+        emoteMap.put("<3", ":heart:");
+        emoteMap.put("</3", ":broken_heart:");
+        emoteMap.put("(y)", ":thumbsup:");
+        emoteMap.put("(Y)", ":thumbsup:");
+        emoteMap.put("(yes)", ":thumbsup:");
+        emoteMap.put("(n)", ":thumbsdown:");
+        emoteMap.put("(N)", ":thumbsdown:");
+        emoteMap.put("(no)", ":thumbsdown:");
+        emoteMap.put("(ok)", ":ok_hand:");
+    }
+
+    private boolean relaySayCommand = true;
+    private boolean useEmotes = true;
 
     public MinecraftChatMessageConfig(boolean enabled, String message) {
         super("chat", enabled, message);
@@ -45,22 +86,27 @@ public class MinecraftChatMessageConfig extends BaseMessageConfig {
 
         TextComponentString chatComponent = new TextComponentString(message);
 
-        DiscordClient.getInstance().sendMessage(
-                this.getMessage()
-                        .replace("%USER%", event.getSender().getName())
-                        .replace("%MESSAGE%", chatComponent.getUnformattedText())
+        sendMessage(
+                event.getSender().getName(),
+                chatComponent.getUnformattedText()
         );
     }
 
     public void handleChatEvent(ServerChatEvent event) {
         if (!this.isEnabled()) return;
 
-        String message = event.getMessage();
+        sendMessage(
+                event.getUsername(),
+                event.getMessage()
+        );
+    }
+
+    private void sendMessage(String username, String message) {
         message = message.replaceAll("§.", "");
 
         DiscordClient.getInstance().sendMessage(
                 this.getMessage()
-                        .replace("%USER%", event.getUsername())
+                        .replace("%USER%", username)
                         .replace("%MESSAGE%", message)
         );
     }
