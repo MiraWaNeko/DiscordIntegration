@@ -20,10 +20,12 @@ plugins {
 }
 
 repositories {
-    jcenter()
     ivy {
         name "CurseForge"
         artifactPattern 'http://addons-origin.cursecdn.com/files/[organisation]/[module]-[revision].[ext]'
+    }
+    flatDir {
+        dirs "libs"
     }
 }
 
@@ -31,7 +33,7 @@ apply plugin: 'forge'
 
 def mcVersion = "1.7.10"
 def forgeVersion = "10.13.4.1558"
-def modVersion = '1.3.1'
+def modVersion = '1.4.0'
 
 version = 'mc' + mcVersion + '-' + modVersion
 group = "chikachi.discord"
@@ -93,7 +95,7 @@ List<CurseForgeDependencyInfo> curseForgeDependencies = new ArrayList<CurseForge
 curseForgeDependencies.add(new CurseForgeDependencyInfo("ChikachiLib", "1.7.10-0.1.0", "jar", "2269757"));
 
 dependencies {
-    shade 'net.dv8tion:JDA:2.2.0_334'
+    shade 'net.dv8tion:JDA:2.2.0_334:withDependencies'
     shade 'com.vdurmont:emoji-java:3.1.3'
 
     for (CurseForgeDependencyInfo dependency : curseForgeDependencies) {

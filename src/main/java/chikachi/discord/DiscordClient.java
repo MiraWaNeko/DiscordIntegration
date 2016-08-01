@@ -22,6 +22,7 @@ import chikachi.discord.experimental.ExperimentalDiscordListener;
 import chikachi.discord.listener.DiscordListener;
 import net.dv8tion.jda.JDA;
 import net.dv8tion.jda.JDABuilder;
+import net.dv8tion.jda.entities.SelfInfo;
 import net.dv8tion.jda.entities.TextChannel;
 import net.dv8tion.jda.entities.User;
 
@@ -82,6 +83,14 @@ public class DiscordClient {
 
         this.jda.shutdown();
         this.jda = null;
+    }
+
+    public SelfInfo getSelf() {
+        if (this.jda == null) {
+            return null;
+        }
+
+        return this.jda.getSelfInfo();
     }
 
     public TextChannel getChannel() {
