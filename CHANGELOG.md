@@ -1,5 +1,12 @@
 # Changelog (MC 1.8.9)
 
+### 1.4.0
+- Updated JDA to 2.2.0-334
+- Added support for emojis
+	- Converting emojis from Discord to Minecraft
+	- Converting some smileys to emojis from Minecraft to Discord
+- Added support for attachments (links to attachments in Minecraft)
+
 ### 1.3.0
 - Added IMC support
 	- Mods can now register/unregister as listener for events

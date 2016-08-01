@@ -29,7 +29,7 @@ apply plugin: 'net.minecraftforge.gradle.forge'
 
 def mcVersion = '1.8.9'
 def forgeVersion = '11.15.1.1722'
-def modVersion = '1.3.0'
+def modVersion = '1.4.0'
 
 version = 'mc' + mcVersion + '-' + modVersion
 group = "chikachi.discord"
@@ -75,7 +75,8 @@ List<CurseForgeDependencyInfo> curseForgeDependencies = new ArrayList<CurseForge
 curseForgeDependencies.add(new CurseForgeDependencyInfo("ChikachiLib", "1.8.9-0.2.0", "jar", "2305915"));
 
 dependencies {
-    compile 'net.dv8tion:JDA:2.0.0_242:withDependencies'
+    compile 'net.dv8tion:JDA:2.2.0_334:withDependencies'
+    compile 'com.vdurmont:emoji-java:3.1.3'
 
     for (CurseForgeDependencyInfo dependency : curseForgeDependencies) {
         if (file('../' + dependency.module).exists()) {
@@ -105,6 +106,7 @@ shadowJar {
     relocate "com.mashape.unirest", "chikachi.discord.repack.com.mashape.unirest"
     relocate "com.neovisionaries.ws.client", "chikachi.discord.repack.com.neovisionaries.ws.client"
     relocate "com.sun.jna", "chikachi.discord.repack.com.sun.jna"
+    relocate "com.vdurmont.emoji", "chikachi.discord.repack.com.vdurmont.emoji"
     relocate "javax.sound", "chikachi.discord.repack.javax.sound"
     relocate "javazoom", "chikachi.discord.repack.javazoom"
     relocate "net.dv8tion.jda", "chikachi.discord.repack.net.dv8tion.jda"
@@ -120,7 +122,8 @@ shadowJar {
     relocate "org.apache.commons.logging", "chikachi.discord.repack.org.apache.commons.logging"
 
     dependencies {
-        include(dependency('net.dv8tion:JDA:2.0.0_242:withDependencies'))
+        include(dependency('net.dv8tion:JDA:2.2.0_334:withDependencies'))
+        include(dependency('com.vdurmont:emoji-java:3.1.3'))
     }
 }
 
