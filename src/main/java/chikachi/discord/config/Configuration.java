@@ -51,6 +51,7 @@ public class Configuration {
     private static UnstuckCommandConfig commandUnstuck = new UnstuckCommandConfig();
     private static List<CustomCommandConfig> customCommands = new ArrayList<>();
 
+    private static boolean ignoringBots = false;
     private static boolean experimentalFakePlayers = false;
 
     private static MinecraftChatMessageConfig discordChat;
@@ -108,6 +109,9 @@ public class Configuration {
                 writer.value(token);
                 writer.name("channel");
                 writer.value(channel);
+
+                writer.name("ignoreBots");
+                writer.value(ignoringBots);
 
                 writer.name("commands");
                 writer.beginObject();
@@ -168,6 +172,8 @@ public class Configuration {
                                 token = reader.nextString();
                             } else if (name.equalsIgnoreCase("channel") && reader.peek() == JsonToken.STRING) {
                                 channel = reader.nextString();
+                            } else if (name.equalsIgnoreCase("ignoreBots") && reader.peek() == JsonToken.BOOLEAN) {
+                                ignoringBots = reader.nextBoolean();
                             } else if (name.equalsIgnoreCase("commands") && reader.peek() == JsonToken.BEGIN_OBJECT) {
                                 reader.beginObject();
                                 while (reader.hasNext()) {
@@ -332,5 +338,9 @@ public class Configuration {
 
     public static GenericMessageConfig getDiscordCrash() {
         return discordCrash;
+    }
+
+    public static boolean isIgnoringBots() {
+        return ignoringBots;
     }
 }

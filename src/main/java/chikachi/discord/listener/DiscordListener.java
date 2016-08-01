@@ -24,6 +24,7 @@ import chikachi.discord.Utils;
 import chikachi.discord.command.discord.CustomCommandConfig;
 import chikachi.discord.config.Configuration;
 import chikachi.discord.config.message.DiscordChatMessageConfig;
+import net.dv8tion.jda.JDA;
 import net.dv8tion.jda.entities.TextChannel;
 import net.dv8tion.jda.entities.User;
 import net.dv8tion.jda.events.ReadyEvent;
@@ -60,7 +61,9 @@ public class DiscordListener extends ListenerAdapter {
         User author = event.getAuthor();
 
         // Ignore bots
-        if (author.isBot()) return;
+        if (Configuration.isIgnoringBots() && author.isBot()) return;
+        // Ignore self
+        if (author.getId().equals(DiscordClient.getInstance().getSelf().getId())) return;
         // Ignore private messages
         if (!(event.getChannel() instanceof TextChannel)) return;
         // Ignore other channels

@@ -29,6 +29,7 @@ import net.minecraftforge.event.ServerChatEvent;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class MinecraftChatMessageConfig extends BaseMessageConfig {
     private static Map<String, String> emoteMap;
@@ -104,6 +105,24 @@ public class MinecraftChatMessageConfig extends BaseMessageConfig {
     private void sendMessage(String username, String message) {
         message = message.replaceAll("§.", "");
 
+        if (this.useEmotes) {
+            String[] words = message.split(" ");
+
+            Set<Map.Entry<String, String>> entries = emoteMap.entrySet();
+
+            for (int i = 0, j = words.length; i < j; i++) {
+                String word = words[i];
+
+                for (Map.Entry<String, String> entry : entries) {
+                    if (word.equals(entry.getKey())) {
+                        words[i] = entry.getValue();
+                    }
+                }
+            }
+
+            message = Joiner.on(" ").join(words);
+        }
+
         DiscordClient.getInstance().sendMessage(
                 this.getMessage()
                         .replace("%USER%", username)
@@ -116,6 +135,9 @@ public class MinecraftChatMessageConfig extends BaseMessageConfig {
         if (name.equalsIgnoreCase("relaySayCommand") && reader.peek() == JsonToken.BOOLEAN) {
             this.relaySayCommand = reader.nextBoolean();
             return;
+        } else if (name.equalsIgnoreCase("useEmotes") && reader.peek() == JsonToken.BOOLEAN) {
+            this.useEmotes = reader.nextBoolean();
+            return;
         }
 
         reader.skipValue();
@@ -125,5 +147,7 @@ public class MinecraftChatMessageConfig extends BaseMessageConfig {
     protected void writeExtra(JsonWriter writer) throws IOException {
         writer.name("relaySayCommand");
         writer.value(this.relaySayCommand);
+        writer.name("useEmotes");
+        writer.value(this.useEmotes);
     }
 }
