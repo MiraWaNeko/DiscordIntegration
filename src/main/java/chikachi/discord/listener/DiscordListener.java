@@ -60,7 +60,9 @@ public class DiscordListener extends ListenerAdapter {
         User author = event.getAuthor();
 
         // Ignore bots
-        if (author.isBot()) return;
+        if (Configuration.isIgnoringBots() && author.isBot()) return;
+        // Ignore self
+        if (author.getId().equals(DiscordClient.getInstance().getSelf().getId())) return;
         // Ignore private messages
         if (!(event.getChannel() instanceof TextChannel)) return;
         // Ignore other channels

@@ -20,7 +20,9 @@ package chikachi.discord.config.message;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
+import com.vdurmont.emoji.EmojiParser;
 import net.dv8tion.jda.Permission;
+import net.dv8tion.jda.entities.Message;
 import net.dv8tion.jda.entities.TextChannel;
 import net.dv8tion.jda.events.message.MessageReceivedEvent;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -43,6 +45,19 @@ public class DiscordChatMessageConfig extends BaseMessageConfig {
     public DiscordChatMessageConfig(MinecraftServer minecraftServer, boolean enabled, String message) {
         super("chat", enabled, message);
         this.minecraftServer = minecraftServer;
+    }
+
+    private ITextComponent attachmentToTextComponent(Message.Attachment attachment) {
+        HoverEvent attachmentHoverEvent = new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString("Open link to attachment"));
+        ClickEvent attachmentClickEvent = new ClickEvent(ClickEvent.Action.OPEN_URL, attachment.getUrl());
+
+        ITextComponent chatComponent = new TextComponentString("[" + attachment.getFileName() + "]");
+        chatComponent.getStyle()
+                .setColor(TextFormatting.AQUA)
+                .setClickEvent(attachmentClickEvent)
+                .setHoverEvent(attachmentHoverEvent);
+
+        return chatComponent;
     }
 
     public void handleEvent(MessageReceivedEvent event) {
@@ -73,6 +88,8 @@ public class DiscordChatMessageConfig extends BaseMessageConfig {
         content = Patterns.multiCodePattern.matcher(content).replaceAll("$1");
         content = Patterns.singleCodePattern.matcher(content).replaceAll("$1");
 
+        content = EmojiParser.parseToAliases(content, EmojiParser.FitzpatrickAction.REMOVE);
+
         String[] messageParts = this.message
                 .replace("%MESSAGE%",
                         ForgeHooks.newChatWithLinks(
@@ -92,12 +109,19 @@ public class DiscordChatMessageConfig extends BaseMessageConfig {
                 .setHoverEvent(usernameHoverEvent);
 
         ITextComponent chatComponent = new TextComponentString(messageParts[0]);
+        List<Message.Attachment> attachments = event.getMessage().getAttachments();
+
         for (int i = 1, j = messageParts.length; i < j; i++) {
             chatComponent.appendSibling(
                     usernameComponent
             ).appendText(
                     messageParts[i]
             );
+        }
+
+        for (Message.Attachment attachment : attachments) {
+            chatComponent.appendText(" ");
+            chatComponent.appendSibling(this.attachmentToTextComponent(attachment));
         }
 
         for (EntityPlayerMP player : players) {
@@ -116,12 +140,18 @@ public class DiscordChatMessageConfig extends BaseMessageConfig {
                         .split("%USER%");
 
                 ITextComponent playerChatComponent = new TextComponentString(playerMessageParts[0]);
+
                 for (int i = 1, j = playerMessageParts.length; i < j; i++) {
                     playerChatComponent.appendSibling(
                             usernameComponent
                     ).appendText(
                             playerMessageParts[i]
                     );
+                }
+
+                for (Message.Attachment attachment : attachments) {
+                    playerChatComponent.appendText(" ");
+                    playerChatComponent.appendSibling(this.attachmentToTextComponent(attachment));
                 }
 
                 player.addChatMessage(playerChatComponent);
