@@ -17,14 +17,13 @@
 
 package chikachi.discord.listener;
 
-import chikachi.discord.ChikachiDiscord;
+import chikachi.discord.DiscordIntegration;
 import chikachi.discord.DiscordClient;
 import chikachi.discord.IMCHandler;
 import chikachi.discord.Utils;
 import chikachi.discord.command.discord.CustomCommandConfig;
 import chikachi.discord.config.Configuration;
 import chikachi.discord.config.message.DiscordChatMessageConfig;
-import net.dv8tion.jda.JDA;
 import net.dv8tion.jda.entities.TextChannel;
 import net.dv8tion.jda.entities.User;
 import net.dv8tion.jda.events.ReadyEvent;
@@ -47,7 +46,7 @@ public class DiscordListener extends ListenerAdapter {
 
     @Override
     public void onReady(ReadyEvent event) {
-        ChikachiDiscord.Log("Logged in as " + event.getJDA().getSelfInfo().getUsername());
+        DiscordIntegration.Log("Logged in as " + event.getJDA().getSelfInfo().getUsername());
 
         DiscordClient client = DiscordClient.getInstance();
 
@@ -80,12 +79,14 @@ public class DiscordListener extends ListenerAdapter {
             eventTagCompound.setString("message", content);
 
             for (String listenerMod : listenerMods) {
-                FMLInterModComms.sendRuntimeMessage(ChikachiDiscord.instance, listenerMod, "event", eventTagCompound);
+                FMLInterModComms.sendRuntimeMessage(DiscordIntegration.instance, listenerMod, "event", eventTagCompound);
             }
         }
 
-        if (content.startsWith("!")) {
-            List<String> args = new ArrayList<>(Arrays.asList(content.substring(1).split(" ")));
+        String prefix = Configuration.getCommandPrefix();
+
+        if (content.startsWith(prefix)) {
+            List<String> args = new ArrayList<>(Arrays.asList(content.substring(prefix.length()).split(" ")));
             String cmd = args.remove(0);
 
             // Online

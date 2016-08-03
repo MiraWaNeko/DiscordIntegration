@@ -29,11 +29,11 @@ apply plugin: 'net.minecraftforge.gradle.forge'
 
 def mcVersion = '1.10.2'
 def forgeVersion = '12.18.1.2011'
-def modVersion = '1.4.0'
+def modVersion = '2.0.0'
 
 version = 'mc' + mcVersion + '-' + modVersion
 group = "chikachi.discord"
-archivesBaseName = "ChikachiDiscord"
+archivesBaseName = "DiscordIntegration"
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8

@@ -1,5 +1,11 @@
 # Changelog (MC 1.10.2)
 
+### 2.0.0
+- Added custom command prefix
+- Changed name to DiscordIntegration
+	- Config file will be renamed upon startup
+	- Mods using IMC needs to update to new name
+
 ### 1.4.0
 - Updated JDA to 2.2.0-334
 - Added support for emojis
