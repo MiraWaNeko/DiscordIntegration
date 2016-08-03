@@ -30,7 +30,7 @@ public class IMCHandler {
         String modId = imcMessage.getSender();
         if (imcMessage.key.equalsIgnoreCase("registerListener")) {
             if (!registeredIMCMods.contains(modId)) {
-                ChikachiDiscord.Log(String.format(
+                DiscordIntegration.Log(String.format(
                         "Added %s as listener",
                         modId
                 ));
@@ -39,7 +39,7 @@ public class IMCHandler {
             }
         } else if (imcMessage.key.equalsIgnoreCase("unregisterListener")) {
             if (registeredIMCMods.contains(modId)) {
-                ChikachiDiscord.Log(String.format(
+                DiscordIntegration.Log(String.format(
                         "Removed %s as listener",
                         modId
                 ));

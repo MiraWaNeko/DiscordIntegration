@@ -17,7 +17,7 @@
 
 package chikachi.discord.config.message;
 
-import chikachi.discord.ChikachiDiscord;
+import chikachi.discord.DiscordIntegration;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
@@ -65,7 +65,7 @@ public abstract class BaseMessageConfig {
             this.message = reader.nextString();
             this.enabled = !this.message.equals("");
         } else {
-            ChikachiDiscord.Log(String.format("Invalid value of message config for %s", this.name), true);
+            DiscordIntegration.Log(String.format("Invalid value of message config for %s", this.name), true);
             reader.skipValue();
         }
     }

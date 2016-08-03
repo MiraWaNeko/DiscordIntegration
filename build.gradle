@@ -33,11 +33,11 @@ apply plugin: 'forge'
 
 def mcVersion = "1.7.10"
 def forgeVersion = "10.13.4.1558"
-def modVersion = '1.4.0'
+def modVersion = '2.0.0'
 
 version = 'mc' + mcVersion + '-' + modVersion
 group = "chikachi.discord"
-archivesBaseName = "ChikachiDiscord"
+archivesBaseName = "DiscordIntegration"
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8

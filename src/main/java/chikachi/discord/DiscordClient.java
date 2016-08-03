@@ -52,14 +52,14 @@ public class DiscordClient {
 
     public void connect() {
         if (this.jda != null) {
-            ChikachiDiscord.Log("Is already connected", true);
+            DiscordIntegration.Log("Is already connected", true);
             return;
         }
 
         String token = Configuration.getToken();
 
         if (token.isEmpty()) {
-            ChikachiDiscord.Log("Missing token", true);
+            DiscordIntegration.Log("Missing token", true);
             return;
         }
 
@@ -70,14 +70,14 @@ public class DiscordClient {
                     .addListener(this.experimentalListener)
                     .buildAsync();
         } catch (LoginException e) {
-            ChikachiDiscord.Log("Failed to connect to Discord", true);
+            DiscordIntegration.Log("Failed to connect to Discord", true);
             e.printStackTrace();
         }
     }
 
     void disconnect() {
         if (this.jda == null) {
-            ChikachiDiscord.Log("Is already disconnected", true);
+            DiscordIntegration.Log("Is already disconnected", true);
             return;
         }
 
@@ -97,7 +97,7 @@ public class DiscordClient {
         if (this.channel == null) {
             this.channel = this.jda.getTextChannelById(Configuration.getChannel());
             if (this.channel == null) {
-                ChikachiDiscord.Log("Failed to find channel", true);
+                DiscordIntegration.Log("Failed to find channel", true);
                 return null;
             }
         }

@@ -36,9 +36,9 @@ import java.lang.reflect.Method;
         dependencies = "after:ChikachiLib",
         acceptableRemoteVersions = "*"
 )
-public class ChikachiDiscord {
+public class DiscordIntegration {
     @Mod.Instance
-    public static ChikachiDiscord instance;
+    public static DiscordIntegration instance;
 
     private static Proxy proxy = new Proxy();
 

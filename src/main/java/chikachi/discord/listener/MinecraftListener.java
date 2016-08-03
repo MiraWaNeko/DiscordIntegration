@@ -17,7 +17,7 @@
 
 package chikachi.discord.listener;
 
-import chikachi.discord.ChikachiDiscord;
+import chikachi.discord.DiscordIntegration;
 import chikachi.discord.IMCHandler;
 import chikachi.discord.config.Configuration;
 import chikachi.discord.config.message.AchievementMessageConfig;
@@ -105,7 +105,7 @@ public class MinecraftListener {
 
     @SubscribeEvent
     public void onServerTick(TickEvent.ServerTickEvent event) {
-        List<FMLInterModComms.IMCMessage> imcMessages = FMLInterModComms.fetchRuntimeMessages(ChikachiDiscord.instance);
+        List<FMLInterModComms.IMCMessage> imcMessages = FMLInterModComms.fetchRuntimeMessages(DiscordIntegration.instance);
         imcMessages.forEach(IMCHandler::onMessageReceived);
     }
 }
