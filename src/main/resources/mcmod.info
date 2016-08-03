@@ -1,6 +1,6 @@
 [{
-  "modid": "ChikachiDiscord",
-  "name": "Chikachi's Discord Mod",
+  "modid": "DiscordIntegration",
+  "name": "DiscordIntegration",
   "description": "MC <=> Discord communication",
   "version": "${version}",
   "mcversion": "${mcversion}",

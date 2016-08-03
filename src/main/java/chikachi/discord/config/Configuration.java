@@ -17,7 +17,7 @@
 
 package chikachi.discord.config;
 
-import chikachi.discord.ChikachiDiscord;
+import chikachi.discord.DiscordIntegration;
 import chikachi.discord.Constants;
 import chikachi.discord.command.discord.CustomCommandConfig;
 import chikachi.discord.command.discord.OnlineCommandConfig;
@@ -43,6 +43,7 @@ public class Configuration {
     private static File config;
     private static String token = "";
     private static String channel = "";
+    private static String commandPrefix = "!";
 
     private static OnlineCommandConfig commandOnline = new OnlineCommandConfig();
     private static TpsCommandConfig commandTps = new TpsCommandConfig();
@@ -70,6 +71,12 @@ public class Configuration {
 
         config = new File(directory, Constants.MODID + ".json");
 
+        File oldConfig = new File(directory, "ChikachiDiscord.json");
+        if (oldConfig.exists()) {
+            //noinspection ResultOfMethodCallIgnored
+            oldConfig.renameTo(config);
+        }
+
         load();
     }
 
@@ -96,6 +103,8 @@ public class Configuration {
 
                 writer.name("commands");
                 writer.beginObject();
+                writer.name("prefix");
+                writer.value(commandPrefix);
                 commandOnline.write(writer);
                 commandTps.write(writer);
                 commandUnstuck.write(writer);
@@ -134,7 +143,7 @@ public class Configuration {
 
                 writer.close();
             } catch (IOException e) {
-                ChikachiDiscord.Log("Error generating default config file", true);
+                DiscordIntegration.Log("Error generating default config file", true);
                 e.printStackTrace();
             }
         } else {
@@ -159,7 +168,9 @@ public class Configuration {
                                 reader.beginObject();
                                 while (reader.hasNext()) {
                                     name = reader.nextName();
-                                    if (name.equalsIgnoreCase(commandOnline.getName())) {
+                                    if (name.equalsIgnoreCase("prefix") && reader.peek() == JsonToken.STRING) {
+                                        commandPrefix = reader.nextString();
+                                    } else if (name.equalsIgnoreCase(commandOnline.getName())) {
                                         commandOnline.read(reader);
                                     } else if (name.equalsIgnoreCase(commandTps.getName())) {
                                         commandTps.read(reader);
@@ -265,6 +276,10 @@ public class Configuration {
         return channel;
     }
 
+    public static String getCommandPrefix() {
+        return commandPrefix;
+    }
+
     public static OnlineCommandConfig getCommandOnline() {
         return commandOnline;
     }
@@ -279,6 +294,10 @@ public class Configuration {
 
     public static List<CustomCommandConfig> getCustomCommands() {
         return customCommands;
+    }
+
+    public static boolean isIgnoringBots() {
+        return ignoringBots;
     }
 
     public static boolean isExperimentalFakePlayersEnabled() {
@@ -319,9 +338,5 @@ public class Configuration {
 
     public static GenericMessageConfig getDiscordCrash() {
         return discordCrash;
-    }
-
-    public static boolean isIgnoringBots() {
-        return ignoringBots;
     }
 }

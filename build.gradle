@@ -33,7 +33,7 @@ def modVersion = '1.4.0'
 
 version = 'mc' + mcVersion + '-' + modVersion
 group = "chikachi.discord"
-archivesBaseName = "ChikachiDiscord"
+archivesBaseName = "DiscordIntegration"
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
