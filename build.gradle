@@ -33,7 +33,7 @@ apply plugin: 'forge'
 
 def mcVersion = "1.7.10"
 def forgeVersion = "10.13.4.1558"
-def modVersion = '2.0.0'
+def modVersion = '2.0.1'
 
 version = 'mc' + mcVersion + '-' + modVersion
 group = "chikachi.discord"
@@ -121,7 +121,7 @@ jar {
     }
     manifest {
         attributes(
-                "FMLAT": 'chikachidiscord_at.cfg'
+                "FMLAT": 'discordintegration_at.cfg'
         )
     }
 }
