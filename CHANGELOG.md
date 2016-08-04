@@ -1,5 +1,8 @@
 # Changelog (MC 1.9.4)
 
+#### 2.0.1
+- Fix achievements not triggering
+
 ### 2.0.0
 - Added custom command prefix
 - Changed name to DiscordIntegration
