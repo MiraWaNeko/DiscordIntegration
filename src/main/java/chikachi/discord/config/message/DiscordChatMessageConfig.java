@@ -17,6 +17,7 @@
 
 package chikachi.discord.config.message;
 
+import chikachi.discord.Utils;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
@@ -36,11 +37,52 @@ import net.minecraft.util.IChatComponent;
 import net.minecraftforge.common.ForgeHooks;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class DiscordChatMessageConfig extends BaseMessageConfig {
     private int maxChatLength = -1;
     private EnumChatFormatting usernameColor = EnumChatFormatting.RED;
+    private boolean customFormatting = false;
+
+    private static Map<String, String> emoteMap;
+
+    static {
+        emoteMap = new HashMap<>();
+        emoteMap.put(":slight_smile:", ":)");
+        emoteMap.put(":smile:", ":D");
+        emoteMap.put(":wink:", ";)");
+        emoteMap.put(":wink:", ";D");
+        emoteMap.put(":laughing:", "xD");
+        emoteMap.put(":laughing:", "XD");
+        emoteMap.put(":stuck_out_tongue:", ":p");
+        emoteMap.put(":stuck_out_tongue:", ":P");
+        emoteMap.put(":stuck_out_tongue_winking_eye:", ";p");
+        emoteMap.put(":stuck_out_tongue_winking_eye:", ";P");
+        emoteMap.put(":stuck_out_tongue_closed_eyes:", "xp");
+        emoteMap.put(":stuck_out_tongue_closed_eyes:", "xP");
+        emoteMap.put(":stuck_out_tongue_closed_eyes:", "Xp");
+        emoteMap.put(":stuck_out_tongue_closed_eyes:", "XP");
+        emoteMap.put(":open_mouth:", ":O");
+        emoteMap.put(":open_mouth:", ":o");
+        emoteMap.put(":dizzy_face:", "xO");
+        emoteMap.put(":dizzy_face:", "XO");
+        emoteMap.put(":neutral_face:", ":|");
+        emoteMap.put(":sunglasses:", "B)");
+        emoteMap.put(":kissing:", ":*");
+        emoteMap.put(":sob:", ";.;");
+        emoteMap.put(":cry:", ";_;");
+        emoteMap.put(":heart:", "<3");
+        emoteMap.put(":broken_heart:", "</3");
+        emoteMap.put(":thumbsup:", "(y)");
+        emoteMap.put(":thumbsup:", "(Y)");
+        emoteMap.put(":thumbsup:", "(yes)");
+        emoteMap.put(":thumbsdown:", "(n)");
+        emoteMap.put(":thumbsdown:", "(N)");
+        emoteMap.put(":thumbsdown:", "(no)");
+        emoteMap.put(":ok_hand:", "(ok)");
+    }
 
     public DiscordChatMessageConfig(boolean enabled, String message) {
         super("chat", enabled, message);
@@ -90,74 +132,101 @@ public class DiscordChatMessageConfig extends BaseMessageConfig {
 
         content = EmojiParser.parseToAliases(content, EmojiParser.FitzpatrickAction.REMOVE);
 
-        String[] messageParts = this.message
-                .replace("%MESSAGE%", content)
-                .split("%USER%");
+        content = Utils.Replace(emoteMap, content);
 
-        IChatComponent usernameComponent = new ChatComponentText(event.getAuthor().getUsername());
+        if (!this.customFormatting) {
+            String[] messageParts = this.message
+                    .replace("%MESSAGE%", content)
+                    .split("%USER%");
 
-        HoverEvent usernameHoverEvent = new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ChatComponentText("Mention user (Clears current message)"));
-        ClickEvent usernameClickEvent = new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "@" + event.getAuthor().getUsername() + " ");
+            IChatComponent usernameComponent = new ChatComponentText(event.getAuthor().getUsername());
 
-        usernameComponent.getChatStyle()
-                .setColor(this.usernameColor)
-                .setChatClickEvent(usernameClickEvent)
-                .setChatHoverEvent(usernameHoverEvent);
+            HoverEvent usernameHoverEvent = new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ChatComponentText("Mention user (Clears current message)"));
+            ClickEvent usernameClickEvent = new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "@" + event.getAuthor().getUsername() + " ");
 
-        IChatComponent chatComponent = new ChatComponentText(messageParts[0]);
-        List<Message.Attachment> attachments = event.getMessage().getAttachments();
+            usernameComponent.getChatStyle()
+                    .setColor(this.usernameColor)
+                    .setChatClickEvent(usernameClickEvent)
+                    .setChatHoverEvent(usernameHoverEvent);
 
-        for (int i = 1, j = messageParts.length; i < j; i++) {
-            chatComponent.appendSibling(
-                    usernameComponent
-            ).appendText(
-                    messageParts[i]
+            IChatComponent chatComponent = new ChatComponentText(messageParts[0]);
+            List<Message.Attachment> attachments = event.getMessage().getAttachments();
+
+            for (int i = 1, j = messageParts.length; i < j; i++) {
+                chatComponent.appendSibling(
+                        usernameComponent
+                ).appendText(
+                        messageParts[i]
+                );
+            }
+
+            for (Message.Attachment attachment : attachments) {
+                chatComponent.appendText(" ");
+                chatComponent.appendSibling(this.attachmentToTextComponent(attachment));
+            }
+
+            for (String playerName : playerNames) {
+                EntityPlayer player = serverConfigurationManager.func_152612_a(playerName);
+
+                if (player == null) {
+                    continue;
+                }
+
+                if (content.contains(playerName)) {
+                    String[] playerMessageParts = this.message
+                            .replace("%MESSAGE%",
+                                    ForgeHooks.newChatWithLinks(
+                                            content.replaceAll(
+                                                    "\\b" + playerName + "\\b",
+                                                    EnumChatFormatting.BLUE + playerName + EnumChatFormatting.RESET
+                                            )
+                                    ).getFormattedText()
+                            )
+                            .split("%USER%");
+
+                    IChatComponent playerChatComponent = new ChatComponentText(playerMessageParts[0]);
+                    for (int i = 1, j = playerMessageParts.length; i < j; i++) {
+                        playerChatComponent.appendSibling(
+                                usernameComponent
+                        ).appendText(
+                                playerMessageParts[i]
+                        );
+                    }
+
+                    for (Message.Attachment attachment : attachments) {
+                        playerChatComponent.appendText(" ");
+                        playerChatComponent.appendSibling(this.attachmentToTextComponent(attachment));
+                    }
+
+                    player.addChatMessage(playerChatComponent);
+                    continue;
+                }
+
+                player.addChatMessage(chatComponent);
+            }
+        } else {
+            IChatComponent message = ForgeHooks.newChatWithLinks(
+                    this.message
+                            .replace("%MESSAGE%", content)
+                            .replace("%USER%", event.getAuthorName())
             );
-        }
 
-        for (Message.Attachment attachment : attachments) {
-            chatComponent.appendText(" ");
-            chatComponent.appendSibling(this.attachmentToTextComponent(attachment));
-        }
+            List<Message.Attachment> attachments = event.getMessage().getAttachments();
 
-        for (String playerName : playerNames) {
-            EntityPlayer player = serverConfigurationManager.func_152612_a(playerName);
-
-            if (player == null) {
-                continue;
+            for (Message.Attachment attachment : attachments) {
+                message.appendText(" ");
+                message.appendSibling(this.attachmentToTextComponent(attachment));
             }
 
-            if (content.contains(playerName)) {
-                String[] playerMessageParts = this.message
-                        .replace("%MESSAGE%",
-                                ForgeHooks.newChatWithLinks(
-                                        content.replaceAll(
-                                                "\\b" + playerName + "\\b",
-                                                EnumChatFormatting.BLUE + playerName + EnumChatFormatting.RESET
-                                        )
-                                ).getFormattedText()
-                        )
-                        .split("%USER%");
+            for (String playerName : playerNames) {
+                EntityPlayer player = serverConfigurationManager.func_152612_a(playerName);
 
-                IChatComponent playerChatComponent = new ChatComponentText(playerMessageParts[0]);
-                for (int i = 1, j = playerMessageParts.length; i < j; i++) {
-                    playerChatComponent.appendSibling(
-                            usernameComponent
-                    ).appendText(
-                            playerMessageParts[i]
-                    );
+                if (player == null) {
+                    continue;
                 }
 
-                for (Message.Attachment attachment : attachments) {
-                    playerChatComponent.appendText(" ");
-                    playerChatComponent.appendSibling(this.attachmentToTextComponent(attachment));
-                }
-
-                player.addChatMessage(playerChatComponent);
-                continue;
+                player.addChatMessage(message);
             }
-
-            player.addChatMessage(chatComponent);
         }
     }
 
@@ -175,6 +244,11 @@ public class DiscordChatMessageConfig extends BaseMessageConfig {
                     this.usernameColor = EnumChatFormatting.getValueByName(reader.nextString());
                     return;
                 }
+            case "customFormatting":
+                if (reader.peek() == JsonToken.BOOLEAN) {
+                    this.customFormatting = reader.nextBoolean();
+                    return;
+                }
         }
 
         reader.skipValue();
@@ -186,5 +260,7 @@ public class DiscordChatMessageConfig extends BaseMessageConfig {
         writer.value(this.maxChatLength);
         writer.name("usernameColor");
         writer.value(this.usernameColor.getFriendlyName());
+        writer.name("customFormatting");
+        writer.value(this.customFormatting);
     }
 }

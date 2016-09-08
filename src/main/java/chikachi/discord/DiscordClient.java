@@ -132,8 +132,10 @@ public class DiscordClient {
             message = message.trim();
         }
 
-        this.channel.sendMessageAsync(message, sentMessage -> {
-        });
+        if (message.length() > 0) {
+            this.channel.sendMessageAsync(message, sentMessage -> {
+            });
+        }
         return true;
     }
 }

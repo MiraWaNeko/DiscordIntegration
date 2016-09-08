@@ -78,6 +78,8 @@ public class Configuration {
         }
 
         load();
+
+
     }
 
     public static void load() {
@@ -86,66 +88,7 @@ public class Configuration {
         }
 
         if (!config.exists()) {
-            try {
-                JsonWriter writer = new JsonWriter(new FileWriter(config));
-
-                writer.beginObject();
-
-                writer.name("discord");
-                writer.beginObject();
-                writer.name("token");
-                writer.value(token);
-                writer.name("channel");
-                writer.value(channel);
-
-                writer.name("ignoreBots");
-                writer.value(ignoringBots);
-
-                writer.name("commands");
-                writer.beginObject();
-                writer.name("prefix");
-                writer.value(commandPrefix);
-                commandOnline.write(writer);
-                commandTps.write(writer);
-                commandUnstuck.write(writer);
-                writer.name("custom");
-                writer.beginArray();
-                writer.endArray();
-                writer.endObject();
-                writer.endObject();
-
-                writer.name("messages");
-                writer.beginObject();
-                writer.name("discord");
-                writer.beginObject();
-                discordChat.write(writer);
-                discordDeath.write(writer);
-                discordAchievement.write(writer);
-                discordJoin.write(writer);
-                discordLeave.write(writer);
-                discordStartup.write(writer);
-                discordShutdown.write(writer);
-                writer.endObject();
-
-                writer.name("minecraft");
-                writer.beginObject();
-                minecraftChat.write(writer);
-                writer.endObject();
-                writer.endObject();
-
-                writer.name("experimental");
-                writer.beginObject();
-                writer.name("fakePlayers");
-                writer.value(experimentalFakePlayers);
-                writer.endObject();
-
-                writer.endObject();
-
-                writer.close();
-            } catch (IOException e) {
-                DiscordIntegration.Log("Error generating default config file", true);
-                e.printStackTrace();
-            }
+            save();
         } else {
             try {
                 JsonReader reader = new JsonReader(new FileReader(config));
@@ -265,6 +208,73 @@ public class Configuration {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    public static void save() {
+        try {
+            JsonWriter writer = new JsonWriter(new FileWriter(config));
+            writer.setIndent("  ");
+
+            writer.beginObject();
+
+            writer.name("discord");
+            writer.beginObject();
+            writer.name("token");
+            writer.value(token);
+            writer.name("channel");
+            writer.value(channel);
+
+            writer.name("ignoreBots");
+            writer.value(ignoringBots);
+
+            writer.name("commands");
+            writer.beginObject();
+            writer.name("prefix");
+            writer.value(commandPrefix);
+            commandOnline.write(writer);
+            commandTps.write(writer);
+            commandUnstuck.write(writer);
+            writer.name("custom");
+            writer.beginArray();
+            for (CustomCommandConfig customCommand : customCommands) {
+                customCommand.write(writer);
+            }
+            writer.endArray();
+            writer.endObject();
+            writer.endObject();
+
+            writer.name("messages");
+            writer.beginObject();
+            writer.name("discord");
+            writer.beginObject();
+            discordChat.write(writer);
+            discordDeath.write(writer);
+            discordAchievement.write(writer);
+            discordJoin.write(writer);
+            discordLeave.write(writer);
+            discordStartup.write(writer);
+            discordShutdown.write(writer);
+            writer.endObject();
+
+            writer.name("minecraft");
+            writer.beginObject();
+            minecraftChat.write(writer);
+            writer.endObject();
+            writer.endObject();
+
+            writer.name("experimental");
+            writer.beginObject();
+            writer.name("fakePlayers");
+            writer.value(experimentalFakePlayers);
+            writer.endObject();
+
+            writer.endObject();
+
+            writer.close();
+        } catch (IOException e) {
+            DiscordIntegration.Log("Error generating default config file", true);
+            e.printStackTrace();
         }
     }
 
