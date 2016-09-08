@@ -17,10 +17,14 @@
 
 package chikachi.discord;
 
+import com.google.common.base.Joiner;
 import net.dv8tion.jda.entities.User;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
+
+import java.util.Map;
+import java.util.Set;
 
 @SuppressWarnings("unused")
 public class Utils {
@@ -49,5 +53,23 @@ public class Utils {
         tagCompound.setString("username", sender.getName());
 
         return tagCompound;
+    }
+
+    public static String Replace(Map<String, String> replaceMap, String text) {
+        String[] words = text.split(" ");
+
+        Set<Map.Entry<String, String>> entries = replaceMap.entrySet();
+
+        for (int i = 0, j = words.length; i < j; i++) {
+            String word = words[i];
+
+            for (Map.Entry<String, String> entry : entries) {
+                if (word.equals(entry.getKey())) {
+                    words[i] = entry.getValue();
+                }
+            }
+        }
+
+        return Joiner.on(" ").join(words);
     }
 }

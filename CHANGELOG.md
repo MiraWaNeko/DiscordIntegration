@@ -1,5 +1,17 @@
 # Changelog (MC 1.8.9)
 
+### 2.1.0
+- Updated JDA to 2.2.1-353
+- Added `customFormatting` setting for Discord chat => Minecraft, when enabled...
+	- `usernameColor` is ignored
+	- Able to use Minecraft formatting in message
+	- Discord links are clickable in Minecraft
+- Pretty formatted config file
+- Added Minecraft command `save` to save the config file
+	- Adds missing config settings
+	- Removes unused config settings
+	- Pretty formats the file
+
 #### 2.0.1
 - Fix achievements not triggering
 
