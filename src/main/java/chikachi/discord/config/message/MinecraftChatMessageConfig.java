@@ -18,6 +18,7 @@
 package chikachi.discord.config.message;
 
 import chikachi.discord.DiscordClient;
+import chikachi.discord.Utils;
 import com.google.common.base.Joiner;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
@@ -106,21 +107,7 @@ public class MinecraftChatMessageConfig extends BaseMessageConfig {
         message = message.replaceAll("§.", "");
 
         if (this.useEmotes) {
-            String[] words = message.split(" ");
-
-            Set<Map.Entry<String, String>> entries = emoteMap.entrySet();
-
-            for (int i = 0, j = words.length; i < j; i++) {
-                String word = words[i];
-
-                for (Map.Entry<String, String> entry : entries) {
-                    if (word.equals(entry.getKey())) {
-                        words[i] = entry.getValue();
-                    }
-                }
-            }
-
-            message = Joiner.on(" ").join(words);
+            message = Utils.Replace(emoteMap, message);
         }
 
         DiscordClient.getInstance().sendMessage(

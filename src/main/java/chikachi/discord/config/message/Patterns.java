@@ -28,4 +28,5 @@ class Patterns {
     static final Pattern lineThroughPattern = Pattern.compile("~~(.*)~~");
     static final Pattern singleCodePattern = Pattern.compile("`(.*)`");
     static final Pattern multiCodePattern = Pattern.compile("```(.*)```");
+    static final Pattern customFormattingPattern = Pattern.compile("&([0-9a-fA-F])");
 }
