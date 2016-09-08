@@ -36,9 +36,13 @@ class CommandProcessor {
                         DiscordClient.getInstance().connect(sender.getServer());
                     }
                     return;
+                case "save":
+                    Configuration.save();
+                    sender.addChatMessage(new TextComponentString("Config saved"));
+                    return;
             }
         }
 
-        sender.addChatMessage(new TextComponentString("Unknown command - Available commands: reload"));
+        sender.addChatMessage(new TextComponentString("Unknown command - Available commands: reload, save"));
     }
 }
