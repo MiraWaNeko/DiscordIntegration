@@ -29,7 +29,7 @@ apply plugin: 'java'
 
 def mcVersion = '1.10.2'
 def forgeVersion = '12.18.3.2185'
-def modVersion = '3.0.0'
+def modVersion = '3.0.0-alpha'
 
 version = 'mc' + mcVersion + '-' + modVersion
 group = "chikachi.discord"
