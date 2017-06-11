@@ -1,4 +1,4 @@
-# ![](http://media-elerium.cursecdn.com/avatars/46/357/636053578365458286.png) **ChikachiDiscord**
+# ![](http://media-elerium.cursecdn.com/avatars/46/357/636053578365458286.png) **DiscordIntegration**
 
 This mod combines your Discord to your Minecraft server.
 

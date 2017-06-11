@@ -8,11 +8,8 @@ buildscript {
     }
     dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT'
+        classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.4'
     }
-}
-
-plugins {
-    id "com.github.johnrengelman.shadow" version "1.2.2"
 }
 
 repositories {
@@ -20,16 +17,19 @@ repositories {
         name "CurseForge"
         artifactPattern 'http://addons-origin.cursecdn.com/files/[organisation]/[module]-[revision].[ext]'
     }
+    jcenter()
     flatDir {
         dirs "libs"
     }
 }
 
 apply plugin: 'net.minecraftforge.gradle.forge'
+apply plugin: 'com.github.johnrengelman.shadow'
+apply plugin: 'java'
 
 def mcVersion = '1.10.2'
-def forgeVersion = '12.18.1.2011'
-def modVersion = '2.1.0'
+def forgeVersion = '12.18.3.2185'
+def modVersion = '3.0.0'
 
 version = 'mc' + mcVersion + '-' + modVersion
 group = "chikachi.discord"
@@ -47,12 +47,26 @@ minecraft {
         runDir = 'run'
     }
 
-    mappings = "snapshot_20160729"
+    mappings = "stable_29"
 }
 
 def printDebug(message) {
     println '[' + archivesBaseName + '] ' + message
 }
+
+/*
+ * Copyright (C) 2017 Chikachi
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see http://www.gnu.org/licenses.
+ */
 
 class CurseForgeDependencyInfo {
     public String module, version, ext;
@@ -72,10 +86,10 @@ class CurseForgeDependencyInfo {
 
 // Dependencies on CurseForge
 List<CurseForgeDependencyInfo> curseForgeDependencies = new ArrayList<CurseForgeDependencyInfo>();
-curseForgeDependencies.add(new CurseForgeDependencyInfo("ChikachiLib", "1.9.4-0.2.0", "jar", "2305916"));
 
 dependencies {
-    compile 'net.dv8tion:JDA:2.2.1_353:withDependencies'
+    compile files('./libs/JDA-3.1.0_204-withDependencies.jar')
+    //compile 'net.dv8tion:JDA:3.1.0_204:withDependencies'
     compile 'com.vdurmont:emoji-java:3.1.3'
 
     for (CurseForgeDependencyInfo dependency : curseForgeDependencies) {
@@ -91,6 +105,8 @@ dependencies {
         }
         compile group: dependency.GetFileId(), name: dependency.module, version: dependency.version, ext: dependency.ext
     }
+
+    compile 'org.jetbrains:annotations:15.0'
 }
 
 jar {
@@ -122,7 +138,7 @@ shadowJar {
     relocate "org.apache.commons.logging", "chikachi.discord.repack.org.apache.commons.logging"
 
     dependencies {
-        include(dependency('net.dv8tion:JDA:2.2.1_353:withDependencies'))
+        include(dependency('net.dv8tion:JDA:3.1.0_204:withDependencies'))
         include(dependency('com.vdurmont:emoji-java:3.1.3'))
     }
 }

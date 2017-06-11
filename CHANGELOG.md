@@ -1,5 +1,13 @@
 # Changelog (MC 1.10.2)
 
+### 2.2.0
+- Added `!uptime` command
+- Minecraft formatting will be removed from Discord messages
+- Minecraft messages can not trigger @here and @everyone mentions
+- Hopefully fixed `customFormatting` using `&` gives weird character
+- Don't queue when no token is set
+- Proper update when switching channel
+
 ### 2.1.0
 - Updated JDA to 2.2.1-353
 - Added `customFormatting` setting for Discord chat => Minecraft, when enabled...

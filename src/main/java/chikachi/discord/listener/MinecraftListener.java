@@ -1,104 +1,150 @@
-/**
- * Copyright (C) 2016 Chikachi
- *
+/*
+ * Copyright (C) 2017 Chikachi
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Affero General Public License for more details.
- *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see http://www.gnu.org/licenses.
  */
 
 package chikachi.discord.listener;
 
-import chikachi.discord.config.Configuration;
-import chikachi.discord.config.message.AchievementMessageConfig;
-import chikachi.discord.config.message.GenericMessageConfig;
-import chikachi.discord.config.message.MinecraftChatMessageConfig;
-import net.minecraft.entity.EntityLivingBase;
+import chikachi.discord.core.DiscordClient;
+import chikachi.discord.core.Message;
+import chikachi.discord.core.config.Configuration;
+import com.google.common.base.Joiner;
+import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.stats.Achievement;
 import net.minecraft.stats.StatisticsManagerServer;
+import net.minecraft.util.text.translation.I18n;
+import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.CommandEvent;
 import net.minecraftforge.event.ServerChatEvent;
-import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.AchievementEvent;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 
+import java.util.HashMap;
+
 public class MinecraftListener {
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onCommand(CommandEvent event) {
-        String commandName = event.getCommand().getCommandName();
+        if (event.isCanceled()) return;
+
+        String commandName = event.getCommand().getName();
 
         if (commandName.equalsIgnoreCase("say")) {
-            MinecraftChatMessageConfig messageConfig = Configuration.getDiscordChat();
-            messageConfig.handleCommandEvent(event);
-        }
-    }
+            ICommandSender sender = event.getSender();
 
-    @SubscribeEvent
-    public void onChatMessage(ServerChatEvent event) {
-        if (event.getPlayer() == null) return;
+            if (sender != null && Configuration.getConfig().minecraft.dimensions.generic.ignoreFakePlayerChat && sender instanceof FakePlayer)
+                return;
 
-        MinecraftChatMessageConfig messageConfig = Configuration.getDiscordChat();
-        messageConfig.handleChatEvent(event);
-    }
+            HashMap<String, String> arguments = new HashMap<>();
+            arguments.put("MESSAGE", Joiner.on(" ").join(event.getParameters()));
 
-    @SubscribeEvent
-    public void onPlayerDeath(LivingDeathEvent event) {
-        EntityLivingBase entityLiving = event.getEntityLiving();
-
-        if (entityLiving == null) return;
-
-        if (entityLiving instanceof EntityPlayer) {
-            EntityPlayer entityPlayer = (EntityPlayer) entityLiving;
-
-            GenericMessageConfig messageConfig = Configuration.getDiscordDeath();
-            messageConfig.sendMessage(
-                    entityPlayer.getDisplayNameString(),
-                    entityPlayer.getCombatTracker().getDeathMessage().getUnformattedText().replace(entityPlayer.getDisplayNameString(), "").trim()
+            DiscordClient.getInstance().broadcast(
+                new Message(
+                    sender != null ? sender.getName() : null,
+                    sender != null && sender instanceof EntityPlayer ? "https://minotar.net/avatar/" + sender.getName() + "/128.png" : null,
+                    Configuration.getConfig().minecraft.messages.chatMessage,
+                    arguments
+                ),
+                Configuration.getConfig().minecraft.dimensions.generic.discordChannel.getChannels()
             );
         }
     }
 
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public void onChatMessage(ServerChatEvent event) {
+        if (event.isCanceled() || event.getPlayer() == null) return;
+
+        if (Configuration.getConfig().minecraft.dimensions.generic.ignoreFakePlayerChat && event.getPlayer() instanceof FakePlayer)
+            return;
+
+        HashMap<String, String> arguments = new HashMap<>();
+        arguments.put("MESSAGE", event.getMessage());
+
+        // TODO: Change to use dimension
+        DiscordClient.getInstance().broadcast(
+            new Message(
+                event.getUsername(),
+                "https://minotar.net/avatar/" + event.getUsername() + "/128.png",
+                Configuration.getConfig().minecraft.messages.chatMessage,
+                arguments
+            ),
+            Configuration.getConfig().minecraft.dimensions.generic.discordChannel.getChannels()
+        );
+    }
+
+    @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onPlayerAchievement(AchievementEvent event) {
+        if (event.isCanceled()) return;
+
         EntityPlayer entityPlayer = event.getEntityPlayer();
 
-        if (entityPlayer == null) return;
-
-        if (entityPlayer instanceof EntityPlayerMP) {
+        if (entityPlayer != null && entityPlayer instanceof EntityPlayerMP) {
             StatisticsManagerServer playerStats = ((EntityPlayerMP) entityPlayer).getStatFile();
 
             if (playerStats.hasAchievementUnlocked(event.getAchievement()) || !playerStats.canUnlockAchievement(event.getAchievement())) {
                 return;
             }
 
-            AchievementMessageConfig messageConfig = Configuration.getDiscordAchievement();
-            messageConfig.handleEvent(event);
+            Achievement achievement = event.getAchievement();
+
+            HashMap<String, String> arguments = new HashMap<>();
+            arguments.put("ACHIEVEMENT", achievement.getStatName().getUnformattedText());
+            // TODO: Change to use dimension
+            // TODO: Figure out what to do with I18n - Might remove the description...
+            //noinspection deprecation
+            arguments.put("DESCRIPTION", I18n.translateToLocalFormatted(achievement.achievementDescription, "KEY"));
+
+            DiscordClient.getInstance().broadcast(
+                new Message(
+                    entityPlayer.getDisplayNameString(),
+                    "https://minotar.net/avatar/" + entityPlayer.getName() + "/128.png",
+                    Configuration.getConfig().minecraft.messages.achievement,
+                    arguments
+                ),
+                Configuration.getConfig().minecraft.dimensions.generic.discordChannel.getChannels()
+            );
         }
     }
 
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event) {
-        if (event.player == null) return;
+        if (event.isCanceled() || event.player == null) return;
 
-        GenericMessageConfig messageConfig = Configuration.getDiscordJoin();
-        messageConfig.sendMessage(event.player.getDisplayNameString());
+        DiscordClient.getInstance().broadcast(
+            new Message(
+                event.player.getDisplayNameString(),
+                "https://minotar.net/avatar/" + event.player.getName() + "/128.png",
+                Configuration.getConfig().minecraft.messages.playerJoin
+            ),
+            Configuration.getConfig().minecraft.dimensions.generic.discordChannel.getChannels()
+        );
     }
 
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onPlayerLeave(PlayerEvent.PlayerLoggedOutEvent event) {
-        if (event.player == null) return;
+        if (event.isCanceled() || event.player == null) return;
 
-        GenericMessageConfig messageConfig = Configuration.getDiscordLeave();
-        messageConfig.sendMessage(event.player.getDisplayNameString());
+        DiscordClient.getInstance().broadcast(
+            new Message(
+                event.player.getDisplayNameString(),
+                "https://minotar.net/avatar/" + event.player.getName() + "/128.png",
+                Configuration.getConfig().minecraft.messages.playerLeave
+            ),
+            Configuration.getConfig().minecraft.dimensions.generic.discordChannel.getChannels()
+        );
     }
+
+    // TODO: Add playerDeath
 }
