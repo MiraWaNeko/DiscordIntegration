@@ -15,7 +15,7 @@
 package chikachi.discord.core;
 
 import chikachi.discord.core.config.Configuration;
-import chikachi.discord.core.config.MessageConfig;
+import chikachi.discord.core.config.types.MessageConfig;
 import chikachi.discord.core.config.minecraft.MinecraftConfig;
 import com.google.gson.Gson;
 import net.dv8tion.jda.core.AccountType;
@@ -54,14 +54,13 @@ public class DiscordClient extends ListenerAdapter {
         CoreLogger.Log("!!! THIS IS AN ALPHA VERSION !!!", true);
         CoreLogger.Log("!!! YOU HAVE BEEN WARNED !!!");
         CoreLogger.Log("Logged in as " + getSelf().getName());
+
         this.isReady = true;
 
         MinecraftConfig minecraftConfig = Configuration.getConfig().minecraft;
 
         DiscordClient.getInstance().broadcast(
-            new Message(
-                new MessageConfig(minecraftConfig.messages.serverStart, minecraftConfig.messages.serverStart)
-            ),
+            new Message(minecraftConfig.messages.serverStart),
             minecraftConfig.dimensions.generic.relayServerStart.getChannels(
                 minecraftConfig.dimensions.generic.discordChannel
             )
@@ -72,7 +71,11 @@ public class DiscordClient extends ListenerAdapter {
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
-        if (Configuration.getConfig().discord.isIgnoringBots() && event.getAuthor().isBot()) {
+        if (Configuration.getConfig().discord.ignoresBots && event.getAuthor().isBot()) {
+            return;
+        }
+
+        if (Configuration.getConfig().discord.isIgnoringUser(event.getAuthor())) {
             return;
         }
     }

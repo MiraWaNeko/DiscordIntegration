@@ -14,7 +14,7 @@
 
 package chikachi.discord.core;
 
-import chikachi.discord.core.config.MessageConfig;
+import chikachi.discord.core.config.types.MessageConfig;
 
 import java.util.HashMap;
 import java.util.Map;

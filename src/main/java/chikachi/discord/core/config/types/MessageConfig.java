@@ -12,11 +12,16 @@
  * along with this program.  If not, see http://www.gnu.org/licenses.
  */
 
-package chikachi.discord.core.config;
+package chikachi.discord.core.config.types;
 
 public class MessageConfig {
     public String normal;
     public String webhook;
+
+    public MessageConfig(String normal) {
+        this.normal = normal;
+        this.webhook = normal;
+    }
 
     public MessageConfig(String normal, String webhook) {
         this.normal = normal;

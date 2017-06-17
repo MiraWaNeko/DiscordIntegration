@@ -14,7 +14,7 @@
 
 package chikachi.discord.core.config.minecraft;
 
-import chikachi.discord.core.config.MessageConfig;
+import chikachi.discord.core.config.types.MessageConfig;
 import com.google.gson.annotations.Since;
 
 public class MinecraftMessagesConfig {
@@ -33,6 +33,10 @@ public class MinecraftMessagesConfig {
     private transient static final String ACHIEVEMENT_NORMAL = "**{USER}** just gained the achievement **{ACHIEVEMENT}**!\n*{DESCRIPTION}*";
     private transient static final String ACHIEVEMENT_WEBHOOK = "*Gained the achievement **{ACHIEVEMENT}**!\n{DESCRIPTION}*";
 
+    private transient static final String SERVER_START = "Server started!";
+    private transient static final String SERVER_STOP = "Server stopped!";
+    private transient static final String SERVER_CRASH = "Server crash detected!";
+
     @Since(3.0)
     public MessageConfig chatMessage = null;
     @Since(3.0)
@@ -44,18 +48,18 @@ public class MinecraftMessagesConfig {
     @Since(3.0)
     public MessageConfig achievement = null;
     @Since(3.0)
-    public String serverStart = null;
+    public MessageConfig serverStart = null;
     @Since(3.0)
-    public String serverStop = null;
+    public MessageConfig serverStop = null;
     @Since(3.0)
-    public String serverCrash = null;
+    public MessageConfig serverCrash = null;
 
     public void fillFields() {
         if (this.chatMessage == null) {
             this.chatMessage = new MessageConfig(CHAT_MESSAGE_NORMAL, CHAT_MESSAGE_WEBHOOK);
         }
         if (this.chatMessage.normal == null || this.chatMessage.normal.trim().length() == 0) {
-            this.chatMessage.webhook = CHAT_MESSAGE_NORMAL;
+            this.chatMessage.normal = CHAT_MESSAGE_NORMAL;
         }
         if (this.chatMessage.webhook == null || this.chatMessage.webhook.trim().length() == 0) {
             this.chatMessage.webhook = CHAT_MESSAGE_WEBHOOK;
@@ -65,7 +69,7 @@ public class MinecraftMessagesConfig {
             this.playerJoin = new MessageConfig(PLAYER_JOIN_NORMAL, PLAYER_JOIN_WEBHOOK);
         }
         if (this.playerJoin.normal == null || this.playerJoin.normal.trim().length() == 0) {
-            this.playerJoin.webhook = PLAYER_JOIN_NORMAL;
+            this.playerJoin.normal = PLAYER_JOIN_NORMAL;
         }
         if (this.playerJoin.webhook == null || this.playerJoin.webhook.trim().length() == 0) {
             this.playerJoin.webhook = PLAYER_JOIN_WEBHOOK;
@@ -75,7 +79,7 @@ public class MinecraftMessagesConfig {
             this.playerLeave = new MessageConfig(PLAYER_LEAVE_NORMAL, PLAYER_LEAVE_WEBHOOK);
         }
         if (this.playerLeave.normal == null || this.playerLeave.normal.trim().length() == 0) {
-            this.playerLeave.webhook = PLAYER_LEAVE_NORMAL;
+            this.playerLeave.normal = PLAYER_LEAVE_NORMAL;
         }
         if (this.playerLeave.webhook == null || this.playerLeave.webhook.trim().length() == 0) {
             this.playerLeave.webhook = PLAYER_LEAVE_WEBHOOK;
@@ -85,7 +89,7 @@ public class MinecraftMessagesConfig {
             this.playerDeath = new MessageConfig(PLAYER_DEATH_NORMAL, PLAYER_DEATH_WEBHOOK);
         }
         if (this.playerDeath.normal == null || this.playerDeath.normal.trim().length() == 0) {
-            this.playerDeath.webhook = PLAYER_LEAVE_NORMAL;
+            this.playerDeath.normal = PLAYER_LEAVE_NORMAL;
         }
         if (this.playerDeath.webhook == null || this.playerDeath.webhook.trim().length() == 0) {
             this.playerDeath.webhook = PLAYER_LEAVE_WEBHOOK;
@@ -95,22 +99,22 @@ public class MinecraftMessagesConfig {
             this.achievement = new MessageConfig(ACHIEVEMENT_NORMAL, ACHIEVEMENT_WEBHOOK);
         }
         if (this.achievement.normal == null || this.achievement.normal.trim().length() == 0) {
-            this.achievement.webhook = ACHIEVEMENT_NORMAL;
+            this.achievement.normal = ACHIEVEMENT_NORMAL;
         }
         if (this.achievement.webhook == null || this.achievement.webhook.trim().length() == 0) {
             this.achievement.webhook = ACHIEVEMENT_WEBHOOK;
         }
 
         if (this.serverStart == null) {
-            this.serverStart = "Server started!";
+            this.serverStart = new MessageConfig(SERVER_START);
         }
 
         if (this.serverStop == null) {
-            this.serverStop = "Server stopped!";
+            this.serverStop = new MessageConfig(SERVER_STOP);
         }
 
         if (this.serverCrash == null) {
-            this.serverCrash = "Server crash detected!";
+            this.serverCrash = new MessageConfig(SERVER_CRASH);
         }
     }
 }

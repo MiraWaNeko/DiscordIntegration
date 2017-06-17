@@ -18,6 +18,9 @@ import chikachi.discord.core.CoreConstants;
 import chikachi.discord.core.CoreLogger;
 import chikachi.discord.core.config.types.ChannelConfigType;
 import chikachi.discord.core.config.types.ChannelConfigTypeAdapter;
+import chikachi.discord.core.config.types.MessageConfig;
+import chikachi.discord.core.config.types.MessageConfigAdapter;
+import com.google.gson.ExclusionStrategy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
@@ -49,6 +52,7 @@ public class Configuration {
 
         Gson gson = new GsonBuilder()
             .registerTypeAdapter(ChannelConfigType.class, new ChannelConfigTypeAdapter())
+            .registerTypeAdapter(MessageConfig.class, new MessageConfigAdapter())
             .setVersion(3.0)
             .serializeNulls()
             .setPrettyPrinting()
@@ -65,7 +69,6 @@ public class Configuration {
                     config = new ConfigWrapper();
                 }
                 config.fillFields();
-                CoreLogger.Log(gson.toJson(config));
             } catch (Exception e) {
                 if (e instanceof JsonSyntaxException) {
                     CoreLogger.Log("Config had invalid syntax - Please check it using a JSON tool ( https://jsonlint.com/ ) or make sure it have the right content", true);
@@ -87,6 +90,7 @@ public class Configuration {
     public static void save() {
         Gson gson = new GsonBuilder()
             .registerTypeAdapter(ChannelConfigType.class, new ChannelConfigTypeAdapter())
+            .registerTypeAdapter(MessageConfig.class, new MessageConfigAdapter())
             .setVersion(3.0)
             .setPrettyPrinting()
             .create();

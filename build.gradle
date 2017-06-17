@@ -69,23 +69,23 @@ def printDebug(message) {
  */
 
 class CurseForgeDependencyInfo {
-    public String module, version, ext;
-    private String fileid;
+    public String module, version, ext
+    private String fileid
 
-    public CurseForgeDependencyInfo(String module, String version, String ext, String fileid) {
-        this.module = module;
-        this.version = version;
-        this.ext = ext;
-        this.fileid = fileid;
+    CurseForgeDependencyInfo(String module, String version, String ext, String fileid) {
+        this.module = module
+        this.version = version
+        this.ext = ext
+        this.fileid = fileid
     }
 
-    public String GetFileId() {
-        return Integer.parseInt(fileid.substring(0, 4)) + "/" + Integer.parseInt(fileid.substring(4));
+    String GetFileId() {
+        return Integer.parseInt(fileid.substring(0, 4)) + "/" + Integer.parseInt(fileid.substring(4))
     }
 }
 
 // Dependencies on CurseForge
-List<CurseForgeDependencyInfo> curseForgeDependencies = new ArrayList<CurseForgeDependencyInfo>();
+List<CurseForgeDependencyInfo> curseForgeDependencies = new ArrayList<CurseForgeDependencyInfo>()
 
 dependencies {
     compile files('./libs/JDA-3.1.0_204-withDependencies.jar')
@@ -96,12 +96,12 @@ dependencies {
         if (file('../' + dependency.module).exists()) {
             printDebug 'Using local ' + dependency.module + ' project'
             compile project(':' + dependency.module)
-            continue;
+            continue
         }
         if (file('./' + dependency.module + '.jar').exists()) {
             printDebug 'Using local ' + dependency.module + ' compiled jar'
             compile files('./' + dependency.module + '.jar')
-            continue;
+            continue
         }
         compile group: dependency.GetFileId(), name: dependency.module, version: dependency.version, ext: dependency.ext
     }

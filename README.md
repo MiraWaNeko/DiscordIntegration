@@ -1,33 +1,19 @@
 # ![](http://media-elerium.cursecdn.com/avatars/46/357/636053578365458286.png) **DiscordIntegration**
 
+[![Build Status](https://build.chikachi.net/buildStatus/icon?job=Chikachi/DiscordIntegration/v3)](https://build.chikachi.net/job/Chikachi/job/DiscordIntegration/job/v3/)
+
+### THIS IS A REWRITE OF THE MOD IN THE EARLY STAGES
+
 This mod combines your Discord to your Minecraft server.
 
 This is a server-side mod and therefore don't need to be on the client.
 
-It comes with 3 commands that can be used on Discord.
+#### Changes compared to previous versions
+- Support for multiple Discord channels
+- Ability to configure per Discord channel and per Minecraft dimension
+- All commands is executed through a FakeUser [(DiscordFakeUser / 828653ca-0185-43d4-b26d-620a7f016be6)](https://mcuuid.net/?q=828653ca-0185-43d4-b26d-620a7f016be6) that you can decide permissions to through vanilla OP and other permission mods.
 
-*   `!online` - Shows players online on the server
-*   `!tps` - Shows the TPS (Ticks Per Second)
-*   `!unstuck <playername>` - Moves a player to spawn
-
-You can also add custom commands that will execute a Minecraft command.
-
-There is also the ability to disable, add aliases and limit usage to specific roles on commands.
-
-It allows you to configure which messages should be sent between Discord and Minecraft.
-
-*   Discord => Minecraft
-    *   Chat
-*   Minecraft => Discord
-    *   Chat
-    *   Startup
-    *   Shutdown
-    *   Crash (No promise it's "gonna catch em all")
-    *   Player join
-    *   Player left
-    *   Player death
-    *   Achievements
 
 Guide on how to get the information needed from Discord can be found on [the wiki](https://github.com/Chikachi/ChikachiDiscord/wiki/How-to-get-a-token-and-channel-ID-for-Discord).
 
-_This mod is not _affiliated with Discord in any way.__
+_This mod is not affiliated with Discord in any way._
