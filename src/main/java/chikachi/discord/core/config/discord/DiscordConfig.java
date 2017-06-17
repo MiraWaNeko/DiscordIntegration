@@ -15,12 +15,17 @@
 package chikachi.discord.core.config.discord;
 
 import com.google.gson.annotations.Since;
+import net.dv8tion.jda.core.entities.User;
+
+import java.util.ArrayList;
 
 public class DiscordConfig {
     @Since(3.0)
     public String token = "";
     @Since(3.0)
-    public Object ignoresBots = true;
+    public boolean ignoresBots = true;
+    @Since(3.0)
+    public ArrayList<String> ignoresUsers = new ArrayList<>();
     @Since(3.0)
     public DiscordMainChannelConfig channels = new DiscordMainChannelConfig();
 
@@ -29,8 +34,8 @@ public class DiscordConfig {
             this.token = "";
         }
 
-        if (this.ignoresBots == null) {
-            this.ignoresBots = true;
+        if (this.ignoresUsers == null) {
+            this.ignoresUsers = new ArrayList<>();
         }
 
         if (this.channels == null) {
@@ -39,7 +44,7 @@ public class DiscordConfig {
         this.channels.fillFields();
     }
 
-    public boolean isIgnoringBots() {
-        return ignoresBots instanceof Boolean && (Boolean) ignoresBots;
+    public boolean isIgnoringUser(User user) {
+        return ignoresUsers.contains(user.getId()) || ignoresUsers.contains(user.getName());
     }
 }
