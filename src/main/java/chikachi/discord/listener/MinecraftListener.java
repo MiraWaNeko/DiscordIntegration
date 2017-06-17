@@ -14,11 +14,13 @@
 
 package chikachi.discord.listener;
 
+import chikachi.discord.DiscordIntegrationLogger;
 import chikachi.discord.core.DiscordClient;
 import chikachi.discord.core.Message;
 import chikachi.discord.core.config.Configuration;
 import com.google.common.base.Joiner;
 import net.minecraft.command.ICommandSender;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.stats.Achievement;
@@ -27,6 +29,7 @@ import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.CommandEvent;
 import net.minecraftforge.event.ServerChatEvent;
+import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.AchievementEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -146,5 +149,27 @@ public class MinecraftListener {
         );
     }
 
-    // TODO: Add playerDeath
+    @SubscribeEvent(priority = EventPriority.LOWEST, receiveCanceled = true)
+    public void onPlayerDeath(LivingDeathEvent event) {
+        EntityLivingBase entityLiving = event.getEntityLiving();
+
+        if (entityLiving == null) return;
+
+        if (entityLiving instanceof EntityPlayer) {
+            EntityPlayer entityPlayer = (EntityPlayer) entityLiving;
+
+            HashMap<String, String> arguments = new HashMap<>();
+            arguments.put("REASON", entityPlayer.getCombatTracker().getDeathMessage().getUnformattedText().replace(entityPlayer.getDisplayNameString(), "").trim());
+
+            DiscordClient.getInstance().broadcast(
+                new Message(
+                    entityPlayer.getDisplayNameString(),
+                    "https://minotar.net/avatar/" + entityPlayer.getName() + "/128.png",
+                    Configuration.getConfig().minecraft.messages.playerDeath,
+                    arguments
+                ),
+                Configuration.getConfig().minecraft.dimensions.generic.discordChannel.getChannels()
+            );
+        }
+    }
 }
