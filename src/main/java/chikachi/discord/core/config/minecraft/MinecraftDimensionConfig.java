@@ -14,11 +14,24 @@
 
 package chikachi.discord.core.config.minecraft;
 
+import chikachi.discord.core.config.types.ChannelConfigType;
 import com.google.gson.annotations.Since;
 
 public class MinecraftDimensionConfig extends AbstractRelay {
     @Since(3.0)
     public String chatPrefix;
     @Since(3.0)
-    public int discordChannel;
+    public ChannelConfigType discordChannel;
+
+    public void fillFields() {
+        super.fillFields();
+
+        if (this.chatPrefix == null) {
+            this.chatPrefix = "";
+        }
+
+        if (this.discordChannel == null) {
+            this.discordChannel = new ChannelConfigType(false);
+        }
+    }
 }

@@ -22,8 +22,15 @@ public class MinecraftMainDimensionConfig {
     @Since(3.0)
     public MinecraftGenericConfig generic = new MinecraftGenericConfig();
     @Since(3.0)
-    public HashMap<Long, MinecraftDimensionConfig> dimensions = new HashMap<>();
+    public HashMap<Integer, MinecraftDimensionConfig> dimensions = new HashMap<>();
 
+    public MinecraftDimensionConfig getDimension(int dimension) {
+        if (this.dimensions.containsKey(dimension)) {
+            return this.dimensions.get(dimension);
+        }
+
+        return this.generic;
+    }
 
     public void fillFields() {
         if (this.generic == null) {

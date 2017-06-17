@@ -17,11 +17,7 @@ package chikachi.discord.core.config.minecraft;
 import chikachi.discord.core.config.types.ChannelConfigType;
 import com.google.gson.annotations.Since;
 
-public class MinecraftGenericConfig extends AbstractRelay {
-    @Since(3.0)
-    public String chatPrefix = "";
-    @Since(3.0)
-    public ChannelConfigType discordChannel = new ChannelConfigType();
+public class MinecraftGenericConfig extends MinecraftDimensionConfig {
     @Since(3.0)
     public boolean ignoreFakePlayerChat = true;
     @Since(3.0)
@@ -33,10 +29,6 @@ public class MinecraftGenericConfig extends AbstractRelay {
 
     public void fillFields() {
         super.fillFields();
-
-        if (this.chatPrefix == null) {
-            this.chatPrefix = "";
-        }
 
         if (this.relayServerStart == null) {
             this.relayServerStart = new ChannelConfigType();

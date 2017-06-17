@@ -28,6 +28,8 @@ public abstract class AbstractRelay {
     public ChannelConfigType relayPlayerJoin = new ChannelConfigType();
     @Since(3.0)
     public ChannelConfigType relayPlayerLeave = new ChannelConfigType();
+    @Since(3.0)
+    public ChannelConfigType relayPlayerDeath = new ChannelConfigType();
 
     public void fillFields() {
         if (this.relayAchievements == null) {
@@ -48,6 +50,10 @@ public abstract class AbstractRelay {
 
         if (this.relayPlayerLeave == null) {
             this.relayPlayerLeave = new ChannelConfigType();
+        }
+
+        if (this.relayPlayerDeath == null) {
+            this.relayPlayerDeath = new ChannelConfigType();
         }
     }
 }

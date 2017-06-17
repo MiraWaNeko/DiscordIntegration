@@ -14,12 +14,14 @@
 
 package chikachi.discord.listener;
 
-import chikachi.discord.DiscordIntegrationLogger;
 import chikachi.discord.core.DiscordClient;
 import chikachi.discord.core.Message;
 import chikachi.discord.core.config.Configuration;
+import chikachi.discord.core.config.minecraft.MinecraftConfig;
+import chikachi.discord.core.config.minecraft.MinecraftDimensionConfig;
 import com.google.common.base.Joiner;
 import net.minecraft.command.ICommandSender;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -35,6 +37,7 @@ import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class MinecraftListener {
@@ -43,24 +46,48 @@ public class MinecraftListener {
         if (event.isCanceled()) return;
 
         String commandName = event.getCommand().getName();
+        ICommandSender sender = event.getSender();
 
         if (commandName.equalsIgnoreCase("say")) {
-            ICommandSender sender = event.getSender();
-
             if (sender != null && Configuration.getConfig().minecraft.dimensions.generic.ignoreFakePlayerChat && sender instanceof FakePlayer)
                 return;
 
             HashMap<String, String> arguments = new HashMap<>();
             arguments.put("MESSAGE", Joiner.on(" ").join(event.getParameters()));
 
+            MinecraftConfig minecraftConfig = Configuration.getConfig().minecraft;
+            MinecraftDimensionConfig genericConfig = minecraftConfig.dimensions.generic;
+
+            ArrayList<Long> channels;
+
+            if (sender != null) {
+                Entity entity = sender.getCommandSenderEntity();
+
+                if (entity != null) {
+                    MinecraftDimensionConfig dimensionConfig = minecraftConfig.dimensions.getDimension(entity.dimension);
+
+                    channels = dimensionConfig.relayChat.getChannels(
+                        genericConfig.relayChat.getChannels(
+                            dimensionConfig.discordChannel.getChannels(
+                                genericConfig.discordChannel
+                            )
+                        )
+                    );
+                } else {
+                    channels = genericConfig.relayChat.getChannels(genericConfig.discordChannel);
+                }
+            } else {
+                channels = genericConfig.relayChat.getChannels(genericConfig.discordChannel);
+            }
+
             DiscordClient.getInstance().broadcast(
                 new Message(
                     sender != null ? sender.getName() : null,
                     sender != null && sender instanceof EntityPlayer ? "https://minotar.net/avatar/" + sender.getName() + "/128.png" : null,
-                    Configuration.getConfig().minecraft.messages.chatMessage,
+                    minecraftConfig.messages.chatMessage,
                     arguments
                 ),
-                Configuration.getConfig().minecraft.dimensions.generic.discordChannel.getChannels()
+                channels
             );
         }
     }
@@ -75,6 +102,10 @@ public class MinecraftListener {
         HashMap<String, String> arguments = new HashMap<>();
         arguments.put("MESSAGE", event.getMessage());
 
+        MinecraftConfig minecraftConfig = Configuration.getConfig().minecraft;
+        MinecraftDimensionConfig dimensionConfig = minecraftConfig.dimensions.getDimension(event.getPlayer().dimension);
+        MinecraftDimensionConfig genericConfig = minecraftConfig.dimensions.generic;
+
         // TODO: Change to use dimension
         DiscordClient.getInstance().broadcast(
             new Message(
@@ -83,7 +114,13 @@ public class MinecraftListener {
                 Configuration.getConfig().minecraft.messages.chatMessage,
                 arguments
             ),
-            Configuration.getConfig().minecraft.dimensions.generic.discordChannel.getChannels()
+            dimensionConfig.relayChat.getChannels(
+                genericConfig.relayChat.getChannels(
+                    dimensionConfig.discordChannel.getChannels(
+                        genericConfig.discordChannel
+                    )
+                )
+            )
         );
     }
 
@@ -109,6 +146,10 @@ public class MinecraftListener {
             //noinspection deprecation
             arguments.put("DESCRIPTION", I18n.translateToLocalFormatted(achievement.achievementDescription, "KEY"));
 
+            MinecraftConfig minecraftConfig = Configuration.getConfig().minecraft;
+            MinecraftDimensionConfig dimensionConfig = minecraftConfig.dimensions.getDimension(entityPlayer.dimension);
+            MinecraftDimensionConfig genericConfig = minecraftConfig.dimensions.generic;
+
             DiscordClient.getInstance().broadcast(
                 new Message(
                     entityPlayer.getDisplayNameString(),
@@ -116,7 +157,13 @@ public class MinecraftListener {
                     Configuration.getConfig().minecraft.messages.achievement,
                     arguments
                 ),
-                Configuration.getConfig().minecraft.dimensions.generic.discordChannel.getChannels()
+                dimensionConfig.relayAchievements.getChannels(
+                    genericConfig.relayAchievements.getChannels(
+                        dimensionConfig.discordChannel.getChannels(
+                            genericConfig.discordChannel
+                        )
+                    )
+                )
             );
         }
     }
@@ -125,13 +172,23 @@ public class MinecraftListener {
     public void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event) {
         if (event.isCanceled() || event.player == null) return;
 
+        MinecraftConfig minecraftConfig = Configuration.getConfig().minecraft;
+        MinecraftDimensionConfig dimensionConfig = minecraftConfig.dimensions.getDimension(event.player.dimension);
+        MinecraftDimensionConfig genericConfig = minecraftConfig.dimensions.generic;
+
         DiscordClient.getInstance().broadcast(
             new Message(
                 event.player.getDisplayNameString(),
                 "https://minotar.net/avatar/" + event.player.getName() + "/128.png",
                 Configuration.getConfig().minecraft.messages.playerJoin
             ),
-            Configuration.getConfig().minecraft.dimensions.generic.discordChannel.getChannels()
+            dimensionConfig.relayPlayerJoin.getChannels(
+                genericConfig.relayPlayerJoin.getChannels(
+                    dimensionConfig.discordChannel.getChannels(
+                        genericConfig.discordChannel
+                    )
+                )
+            )
         );
     }
 
@@ -139,13 +196,23 @@ public class MinecraftListener {
     public void onPlayerLeave(PlayerEvent.PlayerLoggedOutEvent event) {
         if (event.isCanceled() || event.player == null) return;
 
+        MinecraftConfig minecraftConfig = Configuration.getConfig().minecraft;
+        MinecraftDimensionConfig dimensionConfig = minecraftConfig.dimensions.getDimension(event.player.dimension);
+        MinecraftDimensionConfig genericConfig = minecraftConfig.dimensions.generic;
+
         DiscordClient.getInstance().broadcast(
             new Message(
                 event.player.getDisplayNameString(),
                 "https://minotar.net/avatar/" + event.player.getName() + "/128.png",
                 Configuration.getConfig().minecraft.messages.playerLeave
             ),
-            Configuration.getConfig().minecraft.dimensions.generic.discordChannel.getChannels()
+            dimensionConfig.relayPlayerLeave.getChannels(
+                genericConfig.relayPlayerLeave.getChannels(
+                    dimensionConfig.discordChannel.getChannels(
+                        genericConfig.discordChannel
+                    )
+                )
+            )
         );
     }
 
@@ -161,14 +228,24 @@ public class MinecraftListener {
             HashMap<String, String> arguments = new HashMap<>();
             arguments.put("REASON", entityPlayer.getCombatTracker().getDeathMessage().getUnformattedText().replace(entityPlayer.getDisplayNameString(), "").trim());
 
+            MinecraftConfig minecraftConfig = Configuration.getConfig().minecraft;
+            MinecraftDimensionConfig dimensionConfig = minecraftConfig.dimensions.getDimension(entityLiving.dimension);
+            MinecraftDimensionConfig genericConfig = minecraftConfig.dimensions.generic;
+
             DiscordClient.getInstance().broadcast(
                 new Message(
                     entityPlayer.getDisplayNameString(),
                     "https://minotar.net/avatar/" + entityPlayer.getName() + "/128.png",
-                    Configuration.getConfig().minecraft.messages.playerDeath,
+                    minecraftConfig.messages.playerDeath,
                     arguments
                 ),
-                Configuration.getConfig().minecraft.dimensions.generic.discordChannel.getChannels()
+                dimensionConfig.relayPlayerDeath.getChannels(
+                    genericConfig.relayPlayerDeath.getChannels(
+                        dimensionConfig.discordChannel.getChannels(
+                            genericConfig.discordChannel
+                        )
+                    )
+                )
             );
         }
     }
