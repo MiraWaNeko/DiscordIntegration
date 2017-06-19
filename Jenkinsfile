@@ -17,7 +17,8 @@ pipeline {
     }
     stage('Archive') {
       steps {
-        archive 'build/libs/*jar'
+        archiveArtifacts 'build/libs/*.jar'
+        fingerprint 'build/libs/*.jar'
       }
     }
   }

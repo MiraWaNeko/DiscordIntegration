@@ -31,5 +31,5 @@ public class Patterns {
     public static final Pattern singleCodePattern = Pattern.compile("`(.*)`");
     public static final Pattern multiCodePattern = Pattern.compile("```(.*)```");
 
-    public static final Pattern tagPattern = Pattern.compile("@([^\\s])");
+    public static final Pattern tagPattern = Pattern.compile("@([^\\s]+)");
 }

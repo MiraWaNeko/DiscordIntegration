@@ -17,21 +17,59 @@ package chikachi.discord.core.config.minecraft;
 import chikachi.discord.core.config.types.ChannelConfigType;
 import com.google.gson.annotations.Since;
 
-public class MinecraftDimensionConfig extends AbstractRelay {
+public class MinecraftDimensionConfig {
     @Since(3.0)
     public String chatPrefix;
     @Since(3.0)
+    public boolean canMentionUsers = true;
+    @Since(3.0)
+    public boolean canMentionRoles = true;
+    @Since(3.0)
     public ChannelConfigType discordChannel;
+    @Since(3.0)
+    public ChannelConfigType relayAchievements = new ChannelConfigType();
+    @Since(3.0)
+    public ChannelConfigType relayChat = new ChannelConfigType();
+    @Since(3.0)
+    public ChannelConfigType relayCommands = new ChannelConfigType();
+    @Since(3.0)
+    public ChannelConfigType relayPlayerJoin = new ChannelConfigType();
+    @Since(3.0)
+    public ChannelConfigType relayPlayerLeave = new ChannelConfigType();
+    @Since(3.0)
+    public ChannelConfigType relayPlayerDeath = new ChannelConfigType();
 
     public void fillFields() {
-        super.fillFields();
-
         if (this.chatPrefix == null) {
             this.chatPrefix = "";
         }
 
         if (this.discordChannel == null) {
             this.discordChannel = new ChannelConfigType(false);
+        }
+
+        if (this.relayAchievements == null) {
+            this.relayAchievements = new ChannelConfigType();
+        }
+
+        if (this.relayChat == null) {
+            this.relayChat = new ChannelConfigType();
+        }
+
+        if (this.relayCommands == null) {
+            this.relayCommands = new ChannelConfigType();
+        }
+
+        if (this.relayPlayerJoin == null) {
+            this.relayPlayerJoin = new ChannelConfigType();
+        }
+
+        if (this.relayPlayerLeave == null) {
+            this.relayPlayerLeave = new ChannelConfigType();
+        }
+
+        if (this.relayPlayerDeath == null) {
+            this.relayPlayerDeath = new ChannelConfigType();
         }
     }
 }

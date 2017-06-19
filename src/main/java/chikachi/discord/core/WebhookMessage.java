@@ -15,42 +15,55 @@
 package chikachi.discord.core;
 
 import chikachi.discord.core.config.Configuration;
-import com.google.gson.Gson;
+import net.dv8tion.jda.core.JDA;
+import net.dv8tion.jda.core.requests.Request;
+import net.dv8tion.jda.core.requests.Response;
+import net.dv8tion.jda.core.requests.RestAction;
+import net.dv8tion.jda.core.requests.Route;
+import org.json.JSONObject;
 
-import javax.net.ssl.HttpsURLConnection;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.net.URL;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class WebhookMessage {
     public String content;
     public String username;
     public String avatar_url;
 
-    public boolean send(Long channelId) {
-        try {
-            URL url = new URL(Configuration.getConfig().discord.channels.channels.get(channelId).webhook.trim());
-            HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
-
-            connection.setRequestMethod("POST");
-            connection.setRequestProperty("User-Agent", CoreConstants.MODNAME + " " + CoreConstants.VERSION);
-            connection.setDoOutput(true);
-
-            DataOutputStream writer = new DataOutputStream(connection.getOutputStream());
-
-            Gson gson = new Gson();
-            writer.writeBytes(gson.toJson(this));
-            writer.flush();
-            writer.close();
-
-            int responseCode = connection.getResponseCode();
-            return !(responseCode < 200 || 299 < responseCode);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (Exception e) {
-            CoreLogger.Log(e.getMessage());
+    boolean queue(JDA jda, Long channelId) {
+        if (this.content == null || this.content.trim().length() == 0) {
+            return false;
         }
 
+        String webhook = Configuration.getConfig().discord.channels.channels.get(channelId).webhook.trim();
+        Matcher matcher = Pattern.compile("https://(ptb\\.|)discordapp\\.com/api/webhooks/([0-9]+)/([a-zA-Z0-9\\-_]+)").matcher(webhook);
+        if (matcher.matches()) {
+            String webhookId = matcher.group(2);
+            String webhookToken = matcher.group(3);
+
+            Route.CompiledRoute route = Route.Webhooks.EXECUTE_WEBHOOK.compile(webhookId, webhookToken);
+
+            JSONObject json = new JSONObject();
+            if (this.username != null) {
+                json.put("username", this.username);
+            }
+            if (this.avatar_url != null) {
+                json.put("avatar_url", this.avatar_url);
+            }
+            json.put("content", this.content);
+
+            new RestAction<Void>(jda, route, json) {
+                protected void handleResponse(Response response, Request<Void> request) {
+                    if (response.isOk()) {
+                        request.onSuccess(null);
+                    } else {
+                        request.onFailure(response);
+                    }
+
+                }
+            }.queue();
+            return true;
+        }
         return false;
     }
 }

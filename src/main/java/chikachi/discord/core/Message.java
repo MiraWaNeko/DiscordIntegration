@@ -14,10 +14,18 @@
 
 package chikachi.discord.core;
 
+import chikachi.discord.core.config.Configuration;
 import chikachi.discord.core.config.types.MessageConfig;
+import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.Channel;
+import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.Role;
+import net.dv8tion.jda.core.entities.TextChannel;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
+import java.util.regex.Matcher;
 
 public class Message {
     private final String author;
@@ -58,23 +66,69 @@ public class Message {
         this.arguments.put("USER", getAuthor());
     }
 
-    public WebhookMessage toWebhook() {
+    public WebhookMessage toWebhook(TextChannel channel) {
         WebhookMessage webhookMessage = new WebhookMessage();
-        webhookMessage.content = formatText(message.webhook);
+        webhookMessage.content = formatText(message.webhook, channel);
         webhookMessage.username = this.author;
         webhookMessage.avatar_url = this.avatar_url;
         return webhookMessage;
     }
 
     public String getAuthor() {
-        return this.author != null ? this.author : "Server";
+        return this.author;
     }
 
     private String formatText(String text) {
+        return formatText(text, null);
+    }
+
+    private String formatText(String text, Channel channel) {
         String message = text;
         for (Map.Entry<String, String> entry : this.arguments.entrySet()) {
             message = message.replace("{" + entry.getKey() + "}", entry.getValue());
         }
+
+        if (channel != null) {
+            if (message.contains("@")) {
+                Matcher m = Patterns.tagPattern.matcher(message);
+                StringBuffer sb = new StringBuffer();
+                while (m.find()) {
+                    String name = m.group(1);
+
+                    if (Configuration.getConfig().minecraft.dimensions.generic.canMentionUsers) {
+                        Optional<Member> theMember = channel.getGuild().getMembersByName(name, true)
+                            .stream()
+                            .filter(member -> member.hasPermission(channel, Permission.MESSAGE_READ))
+                            .findAny();
+
+                        if (theMember.isPresent()) {
+                            m.appendReplacement(sb, theMember.get().getAsMention());
+                            continue;
+                        }
+                    }
+
+                    if (Configuration.getConfig().minecraft.dimensions.generic.canMentionRoles) {
+                        Optional<Role> theRole =
+                            channel
+                                .getGuild()
+                                .getRolesByName(name, true)
+                                .stream()
+                                .filter(role -> role.hasPermission(channel, Permission.MESSAGE_READ))
+                                .findAny();
+
+                        if (theRole.isPresent()) {
+                            m.appendReplacement(sb, theRole.get().getAsMention());
+                            continue;
+                        }
+                    }
+
+                    m.appendReplacement(sb, name);
+                }
+                m.appendTail(sb);
+                message = sb.toString();
+            }
+        }
+
         return message;
     }
 
@@ -83,6 +137,10 @@ public class Message {
     }
 
     public String getFormattedText() {
-        return formatText(message.normal);
+        return getFormattedText(null);
+    }
+
+    public String getFormattedText(Channel channel) {
+        return formatText(getUnformattedText(), channel);
     }
 }

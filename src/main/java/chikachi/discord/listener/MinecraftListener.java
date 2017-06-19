@@ -48,15 +48,15 @@ public class MinecraftListener {
         String commandName = event.getCommand().getName();
         ICommandSender sender = event.getSender();
 
+        MinecraftConfig minecraftConfig = Configuration.getConfig().minecraft;
+        MinecraftDimensionConfig genericConfig = minecraftConfig.dimensions.generic;
+
         if (commandName.equalsIgnoreCase("say")) {
             if (sender != null && Configuration.getConfig().minecraft.dimensions.generic.ignoreFakePlayerChat && sender instanceof FakePlayer)
                 return;
 
             HashMap<String, String> arguments = new HashMap<>();
             arguments.put("MESSAGE", Joiner.on(" ").join(event.getParameters()));
-
-            MinecraftConfig minecraftConfig = Configuration.getConfig().minecraft;
-            MinecraftDimensionConfig genericConfig = minecraftConfig.dimensions.generic;
 
             ArrayList<Long> channels;
 
@@ -90,6 +90,42 @@ public class MinecraftListener {
                 channels
             );
         }
+
+        ArrayList<Long> channels;
+
+        if (sender != null) {
+            Entity entity = sender.getCommandSenderEntity();
+
+            if (entity != null) {
+                MinecraftDimensionConfig dimensionConfig = minecraftConfig.dimensions.getDimension(entity.dimension);
+
+                channels = dimensionConfig.relayCommands.getChannels(
+                    genericConfig.relayCommands.getChannels(
+                        dimensionConfig.discordChannel.getChannels(
+                            genericConfig.discordChannel
+                        )
+                    )
+                );
+            } else {
+                channels = genericConfig.relayCommands.getChannels(genericConfig.discordChannel);
+            }
+        } else {
+            channels = genericConfig.relayCommands.getChannels(genericConfig.discordChannel);
+        }
+
+        HashMap<String, String> arguments = new HashMap<>();
+        arguments.put("COMMAND", event.getCommand().getName());
+        arguments.put("ARGUMENTS", Joiner.on(" ").join(event.getParameters()));
+
+        DiscordClient.getInstance().broadcast(
+            new Message(
+                sender != null ? sender.getName() : null,
+                sender != null && sender instanceof EntityPlayer ? "https://minotar.net/avatar/" + sender.getName() + "/128.png" : null,
+                minecraftConfig.messages.command,
+                arguments
+            ),
+            channels
+        );
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
@@ -106,7 +142,6 @@ public class MinecraftListener {
         MinecraftDimensionConfig dimensionConfig = minecraftConfig.dimensions.getDimension(event.getPlayer().dimension);
         MinecraftDimensionConfig genericConfig = minecraftConfig.dimensions.generic;
 
-        // TODO: Change to use dimension
         DiscordClient.getInstance().broadcast(
             new Message(
                 event.getUsername(),
@@ -141,7 +176,6 @@ public class MinecraftListener {
 
             HashMap<String, String> arguments = new HashMap<>();
             arguments.put("ACHIEVEMENT", achievement.getStatName().getUnformattedText());
-            // TODO: Change to use dimension
             // TODO: Figure out what to do with I18n - Might remove the description...
             //noinspection deprecation
             arguments.put("DESCRIPTION", I18n.translateToLocalFormatted(achievement.achievementDescription, "KEY"));
@@ -216,11 +250,11 @@ public class MinecraftListener {
         );
     }
 
-    @SubscribeEvent(priority = EventPriority.LOWEST, receiveCanceled = true)
+    @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onPlayerDeath(LivingDeathEvent event) {
         EntityLivingBase entityLiving = event.getEntityLiving();
 
-        if (entityLiving == null) return;
+        if (event.isCanceled() || entityLiving == null) return;
 
         if (entityLiving instanceof EntityPlayer) {
             EntityPlayer entityPlayer = (EntityPlayer) entityLiving;

@@ -15,14 +15,14 @@
 package chikachi.discord.core;
 
 import chikachi.discord.core.config.Configuration;
-import chikachi.discord.core.config.types.MessageConfig;
 import chikachi.discord.core.config.minecraft.MinecraftConfig;
+import chikachi.discord.core.config.types.MessageConfig;
 import com.google.gson.Gson;
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
-import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.SelfUser;
+import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.ReadyEvent;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
@@ -137,91 +137,28 @@ public class DiscordClient extends ListenerAdapter {
         return this.jda.getSelfUser();
     }
 
-    public void broadcast(String message, int dimensionId) {
-
-    }
-
-    public void broadcast(String message, ArrayList<Long> channels) {
-        if (channels == null || channels.size() == 0) return;
-
-        for (Long channelId : channels) {
-            if (Configuration.getConfig().discord.channels.channels.containsKey(channelId)) {
-                if (Configuration.getConfig().discord.channels.channels.get(channelId).webhook.trim().length() > 0) {
-                    try {
-                        URL url = new URL(Configuration.getConfig().discord.channels.channels.get(channelId).webhook.trim());
-                        HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
-
-                        connection.setRequestMethod("POST");
-                        connection.setRequestProperty("User-Agent", CoreConstants.MODNAME + " " + CoreConstants.VERSION);
-                        connection.setDoOutput(true);
-
-                        DataOutputStream writer = new DataOutputStream(connection.getOutputStream());
-
-                        WebhookMessage webhookMessage = new WebhookMessage();
-                        webhookMessage.content = message;
-
-                        Gson gson = new Gson();
-                        writer.writeBytes(gson.toJson(webhookMessage));
-                        writer.flush();
-                        writer.close();
-
-                        int responseCode = connection.getResponseCode();
-                        if (responseCode < 200 || 299 < responseCode) {
-                            throw new Exception("Error sending webhook");
-                        }
-                        continue;
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    } catch (Exception e) {
-                        CoreLogger.Log(e.getMessage());
-                    }
-                }
-            }
-
-            MessageChannel channel = this.jda.getTextChannelById(channelId);
-            if (channel != null) {
-                channel.sendMessage(message).queue();
-            }
-        }
-    }
-
     public void broadcast(MessageConfig message, ArrayList<Long> channels) {
         if (channels == null || channels.size() == 0) return;
 
-        for (Long channelId : channels) {
-            if (Configuration.getConfig().discord.channels.channels.containsKey(channelId)) {
-                if (Configuration.getConfig().discord.channels.channels.get(channelId).webhook.trim().length() > 0) {
-                    WebhookMessage webhookMessage = new WebhookMessage();
-                    webhookMessage.content = message.webhook;
-                    if (webhookMessage.send(channelId)) {
-                        continue;
-                    }
-                }
-            }
-
-            MessageChannel channel = this.jda.getTextChannelById(channelId);
-            if (channel != null) {
-                channel.sendMessage(message.normal).queue();
-            }
-        }
+        broadcast(new Message(message), channels);
     }
 
     public void broadcast(Message message, ArrayList<Long> channels) {
         if (channels == null || channels.size() == 0) return;
 
         for (Long channelId : channels) {
-            if (Configuration.getConfig().discord.channels.channels.containsKey(channelId)) {
-                if (Configuration.getConfig().discord.channels.channels.get(channelId).webhook.trim().length() > 0) {
-                    WebhookMessage webhookMessage = message.toWebhook();
-                    if (webhookMessage.send(channelId)) {
-                        continue;
+            TextChannel channel = this.jda.getTextChannelById(channelId);
+            if (channel != null) {
+                if (Configuration.getConfig().discord.channels.channels.containsKey(channelId)) {
+                    if (Configuration.getConfig().discord.channels.channels.get(channelId).webhook.trim().length() > 0) {
+                        WebhookMessage webhookMessage = message.toWebhook(channel);
+                        if (webhookMessage.queue(this.jda, channelId)) {
+                            continue;
+                        }
                     }
                 }
-            }
 
-            MessageChannel channel = this.jda.getTextChannelById(channelId);
-            if (channel != null) {
-                channel.sendMessage(message.getFormattedText()).queue();
+                channel.sendMessage(message.getFormattedText(channel)).queue();
             }
         }
     }

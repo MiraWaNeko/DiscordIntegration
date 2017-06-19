@@ -21,14 +21,17 @@ public class MinecraftMessagesConfig {
     private transient static final String CHAT_MESSAGE_NORMAL = "**[{USER}]** {MESSAGE}";
     private transient static final String CHAT_MESSAGE_WEBHOOK = "{MESSAGE}";
 
+    private transient static final String COMMAND_NORMAL = "**[{USER}]** executed **{COMMAND}** with the arguments **{ARGUMENTS}**";
+    private transient static final String COMMAND_WEBHOOK = "*executed **{COMMAND}** with the arguments **{ARGUMENTS}***";
+
     private transient static final String PLAYER_JOIN_NORMAL = "**{USER}** just joined the server!";
     private transient static final String PLAYER_JOIN_WEBHOOK = "*Joined the server!*";
 
     private transient static final String PLAYER_LEAVE_NORMAL = "**{USER}** just left the server!";
     private transient static final String PLAYER_LEAVE_WEBHOOK = "*Left the server!*";
 
-    private transient static final String PLAYER_DEATH_NORMAL = "**{USER}** just died!";
-    private transient static final String PLAYER_DEATH_WEBHOOK = "*Died!*";
+    private transient static final String PLAYER_DEATH_NORMAL = "**{USER}** just died due to {REASON}!";
+    private transient static final String PLAYER_DEATH_WEBHOOK = "*{REASON}*";
 
     private transient static final String ACHIEVEMENT_NORMAL = "**{USER}** just gained the achievement **{ACHIEVEMENT}**!\n*{DESCRIPTION}*";
     private transient static final String ACHIEVEMENT_WEBHOOK = "*Gained the achievement **{ACHIEVEMENT}**!\n{DESCRIPTION}*";
@@ -39,6 +42,8 @@ public class MinecraftMessagesConfig {
 
     @Since(3.0)
     public MessageConfig chatMessage = null;
+    @Since(3.0)
+    public MessageConfig command = null;
     @Since(3.0)
     public MessageConfig playerJoin = null;
     @Since(3.0)
@@ -63,6 +68,16 @@ public class MinecraftMessagesConfig {
         }
         if (this.chatMessage.webhook == null || this.chatMessage.webhook.trim().length() == 0) {
             this.chatMessage.webhook = CHAT_MESSAGE_WEBHOOK;
+        }
+
+        if (this.command == null) {
+            this.command = new MessageConfig(COMMAND_NORMAL, COMMAND_WEBHOOK);
+        }
+        if (this.command.normal == null || this.chatMessage.normal.trim().length() == 0) {
+            this.command.normal = COMMAND_NORMAL;
+        }
+        if (this.command.webhook == null || this.chatMessage.webhook.trim().length() == 0) {
+            this.command.webhook = COMMAND_WEBHOOK;
         }
 
         if (this.playerJoin == null) {

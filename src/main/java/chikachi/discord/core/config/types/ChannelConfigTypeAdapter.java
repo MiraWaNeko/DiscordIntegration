@@ -78,7 +78,8 @@ public class ChannelConfigTypeAdapter implements JsonSerializer<ChannelConfigTyp
             if (primitive.isNumber()) {
                 Long longValue = primitive.getAsLong();
                 if (longValue > 0) {
-                    channelConfigType.addChannel(longValue)
+                    channelConfigType
+                        .addChannel(longValue)
                         .setDefault(false)
                         .setDisabled(false);
                 }
