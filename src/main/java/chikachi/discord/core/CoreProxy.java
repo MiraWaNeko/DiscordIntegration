@@ -49,7 +49,7 @@ public class CoreProxy {
         MinecraftConfig minecraftConfig = Configuration.getConfig().minecraft;
 
         DiscordClient.getInstance().broadcast(
-            minecraftConfig.messages.serverStop,
+            minecraftConfig.dimensions.generic.messages.serverStop,
             minecraftConfig.dimensions.generic.relayServerStop.getChannels(
                 minecraftConfig.dimensions.generic.discordChannel
             )
@@ -63,7 +63,7 @@ public class CoreProxy {
             MinecraftConfig minecraftConfig = Configuration.getConfig().minecraft;
 
             DiscordClient.getInstance().broadcast(
-                minecraftConfig.messages.serverCrash,
+                minecraftConfig.dimensions.generic.messages.serverCrash,
                 minecraftConfig.dimensions.generic.relayServerCrash.getChannels(
                     minecraftConfig.dimensions.generic.discordChannel
                 )

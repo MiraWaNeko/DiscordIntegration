@@ -16,58 +16,58 @@ package chikachi.discord.core.config.types;
 
 import java.util.ArrayList;
 
-public class ChannelConfigType {
-    private ArrayList<Long> channels;
+public class DimensionConfigType {
+    private ArrayList<Integer> dimensions;
     private boolean isDefault;
     private boolean isDisabled;
 
-    public ChannelConfigType() {
+    public DimensionConfigType() {
         this(false);
     }
 
-    public ChannelConfigType(boolean isDisabled) {
+    public DimensionConfigType(boolean isDisabled) {
         this(!isDisabled, isDisabled);
     }
 
-    public ChannelConfigType(boolean isDefault, boolean isDisabled) {
+    public DimensionConfigType(boolean isDefault, boolean isDisabled) {
         this(new ArrayList<>(), isDefault, isDisabled);
     }
 
-    public ChannelConfigType(ArrayList<Long> channels, boolean isDefault, boolean isDisabled) {
-        this.channels = channels;
+    public DimensionConfigType(ArrayList<Integer> dimensions, boolean isDefault, boolean isDisabled) {
+        this.dimensions = dimensions;
         this.isDefault = isDefault;
         this.isDisabled = isDisabled;
     }
 
-    public ChannelConfigType addChannel(Long channel) {
-        this.channels.add(channel);
+    public DimensionConfigType addDimension(int dimension) {
+        this.dimensions.add(dimension);
         return this;
     }
 
-    public ArrayList<Long> getChannels() {
-        return isDisabled() ? null : (isDefault() ? null : channels);
+    public ArrayList<Integer> getDimensions() {
+        return isDisabled() ? null : (isDefault() ? null : dimensions);
     }
 
-    public ChannelConfigType setChannels(ArrayList<Long> channels) {
-        if (channels != null) {
-            this.channels = channels;
+    public DimensionConfigType setDimensions(ArrayList<Integer> dimensions) {
+        if (dimensions != null) {
+            this.dimensions = dimensions;
         }
         return this;
     }
 
-    public ArrayList<Long> getChannels(ArrayList<Long> defaultChannels) {
-        return isDisabled() ? null : (isDefault() ? defaultChannels : channels);
+    public ArrayList<Integer> getDimensions(ArrayList<Integer> defaultDimensions) {
+        return isDisabled() ? null : (isDefault() ? defaultDimensions : dimensions);
     }
 
-    public ArrayList<Long> getChannels(ChannelConfigType defaultChannels) {
-        return getChannels(defaultChannels.channels);
+    public ArrayList<Integer> getDimensions(DimensionConfigType defaultDimensions) {
+        return getDimensions(defaultDimensions.dimensions);
     }
 
     public boolean isDefault() {
         return isDefault;
     }
 
-    public ChannelConfigType setDefault(boolean aDefault) {
+    public DimensionConfigType setDefault(boolean aDefault) {
         isDefault = aDefault;
         return this;
     }
@@ -76,7 +76,7 @@ public class ChannelConfigType {
         return isDisabled;
     }
 
-    public ChannelConfigType setDisabled(boolean disabled) {
+    public DimensionConfigType setDisabled(boolean disabled) {
         isDisabled = disabled;
         return this;
     }

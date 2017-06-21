@@ -47,4 +47,13 @@ public class DiscordConfig {
     public boolean isIgnoringUser(User user) {
         return ignoresUsers.contains(user.getId()) || ignoresUsers.contains(user.getName());
     }
+
+    public ArrayList<CommandConfig> getCommandConfigs() {
+        ArrayList<CommandConfig> list = new ArrayList<>();
+
+        list.addAll(channels.generic.commands);
+        channels.channels.forEach((key, value) -> list.addAll(value.commands));
+
+        return list;
+    }
 }

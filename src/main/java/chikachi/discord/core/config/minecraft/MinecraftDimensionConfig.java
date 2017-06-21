@@ -38,6 +38,8 @@ public class MinecraftDimensionConfig {
     public ChannelConfigType relayPlayerLeave = new ChannelConfigType();
     @Since(3.0)
     public ChannelConfigType relayPlayerDeath = new ChannelConfigType();
+    @Since(3.0)
+    public MinecraftMessagesConfig messages = new MinecraftMessagesConfig();
 
     public void fillFields() {
         if (this.chatPrefix == null) {
@@ -71,5 +73,10 @@ public class MinecraftDimensionConfig {
         if (this.relayPlayerDeath == null) {
             this.relayPlayerDeath = new ChannelConfigType();
         }
+
+        if (this.messages == null) {
+            this.messages = new MinecraftMessagesConfig();
+        }
+        this.messages.fillFields();
     }
 }

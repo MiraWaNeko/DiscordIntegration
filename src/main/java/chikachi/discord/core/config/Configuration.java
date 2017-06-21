@@ -16,11 +16,7 @@ package chikachi.discord.core.config;
 
 import chikachi.discord.core.CoreConstants;
 import chikachi.discord.core.CoreLogger;
-import chikachi.discord.core.config.types.ChannelConfigType;
-import chikachi.discord.core.config.types.ChannelConfigTypeAdapter;
-import chikachi.discord.core.config.types.MessageConfig;
-import chikachi.discord.core.config.types.MessageConfigAdapter;
-import com.google.gson.ExclusionStrategy;
+import chikachi.discord.core.config.types.*;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
@@ -52,6 +48,7 @@ public class Configuration {
 
         Gson gson = new GsonBuilder()
             .registerTypeAdapter(ChannelConfigType.class, new ChannelConfigTypeAdapter())
+            .registerTypeAdapter(DimensionConfigType.class, new DimensionConfigTypeAdapter())
             .registerTypeAdapter(MessageConfig.class, new MessageConfigAdapter())
             .setVersion(3.0)
             .serializeNulls()
@@ -90,6 +87,7 @@ public class Configuration {
     public static void save() {
         Gson gson = new GsonBuilder()
             .registerTypeAdapter(ChannelConfigType.class, new ChannelConfigTypeAdapter())
+            .registerTypeAdapter(DimensionConfigType.class, new DimensionConfigTypeAdapter())
             .registerTypeAdapter(MessageConfig.class, new MessageConfigAdapter())
             .setVersion(3.0)
             .setPrettyPrinting()

@@ -14,8 +14,11 @@
 
 package chikachi.discord;
 
+import chikachi.discord.command.CommandDiscord;
 import chikachi.discord.core.CoreConstants;
 import chikachi.discord.core.CoreProxy;
+import chikachi.discord.core.DiscordClient;
+import chikachi.discord.listener.DiscordListener;
 import chikachi.discord.listener.MinecraftListener;
 import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.common.MinecraftForge;
@@ -25,7 +28,7 @@ import net.minecraftforge.fml.common.event.*;
 @Mod(modid = CoreConstants.MODID, name = CoreConstants.MODNAME, version = CoreConstants.VERSION, serverSideOnly = true, acceptableRemoteVersions = "*")
 public class DiscordIntegration {
     @Mod.Instance
-    static DiscordIntegration instance;
+    public static DiscordIntegration instance;
     static MinecraftServer minecraftServer;
 
     private static CoreProxy coreProxy = new CoreProxy();
@@ -45,6 +48,9 @@ public class DiscordIntegration {
     @Mod.EventHandler
     public void onServerStarting(FMLServerStartingEvent event) {
         coreProxy.onServerStarting();
+        DiscordClient.getInstance().addEventListner(new DiscordListener());
+
+        event.registerServerCommand(new CommandDiscord());
     }
 
     @Mod.EventHandler

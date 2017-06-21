@@ -16,13 +16,7 @@ package chikachi.discord.core.config.discord;
 
 import com.google.gson.annotations.Since;
 
-public class DiscordChannelConfig {
-    @Since(3.0)
-    public String commandPrefix;
-    @Since(3.0)
-    public Object canExecuteCommands;
-    @Since(3.0)
-    public Object relayChat = true;
+public class DiscordChannelConfig extends DiscordChannelGenericConfig {
     @Since(3.0)
     public String webhook = "";
 }

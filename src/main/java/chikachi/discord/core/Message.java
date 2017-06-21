@@ -85,6 +85,9 @@ public class Message {
     private String formatText(String text, Channel channel) {
         String message = text;
         for (Map.Entry<String, String> entry : this.arguments.entrySet()) {
+            if (entry == null || entry.getKey() == null || entry.getValue() == null) {
+                continue;
+            }
             message = message.replace("{" + entry.getKey() + "}", entry.getValue());
         }
 

@@ -15,25 +15,37 @@
 package chikachi.discord;
 
 import com.mojang.authlib.GameProfile;
+import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.UUID;
 
+@ParametersAreNonnullByDefault
 public class DiscordCommandSender extends FakePlayer {
     private static final UUID playerUUID = UUID.fromString("828653ca-0185-43d4-b26d-620a7f016be6");
+    private final MessageChannel channel;
 
-    public DiscordCommandSender(User user) {
+    public DiscordCommandSender(MessageChannel channel, User user) {
         super(FMLCommonHandler.instance().getMinecraftServerInstance().worlds[0], new GameProfile(playerUUID, "@" + user.getName()));
+        this.channel = channel;
     }
 
-    public DiscordCommandSender(String name) {
+    public DiscordCommandSender(MessageChannel channel, String name) {
         super(FMLCommonHandler.instance().getMinecraftServerInstance().worlds[0], new GameProfile(playerUUID, "@" + name));
+        this.channel = channel;
     }
 
     @Override
     public boolean canUseCommand(int i, String s) {
         return true;
+    }
+
+    @Override
+    public void sendMessage(ITextComponent component) {
+        this.channel.sendMessage(component.getFormattedText());
     }
 }

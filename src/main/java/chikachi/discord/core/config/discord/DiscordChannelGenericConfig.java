@@ -14,27 +14,41 @@
 
 package chikachi.discord.core.config.discord;
 
+import chikachi.discord.core.config.types.DimensionConfigType;
 import com.google.gson.annotations.Since;
+
+import java.util.ArrayList;
 
 public class DiscordChannelGenericConfig {
     @Since(3.0)
-    public String commandPrefix = "!";
+    public String commandPrefix;
     @Since(3.0)
-    public Object canExecuteCommands = false;
+    public boolean canExecuteCommands = false;
     @Since(3.0)
-    public Object relayChat = true;
+    public DimensionConfigType relayChat;
+    @Since(3.0)
+    public DiscordMessagesConfig messages;
+    @Since(3.0)
+    public ArrayList<CommandConfig> commands;
 
     public void fillFields() {
-        if (this.commandPrefix == null) {
-            commandPrefix = "!";
-        }
-
-        if (this.canExecuteCommands == null) {
-            canExecuteCommands = false;
+        if (!(this instanceof DiscordChannelConfig)) {
+            if (this.commandPrefix == null) {
+                this.commandPrefix = "!";
+            }
         }
 
         if (this.relayChat == null) {
-            relayChat = true;
+            relayChat = new DimensionConfigType();
+        }
+
+        if (this.messages == null) {
+            this.messages = new DiscordMessagesConfig();
+        }
+        this.messages.fillFields();
+
+        if (this.commands == null) {
+            commands = new ArrayList<>();
         }
     }
 }

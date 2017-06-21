@@ -19,18 +19,11 @@ import com.google.gson.annotations.Since;
 public class MinecraftConfig {
     @Since(3.0)
     public MinecraftMainDimensionConfig dimensions = new MinecraftMainDimensionConfig();
-    @Since(3.0)
-    public MinecraftMessagesConfig messages = new MinecraftMessagesConfig();
 
     public void fillFields() {
         if (this.dimensions == null) {
             this.dimensions = new MinecraftMainDimensionConfig();
         }
         this.dimensions.fillFields();
-
-        if (this.messages == null) {
-            this.messages = new MinecraftMessagesConfig();
-        }
-        this.messages.fillFields();
     }
 }

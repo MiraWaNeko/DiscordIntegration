@@ -17,7 +17,6 @@ package chikachi.discord.core.config.types;
 import com.google.gson.*;
 
 import java.lang.reflect.Type;
-import java.util.ArrayList;
 
 public class MessageConfigAdapter implements JsonSerializer<MessageConfig>, JsonDeserializer<MessageConfig> {
     @Override

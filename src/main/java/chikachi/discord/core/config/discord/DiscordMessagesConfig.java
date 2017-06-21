@@ -14,26 +14,21 @@
 
 package chikachi.discord.core.config.discord;
 
+import chikachi.discord.core.config.types.MessageConfig;
 import com.google.gson.annotations.Since;
 
-import java.util.HashMap;
+public class DiscordMessagesConfig {
+    private transient static final String CHAT_MESSAGE_NORMAL = "[{USER}] {MESSAGE}";
 
-public class DiscordMainChannelConfig {
     @Since(3.0)
-    public DiscordChannelGenericConfig generic = new DiscordChannelGenericConfig();
-    @Since(3.0)
-    public HashMap<Long, DiscordChannelConfig> channels = new HashMap<>();
+    public MessageConfig chatMessage = null;
 
     public void fillFields() {
-        if (this.generic == null) {
-            this.generic = new DiscordChannelGenericConfig();
+        if (this.chatMessage == null) {
+            this.chatMessage = new MessageConfig(CHAT_MESSAGE_NORMAL);
         }
-        this.generic.fillFields();
-
-        if (this.channels == null) {
-            this.channels = new HashMap<>();
-        } else {
-            this.channels.forEach((key, value) -> value.fillFields());
+        if (this.chatMessage.normal == null || this.chatMessage.normal.trim().length() == 0) {
+            this.chatMessage.normal = CHAT_MESSAGE_NORMAL;
         }
     }
 }

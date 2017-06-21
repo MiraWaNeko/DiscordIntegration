@@ -15,9 +15,10 @@
 package chikachi.discord.core;
 
 import chikachi.discord.core.config.Configuration;
+import chikachi.discord.core.config.discord.DiscordChannelConfig;
+import chikachi.discord.core.config.discord.DiscordConfig;
 import chikachi.discord.core.config.minecraft.MinecraftConfig;
 import chikachi.discord.core.config.types.MessageConfig;
-import com.google.gson.Gson;
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
@@ -27,10 +28,6 @@ import net.dv8tion.jda.core.events.ReadyEvent;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 
-import javax.net.ssl.HttpsURLConnection;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
 
 public class DiscordClient extends ListenerAdapter {
@@ -60,24 +57,13 @@ public class DiscordClient extends ListenerAdapter {
         MinecraftConfig minecraftConfig = Configuration.getConfig().minecraft;
 
         DiscordClient.getInstance().broadcast(
-            new Message(minecraftConfig.messages.serverStart),
+            new Message(minecraftConfig.dimensions.generic.messages.serverStart),
             minecraftConfig.dimensions.generic.relayServerStart.getChannels(
                 minecraftConfig.dimensions.generic.discordChannel
             )
         );
 
         this.isReady = false;
-    }
-
-    @Override
-    public void onMessageReceived(MessageReceivedEvent event) {
-        if (Configuration.getConfig().discord.ignoresBots && event.getAuthor().isBot()) {
-            return;
-        }
-
-        if (Configuration.getConfig().discord.isIgnoringUser(event.getAuthor())) {
-            return;
-        }
     }
 
     void connect() {
@@ -103,6 +89,12 @@ public class DiscordClient extends ListenerAdapter {
         } catch (Exception e) {
             CoreLogger.Log("Failed to connect to Discord", true);
             e.printStackTrace();
+        }
+    }
+
+    public void addEventListner(ListenerAdapter eventListener) {
+        if (eventListener != null) {
+            this.jda.addEventListener(eventListener);
         }
     }
 
