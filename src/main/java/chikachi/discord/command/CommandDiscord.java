@@ -14,25 +14,20 @@
 
 package chikachi.discord.command;
 
-import chikachi.discord.DiscordCommandSender;
-import chikachi.discord.core.DiscordClient;
-import chikachi.discord.core.config.Configuration;
-import com.google.common.base.Joiner;
 import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @ParametersAreNonnullByDefault
@@ -59,66 +54,18 @@ public class CommandDiscord extends CommandBase {
             return;
         }
 
-        switch (args[0].toLowerCase()) {
+        ArrayList<String> argsList = new ArrayList<>(Arrays.asList(args));
+        String commandName = argsList.remove(0).toLowerCase();
+
+        switch (commandName) {
             case "online":
-                List<String> playerNames = new ArrayList<>();
-
-                List<EntityPlayerMP> players = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayers();
-
-                for (EntityPlayerMP player : players) {
-                    String playerName = player.getDisplayNameString();
-                    if (playerName.startsWith("@")) {
-                        continue;
-                    }
-                    playerNames.add(playerName);
-                }
-
-                int playersOnline = playerNames.size();
-                if (playersOnline == 0) {
-                    sender.sendMessage(
-                        new TextComponentString("No players online")
-                    );
-                    return;
-                }
-
-                if (playersOnline == 1) {
-                    sender.sendMessage(
-                        new TextComponentString(
-                            String.format(
-                                "Currently 1 player online: `%s`",
-                                Joiner.on(", ").join(playerNames)
-                            )
-                        )
-                    );
-                    return;
-                }
-
-                sender.sendMessage(
-                    new TextComponentString(
-                        String.format(
-                            "Currently %d players online:\n`%s`",
-                            playersOnline,
-                            Joiner.on("`, `").join(playerNames)
-                        )
-                    )
-                );
+                SubCommandOnline.execute(sender);
                 break;
             case "tps":
-                SubCommandTps.execute(sender);
+                SubCommandTps.execute(sender, argsList);
                 break;
             case "config":
-                switch (args[1].toLowerCase()) {
-                    case "load":
-                    case "reload":
-                        Configuration.load();
-                        break;
-                    case "save":
-                        Configuration.save();
-                        break;
-                    default:
-                        sender.sendMessage(new TextComponentString("Unknown command"));
-                        break;
-                }
+                SubCommandConfig.execute(sender, argsList);
                 break;
             case "unstuck":
                 break;
@@ -142,6 +89,10 @@ public class CommandDiscord extends CommandBase {
         } else if (position == 2) {
             if (args[0].equalsIgnoreCase("config")) {
                 return getListOfStringsMatchingLastWord(args, "load", "reload", "save");
+            } else if (args[0].equalsIgnoreCase("tps")) {
+                return getListOfStringsMatchingLastWord(args, "--color");
+            } else if (args[0].equalsIgnoreCase("unstuck")) {
+                return getListOfStringsMatchingLastWord(args, server.getPlayerList().getOnlinePlayerNames());
             }
         }
 
@@ -150,11 +101,11 @@ public class CommandDiscord extends CommandBase {
 
     @Override
     public boolean isUsernameIndex(String[] args, int index) {
-        return false;
+        return args.length > 1 && args[0].equalsIgnoreCase("unstuck") && index == 1;
     }
 
     @Override
     public int compareTo(@NotNull ICommand o) {
-        return 0;
+        return super.compareTo(o);
     }
 }

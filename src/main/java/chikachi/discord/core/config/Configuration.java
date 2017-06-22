@@ -60,8 +60,10 @@ public class Configuration {
             config.fillFields();
             save();
         } else {
+            FileReader fileReader = null;
             try {
-                config = gson.fromJson(new FileReader(configFile), ConfigWrapper.class);
+                fileReader = new FileReader(configFile);
+                config = gson.fromJson(fileReader, ConfigWrapper.class);
                 if (config == null) {
                     config = new ConfigWrapper();
                 }
@@ -77,7 +79,12 @@ public class Configuration {
                     config = new ConfigWrapper();
                     config.fillFields();
                 }
-                return;
+            } finally {
+                if (fileReader != null) {
+                    try {
+                        fileReader.close();
+                    } catch (IOException ignored) {}
+                }
             }
         }
 

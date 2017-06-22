@@ -45,7 +45,7 @@ public class DimensionConfigType {
     }
 
     public ArrayList<Integer> getDimensions() {
-        return isDisabled() ? null : (isDefault() ? null : dimensions);
+        return isDisabled() ? null : (isDefault() ? new ArrayList<>() : dimensions);
     }
 
     public DimensionConfigType setDimensions(ArrayList<Integer> dimensions) {

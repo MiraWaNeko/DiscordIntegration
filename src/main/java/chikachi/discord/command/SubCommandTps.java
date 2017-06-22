@@ -28,10 +28,12 @@ import java.util.*;
 
 public class SubCommandTps {
     private static final DecimalFormat timeFormatter = new DecimalFormat("########0.000");
-    private static boolean colored = false;
 
-    public static void execute(ICommandSender sender) {
+    public static void execute(ICommandSender sender, ArrayList<String> args) {
         boolean isDiscord = sender instanceof DiscordCommandSender;
+
+        boolean colored = args.stream().anyMatch(arg -> arg.equalsIgnoreCase("--color"));
+
         MinecraftServer minecraftServer = FMLCommonHandler.instance().getMinecraftServerInstance();
         List<String> tpsTimes = new ArrayList<>();
 
@@ -56,7 +58,7 @@ public class SubCommandTps {
             tpsTimes.add(
                 String.format(
                     "%s%s : Mean tick time: %s ms. Mean TPS: %s",
-                    colored ? CoreUtils.tpsToColorString(worldTPS) : "",
+                    colored ? CoreUtils.tpsToColorString(worldTPS, isDiscord) : "",
                     String.format(
                         "Dim %s %s",
                         CoreUtils.padLeft(dimensionId + "", maxDimensionIdLength),
@@ -73,7 +75,7 @@ public class SubCommandTps {
         tpsTimes.add(
             String.format(
                 "%s%s : Mean tick time: %s ms. Mean TPS: %s",
-                colored ? CoreUtils.tpsToColorString(meanTPS) : "",
+                colored ? CoreUtils.tpsToColorString(meanTPS, isDiscord) : "",
                 CoreUtils.padRight("Overall", maxDimensionIdLength + maxDimensionNameLength + 5),
                 CoreUtils.padLeft(timeFormatter.format(meanTickTime), 6),
                 CoreUtils.padLeft(timeFormatter.format(meanTPS), 6)
@@ -82,11 +84,14 @@ public class SubCommandTps {
 
         sender.sendMessage(
             new TextComponentString(
-                String.format(
-                    "\n```%s\n%s\n```",
-                    colored ? "diff" : "lua",
+                isDiscord ?
+                    String.format(
+                        "\n```%s\n%s\n```",
+                        colored ? "diff" : "lua",
+                        Joiner.on("\n").join(tpsTimes)
+                    ).replace("\\:", ":")
+                    :
                     Joiner.on("\n").join(tpsTimes)
-                ).replace("\\:", ":")
             )
         );
     }

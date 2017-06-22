@@ -32,6 +32,7 @@ import java.util.ArrayList;
 
 public class DiscordClient extends ListenerAdapter {
     private static DiscordClient instance;
+    private ArrayList<ListenerAdapter> eventListeners = new ArrayList<>();
     private boolean isReady = false;
     private JDA jda;
 
@@ -66,7 +67,7 @@ public class DiscordClient extends ListenerAdapter {
         this.isReady = false;
     }
 
-    void connect() {
+    public void connect() {
         if (this.jda != null) {
             CoreLogger.Log("Is already connected", true);
             return;
@@ -80,11 +81,17 @@ public class DiscordClient extends ListenerAdapter {
         }
 
         try {
-            this.jda = new JDABuilder(AccountType.BOT)
+            JDABuilder builder = new JDABuilder(AccountType.BOT)
                 .setToken(token)
                 .setAudioEnabled(false)
                 .setBulkDeleteSplittingEnabled(false)
-                .addEventListener(this)
+                .addEventListener(this);
+
+            for (ListenerAdapter eventListener : this.eventListeners) {
+                builder.addEventListener(eventListener);
+            }
+
+            this.jda = builder
                 .buildAsync();
         } catch (Exception e) {
             CoreLogger.Log("Failed to connect to Discord", true);
@@ -94,7 +101,15 @@ public class DiscordClient extends ListenerAdapter {
 
     public void addEventListner(ListenerAdapter eventListener) {
         if (eventListener != null) {
-            this.jda.addEventListener(eventListener);
+            if (this.eventListeners.contains(eventListener)) {
+                return;
+            }
+
+            this.eventListeners.add(eventListener);
+
+            if (this.jda != null) {
+                this.jda.addEventListener(eventListener);
+            }
         }
     }
 
@@ -102,7 +117,7 @@ public class DiscordClient extends ListenerAdapter {
         return this.jda != null && (this.isReady || this.jda.getStatus() == JDA.Status.CONNECTED);
     }
 
-    void disconnect() {
+    public void disconnect() {
         disconnect(false);
     }
 

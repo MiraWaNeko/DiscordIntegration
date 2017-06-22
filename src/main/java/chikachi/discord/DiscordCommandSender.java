@@ -46,6 +46,6 @@ public class DiscordCommandSender extends FakePlayer {
 
     @Override
     public void sendMessage(ITextComponent component) {
-        this.channel.sendMessage(component.getFormattedText());
+        this.channel.sendMessage(component.getUnformattedText()).queue();
     }
 }

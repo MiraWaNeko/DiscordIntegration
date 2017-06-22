@@ -15,6 +15,10 @@
 package chikachi.discord.core;
 
 import com.google.common.base.Joiner;
+import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.util.text.TextComponentUtils;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 
 import java.util.Collection;
 import java.util.Map;
@@ -41,12 +45,16 @@ public class CoreUtils {
     }
 
     public static String tpsToColorString(double tps) {
+        return tpsToColorString(tps, true);
+    }
+
+    public static String tpsToColorString(double tps, boolean isDiscord) {
         if (19 <= tps) {
-            return "+ ";
+            return isDiscord ? "+ " : TextFormatting.GREEN.toString();
         } else if (15 <= tps) {
-            return "! ";
+            return isDiscord ? "! " : TextFormatting.YELLOW.toString();
         } else {
-            return "- ";
+            return isDiscord ? "- " : TextFormatting.RED.toString();
         }
     }
 
