@@ -14,6 +14,7 @@
 
 package chikachi.discord.command;
 
+import chikachi.discord.core.DiscordClient;
 import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
@@ -58,16 +59,23 @@ public class CommandDiscord extends CommandBase {
         String commandName = argsList.remove(0).toLowerCase();
 
         switch (commandName) {
+            case "config":
+                SubCommandConfig.execute(sender, argsList);
+                break;
+            case "connect":
+                DiscordClient.getInstance().connect(true);
+                break;
+            case "disconnect":
+                DiscordClient.getInstance().disconnect(true);
+                break;
             case "online":
                 SubCommandOnline.execute(sender);
                 break;
             case "tps":
                 SubCommandTps.execute(sender, argsList);
                 break;
-            case "config":
-                SubCommandConfig.execute(sender, argsList);
-                break;
             case "unstuck":
+                SubCommandUnstuck.execute(sender, argsList);
                 break;
             default:
                 sender.sendMessage(new TextComponentString("Unknown command"));
@@ -85,7 +93,7 @@ public class CommandDiscord extends CommandBase {
         int position = args.length;
 
         if (position == 1) {
-            return getListOfStringsMatchingLastWord(args, "online", "tps", "config", "unstuck");
+            return getListOfStringsMatchingLastWord(args, "config", "connect", "disconnect", "online", "tps", "unstuck");
         } else if (position == 2) {
             if (args[0].equalsIgnoreCase("config")) {
                 return getListOfStringsMatchingLastWord(args, "load", "reload", "save");

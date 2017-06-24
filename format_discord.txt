@@ -1,0 +1,22 @@
+*italics*
+**bold**
+***bold italics***
+~~strikeout~~
+__underline__
+__*underline italics*__
+__**underline bold**__
+__***underline bold italics***__
+
+§nMinecraft Formatting
+
+§r§00 §11 §22 §33
+§44 §55 §66 §77
+§88 §99 §aa §bb
+§cc §dd §ee §ff
+
+§rk §kMinecraft
+§rl §lMinecraft
+§rm §mMinecraft
+§rn §nMinecraft
+§ro §oMinecraft
+§rr §rMinecraft

@@ -14,22 +14,109 @@
 
 package chikachi.discord.core;
 
+import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Patterns {
     public static final Pattern everyonePattern = Pattern.compile("(^|\\W)@everyone\\b");
     public static final Pattern herePattern = Pattern.compile("(^|\\W)@here\\b");
 
-    public static final Pattern mcFormattingPattern = Pattern.compile("§.(^|\\s)(^|.)");
-    public static final Pattern customFormattingPattern = Pattern.compile("&([0-9a-fA-F])");
-
     public static final Pattern boldPattern = Pattern.compile("\\*\\*(.*)\\*\\*");
     public static final Pattern underlinePattern = Pattern.compile("__(.*)__");
     public static final Pattern italicPattern = Pattern.compile("\\*(.*)\\*");
     public static final Pattern italicMePattern = Pattern.compile("_(.*)_");
-    public static final Pattern lineThroughPattern = Pattern.compile("~~(.*)~~");
+    public static final Pattern strikeThroughPattern = Pattern.compile("~~(.*)~~");
     public static final Pattern singleCodePattern = Pattern.compile("`(.*)`");
     public static final Pattern multiCodePattern = Pattern.compile("```(.*)```");
 
     public static final Pattern tagPattern = Pattern.compile("@([^\\s]+)");
+
+    private static final HashMap<Pattern, String> discordToMinecraftPatterns = new HashMap<>();
+    private static final HashMap<Pattern, String> minecraftToDiscordPatterns = new HashMap<>();
+    private static final HashMap<Pattern, ReplacementCallback> minecraftFormattingPatterns = new HashMap<>();
+    private static final HashMap<Pattern, ReplacementCallback> discordFormattingPatterns = new HashMap<>();
+
+    public interface ReplacementCallback {
+        String pre(String text);
+
+        String replace(ArrayList<String> groups);
+
+        String post(String text);
+    }
+
+    public static void addDiscordToMinecraftPattern(Pattern pattern, String replacement) {
+        discordToMinecraftPatterns.put(pattern, replacement);
+    }
+
+    public static void addMinecraftToDiscordPattern(Pattern pattern, String replacement) {
+        minecraftToDiscordPatterns.put(pattern, replacement);
+    }
+
+    public static void addMinecraftFormattingPattern(Pattern pattern, ReplacementCallback replacement) {
+        minecraftFormattingPatterns.put(pattern, replacement);
+    }
+
+    public static void addDiscordFormattingPattern(Pattern pattern, ReplacementCallback replacement) {
+        discordFormattingPatterns.put(pattern, replacement);
+    }
+
+    public static String discordToMinecraft(String content) {
+        if (content == null) {
+            return "";
+        }
+
+        for (Map.Entry<Pattern, String> entry : discordToMinecraftPatterns.entrySet()) {
+            content = entry.getKey().matcher(content).replaceAll(entry.getValue());
+        }
+
+        for (Map.Entry<Pattern, ReplacementCallback> entry : minecraftFormattingPatterns.entrySet()) {
+            content = executeReplacement(content, entry);
+        }
+
+        return content;
+    }
+
+    public static String minecraftToDiscord(String content) {
+        if (content == null) {
+            return "";
+        }
+
+        for (Map.Entry<Pattern, String> entry : minecraftToDiscordPatterns.entrySet()) {
+            content = entry.getKey().matcher(content).replaceAll(entry.getValue());
+        }
+
+        for (Map.Entry<Pattern, ReplacementCallback> entry : discordFormattingPatterns.entrySet()) {
+            content = executeReplacement(content, entry);
+        }
+
+        return content;
+    }
+
+    @NotNull
+    private static String executeReplacement(String content, Map.Entry<Pattern, ReplacementCallback> entry) {
+        ReplacementCallback replacer = entry.getValue();
+        content = replacer.pre(content);
+        Matcher matcher = entry.getKey().matcher(content);
+
+        if (matcher.find()) {
+            StringBuffer sb = new StringBuffer();
+            do {
+                ArrayList<String> groups = new ArrayList<>();
+                for (int i = 0, j = matcher.groupCount(); i < j; i++) {
+                    groups.add(matcher.group(i));
+                }
+                matcher.appendReplacement(sb, replacer.replace(groups));
+            } while (matcher.find());
+            matcher.appendTail(sb);
+
+            content = replacer.post(sb.toString());
+        }
+
+        return content;
+    }
 }

@@ -15,8 +15,6 @@
 package chikachi.discord.core;
 
 import chikachi.discord.core.config.Configuration;
-import chikachi.discord.core.config.discord.DiscordChannelConfig;
-import chikachi.discord.core.config.discord.DiscordConfig;
 import chikachi.discord.core.config.minecraft.MinecraftConfig;
 import chikachi.discord.core.config.types.MessageConfig;
 import net.dv8tion.jda.core.AccountType;
@@ -25,10 +23,11 @@ import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.entities.SelfUser;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.ReadyEvent;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class DiscordClient extends ListenerAdapter {
     private static DiscordClient instance;
@@ -68,15 +67,23 @@ public class DiscordClient extends ListenerAdapter {
     }
 
     public void connect() {
+        connect(false);
+    }
+
+    public void connect(boolean noMessage) {
         if (this.jda != null) {
-            CoreLogger.Log("Is already connected", true);
+            if (noMessage) {
+                CoreLogger.Log("Is already connected", true);
+            }
             return;
         }
 
         String token = Configuration.getConfig().discord.token;
 
         if (token == null || token.isEmpty()) {
-            CoreLogger.Log("Missing token", true);
+            if (noMessage) {
+                CoreLogger.Log("Missing token", true);
+            }
             return;
         }
 
@@ -121,7 +128,7 @@ public class DiscordClient extends ListenerAdapter {
         disconnect(false);
     }
 
-    void disconnect(boolean noMessage) {
+    public void disconnect(boolean noMessage) {
         if (this.jda == null) {
             if (!noMessage) {
                 CoreLogger.Log("Is already disconnected", true);
@@ -144,13 +151,21 @@ public class DiscordClient extends ListenerAdapter {
         return this.jda.getSelfUser();
     }
 
-    public void broadcast(MessageConfig message, ArrayList<Long> channels) {
+    public void broadcast(MessageConfig message, Long... channels) {
+        broadcast(message, Arrays.asList(channels));
+    }
+
+    public void broadcast(MessageConfig message, List<Long> channels) {
         if (channels == null || channels.size() == 0) return;
 
         broadcast(new Message(message), channels);
     }
 
-    public void broadcast(Message message, ArrayList<Long> channels) {
+    public void broadcast(Message message, Long... channels) {
+        broadcast(message, Arrays.asList(channels));
+    }
+
+    public void broadcast(Message message, List<Long> channels) {
         if (channels == null || channels.size() == 0) return;
 
         for (Long channelId : channels) {

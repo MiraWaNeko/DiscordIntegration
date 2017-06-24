@@ -14,6 +14,9 @@
 
 package chikachi.discord;
 
+import chikachi.discord.core.DiscordClient;
+import chikachi.discord.core.Message;
+import chikachi.discord.core.config.types.MessageConfig;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.common.event.FMLInterModComms;
 
@@ -22,6 +25,24 @@ import java.util.List;
 
 public class IMCHandler {
     private static List<String> registeredIMCMods = new ArrayList<>();
+
+    private static NBTTagCompound getErrorNBT(String method, String message) {
+        NBTTagCompound error = new NBTTagCompound();
+
+        error.setString("method", method);
+        error.setString("message", message);
+
+        return error;
+    }
+
+    public static void onMessageReceived(FMLInterModComms.IMCMessage imcMessage) {
+        String modId = imcMessage.getSender();
+        if (imcMessage.isStringMessage()) {
+            onMessageReceived(modId, imcMessage.key, imcMessage.getStringValue());
+        } else if (imcMessage.isNBTMessage()) {
+            onMessageReceived(modId, imcMessage.key, imcMessage.getNBTValue());
+        }
+    }
 
     @SuppressWarnings("UnusedParameters")
     public static void onMessageReceived(String modId, String key, String message) {
@@ -33,6 +54,13 @@ public class IMCHandler {
                 ));
 
                 registeredIMCMods.add(modId);
+            } else {
+                FMLInterModComms.sendRuntimeMessage(
+                    DiscordIntegration.instance,
+                    modId,
+                    "error",
+                    getErrorNBT("registerListener", "Already registered")
+                );
             }
         } else if (key.equalsIgnoreCase("unregisterListener")) {
             if (registeredIMCMods.contains(modId)) {
@@ -42,20 +70,53 @@ public class IMCHandler {
                 ));
 
                 registeredIMCMods.remove(modId);
+            } else {
+                FMLInterModComms.sendRuntimeMessage(
+                    DiscordIntegration.instance,
+                    modId,
+                    "error",
+                    getErrorNBT("registerListener", "Already unregistered")
+                );
             }
         }
     }
 
     public static void onMessageReceived(String modId, String key, NBTTagCompound message) {
         if (key.equalsIgnoreCase("sendMessage")) {
-            if (message.hasKey("message")) {
-                /*new IMCMessageEvent(
+            if (!message.hasKey("message") || message.getString("message").trim().length() == 0) {
+                FMLInterModComms.sendRuntimeMessage(
+                    DiscordIntegration.instance,
                     modId,
-                    null,
-                    message.getString("message")
-                ).emit();*/
+                    "error",
+                    getErrorNBT("sendMessage", "Missing message")
+                );
+                return;
             }
+
+            if (!message.hasKey("channel") || message.getLong("channel") == 0) {
+                FMLInterModComms.sendRuntimeMessage(
+                    DiscordIntegration.instance,
+                    modId,
+                    "error",
+                    getErrorNBT("sendMessage", "Missing channel")
+                );
+                return;
+            }
+
+            DiscordClient.getInstance().broadcast(
+                new Message(
+                    modId,
+                    new MessageConfig(
+                        message.getString("message")
+                    )
+                ),
+                message.getLong("channel")
+            );
         }
+    }
+
+    public static boolean haveListeners() {
+        return registeredIMCMods.size() > 0;
     }
 
     public static List<String> getRegisteredIMCMods() {

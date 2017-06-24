@@ -18,18 +18,23 @@ import chikachi.discord.command.CommandDiscord;
 import chikachi.discord.core.CoreConstants;
 import chikachi.discord.core.CoreProxy;
 import chikachi.discord.core.DiscordClient;
+import chikachi.discord.core.Patterns;
 import chikachi.discord.listener.DiscordListener;
 import chikachi.discord.listener.MinecraftListener;
-import net.minecraft.server.MinecraftServer;
+import com.google.common.base.Joiner;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.*;
+
+import java.util.ArrayList;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Mod(modid = CoreConstants.MODID, name = CoreConstants.MODNAME, version = CoreConstants.VERSION, serverSideOnly = true, acceptableRemoteVersions = "*")
 public class DiscordIntegration {
     @Mod.Instance
     public static DiscordIntegration instance;
-    static MinecraftServer minecraftServer;
 
     private static CoreProxy coreProxy = new CoreProxy();
 
@@ -37,17 +42,143 @@ public class DiscordIntegration {
     public void onPreInit(FMLPreInitializationEvent event) {
         coreProxy.onPreInit(event.getModConfigurationDirectory());
 
+        char softReset = '\ufffd';
+
+        Patterns.addDiscordToMinecraftPattern(Patterns.strikeThroughPattern, TextFormatting.STRIKETHROUGH + "$1" + softReset);
+        Patterns.addDiscordToMinecraftPattern(Patterns.underlinePattern, TextFormatting.UNDERLINE + "$1" + softReset);
+        Patterns.addDiscordToMinecraftPattern(Patterns.italicMePattern, TextFormatting.ITALIC + "$1" + softReset);
+        Patterns.addDiscordToMinecraftPattern(Patterns.italicPattern, TextFormatting.ITALIC + "$1" + softReset);
+        Patterns.addDiscordToMinecraftPattern(Patterns.boldPattern, TextFormatting.BOLD + "$1" + softReset);
+        Patterns.addDiscordToMinecraftPattern(Patterns.multiCodePattern, "$1");
+        Patterns.addDiscordToMinecraftPattern(Patterns.singleCodePattern, "$1");
+
+        Patterns.addMinecraftFormattingPattern(Pattern.compile("(?i)(([\u00a7&]([0-9A-FK-OR]))|" + softReset + ")"), new Patterns.ReplacementCallback() {
+            private ArrayList<TextFormatting> layers = new ArrayList<>();
+
+            @Override
+            public String pre(String text) {
+                return text;
+            }
+
+            @Override
+            public String replace(ArrayList<String> groups) {
+                if (groups.get(0).charAt(0) == softReset) {
+                    if (layers.size() > 0) {
+                        layers.remove(layers.size() - 1);
+                        return TextFormatting.RESET + Joiner.on("").join(layers.stream().map(TextFormatting::toString).collect(Collectors.toList()));
+                    }
+
+                    return TextFormatting.RESET.toString();
+                }
+
+                String modifier = String.valueOf('\u00a7') + groups.get(2).substring(1);
+
+                for (TextFormatting textFormatting : TextFormatting.values()) {
+                    if (modifier.equalsIgnoreCase(textFormatting.toString())) {
+                        layers.add(textFormatting);
+                    }
+                }
+
+                return modifier;
+            }
+
+            @Override
+            public String post(String text) {
+                layers.clear();
+                return text;
+            }
+        });
+
+        Patterns.addDiscordFormattingPattern(Pattern.compile("(?i)(\u00a7[0-9A-FK-OR])"), new Patterns.ReplacementCallback() {
+            private boolean bold = false;
+            private boolean italic = false;
+            private boolean underline = false;
+            private boolean strikethrough = false;
+
+            @Override
+            public String pre(String text) {
+                return text;
+            }
+
+            @Override
+            public String replace(ArrayList<String> groups) {
+                String modifier = groups.get(0);
+
+                for (TextFormatting textFormatting : TextFormatting.values()) {
+                    if (modifier.equalsIgnoreCase(textFormatting.toString())) {
+                        if (textFormatting.equals(TextFormatting.BOLD)) {
+                            bold = true;
+                            modifier = "**";
+                        } else if (textFormatting.equals(TextFormatting.ITALIC)) {
+                            italic = true;
+                            modifier = "*";
+                        } else if (textFormatting.equals(TextFormatting.UNDERLINE)) {
+                            underline = true;
+                            modifier = "__";
+                        } else if (textFormatting.equals(TextFormatting.STRIKETHROUGH)) {
+                            strikethrough = true;
+                            modifier = "~~";
+                        } else if (textFormatting.equals(TextFormatting.RESET)) {
+                            modifier = "";
+                            if (bold) {
+                                bold = false;
+                                modifier += "**";
+                            }
+                            if (italic) {
+                                italic = false;
+                                modifier += "*";
+                            }
+                            if (underline) {
+                                underline = false;
+                                modifier += "__";
+                            }
+                            if (strikethrough) {
+                                strikethrough = false;
+                                modifier += "~~";
+                            }
+                        } else {
+                            modifier = "";
+                        }
+                        break;
+                    }
+                }
+
+                return modifier;
+            }
+
+            @Override
+            public String post(String text) {
+                if (bold) {
+                    text += "**";
+                }
+                if (italic) {
+                    text += "*";
+                }
+                if (underline) {
+                    text += "__";
+                }
+                if (strikethrough) {
+                    text += "~~";
+                }
+                bold = false;
+                italic = false;
+                underline = false;
+                strikethrough = false;
+                return text;
+            }
+        });
+
         MinecraftForge.EVENT_BUS.register(new MinecraftListener());
     }
 
     @Mod.EventHandler
     public void onServerAboutToStart(FMLServerAboutToStartEvent event) {
-        minecraftServer = event.getServer();
     }
 
     @Mod.EventHandler
     public void onServerStarting(FMLServerStartingEvent event) {
         coreProxy.onServerStarting();
+
         DiscordClient.getInstance().addEventListner(new DiscordListener());
 
         event.registerServerCommand(new CommandDiscord());
@@ -66,5 +197,10 @@ public class DiscordIntegration {
     @Mod.EventHandler
     public void onServerStopped(FMLServerStoppedEvent event) {
         coreProxy.onServerStopped();
+    }
+
+    @Mod.EventHandler
+    public void imcReceived(FMLInterModComms.IMCEvent event) {
+        event.getMessages().forEach(IMCHandler::onMessageReceived);
     }
 }

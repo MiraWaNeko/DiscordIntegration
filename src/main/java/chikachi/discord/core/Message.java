@@ -132,7 +132,7 @@ public class Message {
             }
         }
 
-        return message;
+        return Patterns.minecraftToDiscord(message);
     }
 
     public String getUnformattedText() {

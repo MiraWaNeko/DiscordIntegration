@@ -15,13 +15,13 @@
 package chikachi.discord.listener;
 
 import chikachi.discord.DiscordCommandSender;
-import chikachi.discord.DiscordIntegration;
 import chikachi.discord.IMCHandler;
 import chikachi.discord.core.DiscordClient;
 import chikachi.discord.core.Message;
-import chikachi.discord.core.config.discord.CommandConfig;
+import chikachi.discord.core.Patterns;
 import chikachi.discord.core.config.ConfigWrapper;
 import chikachi.discord.core.config.Configuration;
+import chikachi.discord.core.config.discord.CommandConfig;
 import chikachi.discord.core.config.discord.DiscordChannelGenericConfig;
 import chikachi.discord.core.config.discord.DiscordConfig;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
@@ -31,7 +31,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.common.event.FMLInterModComms;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -78,8 +77,7 @@ public class DiscordListener extends ListenerAdapter {
 
         String content = event.getMessage().getContent().trim();
 
-        List<String> listenerMods = IMCHandler.getRegisteredIMCMods();
-        if (listenerMods.size() > 0) {
+        if (IMCHandler.haveListeners()) {
             NBTTagCompound eventTagCompound = new NBTTagCompound();
             eventTagCompound.setString("type", "chat");
 
@@ -90,9 +88,7 @@ public class DiscordListener extends ListenerAdapter {
             eventTagCompound.setTag("user", userTagComponent);
             eventTagCompound.setString("message", content);
 
-            for (String listenerMod : listenerMods) {
-                FMLInterModComms.sendRuntimeMessage(DiscordIntegration.instance, listenerMod, "event", eventTagCompound);
-            }
+            IMCHandler.emitMessage("event", eventTagCompound);
         }
 
         String prefix = channelConfig.commandPrefix != null ? channelConfig.commandPrefix : discordConfig.channels.generic.commandPrefix;
@@ -127,9 +123,18 @@ public class DiscordListener extends ListenerAdapter {
         }
 
         HashMap<String, String> arguments = new HashMap<>();
-        arguments.put("MESSAGE", event.getMessage().getContent());
+        arguments.put(
+            "MESSAGE",
+            Patterns.discordToMinecraft(
+                event.getMessage().getContent()
+            )
+        );
 
-        Message message = new Message(event.getAuthor().getName(), config.discord.channels.generic.messages.chatMessage, arguments);
+        Message message = new Message(
+            event.getAuthor().getName(),
+            config.discord.channels.generic.messages.chatMessage,
+            arguments
+        );
         for (EntityPlayerMP player : players) {
             player.sendMessage(new TextComponentString(message.getFormattedText()));
         }

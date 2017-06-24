@@ -50,7 +50,7 @@ public class WebhookMessage {
             if (this.avatar_url != null) {
                 json.put("avatar_url", this.avatar_url);
             }
-            json.put("content", this.content);
+            json.put("content", Patterns.minecraftToDiscord(this.content));
 
             new RestAction<Void>(jda, route, json) {
                 protected void handleResponse(Response response, Request<Void> request) {

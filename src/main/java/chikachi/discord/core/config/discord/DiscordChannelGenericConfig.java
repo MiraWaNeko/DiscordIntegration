@@ -23,7 +23,7 @@ public class DiscordChannelGenericConfig {
     @Since(3.0)
     public String commandPrefix;
     @Since(3.0)
-    public boolean canExecuteCommands = false;
+    public Boolean canExecuteCommands;
     @Since(3.0)
     public DimensionConfigType relayChat;
     @Since(3.0)
@@ -35,6 +35,10 @@ public class DiscordChannelGenericConfig {
         if (!(this instanceof DiscordChannelConfig)) {
             if (this.commandPrefix == null) {
                 this.commandPrefix = "!";
+            }
+
+            if (this.canExecuteCommands == null) {
+                this.canExecuteCommands = false;
             }
         }
 
