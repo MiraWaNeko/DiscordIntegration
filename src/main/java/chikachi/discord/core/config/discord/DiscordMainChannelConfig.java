@@ -32,8 +32,7 @@ public class DiscordMainChannelConfig {
 
         if (this.channels == null) {
             this.channels = new HashMap<>();
-        } else {
-            this.channels.forEach((key, value) -> value.fillFields());
         }
+        this.channels.values().forEach(DiscordChannelGenericConfig::fillFields);
     }
 }

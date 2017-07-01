@@ -14,7 +14,6 @@
 
 package chikachi.discord.listener;
 
-import chikachi.discord.IMCHandler;
 import chikachi.discord.core.DiscordClient;
 import chikachi.discord.core.Message;
 import chikachi.discord.core.config.Configuration;
@@ -27,7 +26,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.stats.Achievement;
 import net.minecraft.stats.StatisticsManagerServer;
 import net.minecraft.util.text.translation.I18n;
@@ -63,6 +61,7 @@ public class MinecraftListener {
             HashMap<String, String> arguments = new HashMap<>();
             arguments.put("MESSAGE", Joiner.on(" ").join(event.getParameters()));
 
+            String prefix = minecraftConfig.dimensions.generic.chatPrefix;
             messageConfig = minecraftConfig.dimensions.generic.messages.chatMessage;
 
             ArrayList<Long> channels;
@@ -73,6 +72,9 @@ public class MinecraftListener {
                 if (entity != null) {
                     MinecraftDimensionConfig dimensionConfig = minecraftConfig.dimensions.getDimension(entity.dimension);
 
+                    if (dimensionConfig.chatPrefix != null && dimensionConfig.chatPrefix.trim().length() > 0) {
+                        prefix = dimensionConfig.chatPrefix;
+                    }
                     if (dimensionConfig.messages.chatMessage != null) {
                         messageConfig = dimensionConfig.messages.chatMessage;
                     }
@@ -92,12 +94,12 @@ public class MinecraftListener {
             }
 
             DiscordClient.getInstance().broadcast(
-                new Message(
-                    sender != null ? sender.getName() : null,
-                    sender != null && sender instanceof EntityPlayer ? "https://minotar.net/avatar/" + sender.getName() + "/128.png" : null,
-                    messageConfig,
-                    arguments
-                ),
+                new Message()
+                    .setAuthor(sender != null ? sender.getName() : null)
+                    .setAvatarUrl(sender != null && sender instanceof EntityPlayer ? "https://minotar.net/avatar/" + sender.getName() + "/128.png" : null)
+                    .setMessage(messageConfig)
+                    .setArguments(arguments)
+                    .setPrefix(prefix),
                 channels
             );
         }
@@ -135,12 +137,11 @@ public class MinecraftListener {
         arguments.put("ARGUMENTS", Joiner.on(" ").join(event.getParameters()));
 
         DiscordClient.getInstance().broadcast(
-            new Message(
-                sender != null ? sender.getName() : null,
-                sender != null && sender instanceof EntityPlayer ? "https://minotar.net/avatar/" + sender.getName() + "/128.png" : null,
-                messageConfig,
-                arguments
-            ),
+            new Message()
+                .setAuthor(sender != null ? sender.getName() : null)
+                .setAvatarUrl(sender != null && sender instanceof EntityPlayer ? "https://minotar.net/avatar/" + sender.getName() + "/128.png" : null)
+                .setMessage(messageConfig)
+                .setArguments(arguments),
             channels
         );
     }
@@ -162,12 +163,12 @@ public class MinecraftListener {
         MessageConfig messageConfig = dimensionConfig.messages.chatMessage != null ? dimensionConfig.messages.chatMessage : genericConfig.messages.chatMessage;
 
         DiscordClient.getInstance().broadcast(
-            new Message(
-                event.getUsername(),
-                "https://minotar.net/avatar/" + event.getUsername() + "/128.png",
-                messageConfig,
-                arguments
-            ),
+            new Message()
+                .setAuthor(event.getUsername())
+                .setAvatarUrl("https://minotar.net/avatar/" + event.getUsername() + "/128.png")
+                .setMessage(messageConfig)
+                .setArguments(arguments)
+                .setPrefix(dimensionConfig.chatPrefix != null && dimensionConfig.chatPrefix.trim().length() > 0 ? dimensionConfig.chatPrefix : genericConfig.chatPrefix),
             dimensionConfig.relayChat.getChannels(
                 genericConfig.relayChat.getChannels(
                     dimensionConfig.discordChannel.getChannels(
@@ -206,12 +207,11 @@ public class MinecraftListener {
             MessageConfig messageConfig = dimensionConfig.messages.achievement != null ? dimensionConfig.messages.achievement : genericConfig.messages.achievement;
 
             DiscordClient.getInstance().broadcast(
-                new Message(
-                    entityPlayer.getDisplayNameString(),
-                    "https://minotar.net/avatar/" + entityPlayer.getName() + "/128.png",
-                    messageConfig,
-                    arguments
-                ),
+                new Message()
+                    .setAuthor(entityPlayer.getDisplayNameString())
+                    .setAvatarUrl("https://minotar.net/avatar/" + entityPlayer.getName() + "/128.png")
+                    .setMessage(messageConfig)
+                    .setArguments(arguments),
                 dimensionConfig.relayAchievements.getChannels(
                     genericConfig.relayAchievements.getChannels(
                         dimensionConfig.discordChannel.getChannels(
@@ -234,11 +234,10 @@ public class MinecraftListener {
         MessageConfig messageConfig = dimensionConfig.messages.playerJoin != null ? dimensionConfig.messages.playerJoin : genericConfig.messages.playerJoin;
 
         DiscordClient.getInstance().broadcast(
-            new Message(
-                event.player.getDisplayNameString(),
-                "https://minotar.net/avatar/" + event.player.getName() + "/128.png",
-                messageConfig
-            ),
+            new Message()
+                .setAuthor(event.player.getDisplayNameString())
+                .setAvatarUrl("https://minotar.net/avatar/" + event.player.getName() + "/128.png")
+                .setMessage(messageConfig),
             dimensionConfig.relayPlayerJoin.getChannels(
                 genericConfig.relayPlayerJoin.getChannels(
                     dimensionConfig.discordChannel.getChannels(
@@ -260,11 +259,10 @@ public class MinecraftListener {
         MessageConfig messageConfig = dimensionConfig.messages.playerLeave != null ? dimensionConfig.messages.playerLeave : genericConfig.messages.playerLeave;
 
         DiscordClient.getInstance().broadcast(
-            new Message(
-                event.player.getDisplayNameString(),
-                "https://minotar.net/avatar/" + event.player.getName() + "/128.png",
-                messageConfig
-            ),
+            new Message()
+                .setAuthor(event.player.getDisplayNameString())
+                .setAvatarUrl("https://minotar.net/avatar/" + event.player.getName() + "/128.png")
+                .setMessage(messageConfig),
             dimensionConfig.relayPlayerLeave.getChannels(
                 genericConfig.relayPlayerLeave.getChannels(
                     dimensionConfig.discordChannel.getChannels(
@@ -294,12 +292,11 @@ public class MinecraftListener {
             MessageConfig messageConfig = dimensionConfig.messages.playerDeath != null ? dimensionConfig.messages.playerDeath : genericConfig.messages.playerDeath;
 
             DiscordClient.getInstance().broadcast(
-                new Message(
-                    entityPlayer.getDisplayNameString(),
-                    "https://minotar.net/avatar/" + entityPlayer.getName() + "/128.png",
-                    messageConfig,
-                    arguments
-                ),
+                new Message()
+                    .setAuthor(entityPlayer.getDisplayNameString())
+                    .setAvatarUrl("https://minotar.net/avatar/" + entityPlayer.getName() + "/128.png")
+                    .setMessage(messageConfig)
+                    .setArguments(arguments),
                 dimensionConfig.relayPlayerDeath.getChannels(
                     genericConfig.relayPlayerDeath.getChannels(
                         dimensionConfig.discordChannel.getChannels(

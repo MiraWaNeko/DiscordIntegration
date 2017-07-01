@@ -130,11 +130,11 @@ public class DiscordListener extends ListenerAdapter {
             )
         );
 
-        Message message = new Message(
-            event.getAuthor().getName(),
-            config.discord.channels.generic.messages.chatMessage,
-            arguments
-        );
+        Message message = new Message()
+            .setAuthor(event.getAuthor().getName())
+            .setMessage(config.discord.channels.generic.messages.chatMessage)
+            .setArguments(arguments);
+
         for (EntityPlayerMP player : players) {
             player.sendMessage(new TextComponentString(message.getFormattedText()));
         }

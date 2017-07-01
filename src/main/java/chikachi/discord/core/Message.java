@@ -28,10 +28,14 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 
 public class Message {
-    private final String author;
-    private final String avatar_url;
-    private final MessageConfig message;
-    private final HashMap<String, String> arguments;
+    private String author = null;
+    private String avatarUrl = null;
+    private String prefix = null;
+    private MessageConfig message = null;
+    private HashMap<String, String> arguments = null;
+
+    public Message() {
+    }
 
     public Message(MessageConfig message) {
         this(message, new HashMap<>());
@@ -49,13 +53,13 @@ public class Message {
         this(author, null, message, arguments);
     }
 
-    public Message(String author, String avatar_url, MessageConfig message) {
-        this(author, avatar_url, message, new HashMap<>());
+    public Message(String author, String avatarUrl, MessageConfig message) {
+        this(author, avatarUrl, message, new HashMap<>());
     }
 
-    public Message(String author, String avatar_url, MessageConfig message, HashMap<String, String> arguments) {
+    public Message(String author, String avatarUrl, MessageConfig message, HashMap<String, String> arguments) {
         this.author = author;
-        this.avatar_url = avatar_url;
+        this.avatarUrl = avatarUrl;
         this.message = message;
 
         if (arguments == null) {
@@ -70,8 +74,33 @@ public class Message {
         WebhookMessage webhookMessage = new WebhookMessage();
         webhookMessage.content = formatText(message.webhook, channel);
         webhookMessage.username = this.author;
-        webhookMessage.avatar_url = this.avatar_url;
+        webhookMessage.avatar_url = this.avatarUrl;
         return webhookMessage;
+    }
+
+    public Message setAuthor(String author) {
+        this.author = author;
+        return this;
+    }
+
+    public Message setMessage(MessageConfig message) {
+        this.message = message;
+        return this;
+    }
+
+    public Message setAvatarUrl(String avatar_url) {
+        this.avatarUrl = avatar_url;
+        return this;
+    }
+
+    public Message setArguments(HashMap<String, String> arguments) {
+        this.arguments = arguments;
+        return this;
+    }
+
+    public Message setPrefix(String prefix) {
+        this.prefix = prefix;
+        return this;
     }
 
     public String getAuthor() {
@@ -84,6 +113,12 @@ public class Message {
 
     private String formatText(String text, Channel channel) {
         String message = text;
+        
+        if (this.arguments == null) {
+            this.arguments = new HashMap<>();
+        }
+        this.arguments.put("USER", getAuthor());
+
         for (Map.Entry<String, String> entry : this.arguments.entrySet()) {
             if (entry == null || entry.getKey() == null || entry.getValue() == null) {
                 continue;
@@ -132,11 +167,11 @@ public class Message {
             }
         }
 
-        return Patterns.minecraftToDiscord(message);
+        return (this.prefix != null && this.prefix.trim().length() > 0 ? this.prefix.trim() + " " : "") + Patterns.minecraftToDiscord(message);
     }
 
     public String getUnformattedText() {
-        return this.message.normal;
+        return this.message != null ? this.message.normal : "";
     }
 
     public String getFormattedText() {

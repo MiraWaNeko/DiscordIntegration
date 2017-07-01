@@ -41,5 +41,6 @@ public class MinecraftMainDimensionConfig {
         if (this.dimensions == null) {
             this.dimensions = new HashMap<>();
         }
+        this.dimensions.values().forEach(MinecraftDimensionConfig::fillFields);
     }
 }
