@@ -24,8 +24,8 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SubCommandOnline {
-    public static void execute(ICommandSender sender) {
+class SubCommandOnline {
+    static void execute(ICommandSender sender) {
         boolean isDiscord = sender instanceof DiscordCommandSender;
 
         List<String> playerNames = new ArrayList<>();

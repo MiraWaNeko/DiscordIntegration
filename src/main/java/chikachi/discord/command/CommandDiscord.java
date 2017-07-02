@@ -29,6 +29,7 @@ import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @ParametersAreNonnullByDefault
@@ -85,7 +86,7 @@ public class CommandDiscord extends CommandBase {
 
     @Override
     public boolean checkPermission(MinecraftServer server, ICommandSender sender) {
-        return sender.canUseCommand(3, getName());
+        return sender.canUseCommand(4, getName());
     }
 
     @Override
@@ -104,7 +105,7 @@ public class CommandDiscord extends CommandBase {
             }
         }
 
-        return new ArrayList<>();
+        return Collections.emptyList();
     }
 
     @Override

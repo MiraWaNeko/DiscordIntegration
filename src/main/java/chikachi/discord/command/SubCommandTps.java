@@ -20,16 +20,17 @@ import com.google.common.base.Joiner;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 
 import java.text.DecimalFormat;
 import java.util.*;
 
-public class SubCommandTps {
+class SubCommandTps {
     private static final DecimalFormat timeFormatter = new DecimalFormat("########0.000");
 
-    public static void execute(ICommandSender sender, ArrayList<String> args) {
+    static void execute(ICommandSender sender, ArrayList<String> args) {
         boolean isDiscord = sender instanceof DiscordCommandSender;
 
         boolean colored = args.stream().anyMatch(arg -> arg.equalsIgnoreCase("--color"));
@@ -48,6 +49,7 @@ public class SubCommandTps {
         int maxDimensionNameLength = Math.max(CoreUtils.getMinLength(dimensionMap.values()), CoreUtils.getMaxLength(dimensionMap.values()));
 
         SortedSet<Integer> sortedDimensionIds = new TreeSet<>(dimensionMap.keySet());
+        String color;
 
         for (Integer dimensionId : sortedDimensionIds) {
             String dimensionName = dimensionMap.get(dimensionId);
@@ -55,30 +57,35 @@ public class SubCommandTps {
             double worldTickTime = CoreUtils.mean(minecraftServer.worldTickTimes.get(dimensionId)) * 1.0E-6D;
             double worldTPS = Math.min(1000.0 / worldTickTime, 20);
 
+            color = colored && !isDiscord ? CoreUtils.tpsToColorString(worldTPS, false) : "";
+
             tpsTimes.add(
                 String.format(
                     "%s%s : Mean tick time: %s ms. Mean TPS: %s",
-                    colored ? CoreUtils.tpsToColorString(worldTPS, isDiscord) : "",
+                    colored && isDiscord ? CoreUtils.tpsToColorString(worldTPS, true) : "",
                     String.format(
                         "Dim %s %s",
                         CoreUtils.padLeft(dimensionId + "", maxDimensionIdLength),
                         CoreUtils.padRight(dimensionName, maxDimensionNameLength)
                     ),
-                    CoreUtils.padLeft(timeFormatter.format(worldTickTime), 6),
-                    CoreUtils.padLeft(timeFormatter.format(worldTPS), 6)
+                    CoreUtils.padLeft(color + timeFormatter.format(worldTickTime) + TextFormatting.RESET, 6),
+                    CoreUtils.padLeft(color + timeFormatter.format(worldTPS) + TextFormatting.RESET, 6)
                 )
             );
         }
 
         double meanTickTime = CoreUtils.mean(minecraftServer.tickTimeArray) * 1.0E-6D;
         double meanTPS = Math.min(1000.0 / meanTickTime, 20);
+
+        color = colored && !isDiscord ? CoreUtils.tpsToColorString(meanTPS, false) : "";
+
         tpsTimes.add(
             String.format(
                 "%s%s : Mean tick time: %s ms. Mean TPS: %s",
-                colored ? CoreUtils.tpsToColorString(meanTPS, isDiscord) : "",
+                colored && isDiscord ? CoreUtils.tpsToColorString(meanTPS, true) : "",
                 CoreUtils.padRight("Overall", maxDimensionIdLength + maxDimensionNameLength + 5),
-                CoreUtils.padLeft(timeFormatter.format(meanTickTime), 6),
-                CoreUtils.padLeft(timeFormatter.format(meanTPS), 6)
+                CoreUtils.padLeft(color + timeFormatter.format(meanTickTime) + TextFormatting.RESET, 6),
+                CoreUtils.padLeft(color + timeFormatter.format(meanTPS) + TextFormatting.RESET, 6)
             )
         );
 

@@ -21,8 +21,8 @@ public class MinecraftMessagesConfig {
     private transient static final String CHAT_MESSAGE_NORMAL = "**[{USER}]** {MESSAGE}";
     private transient static final String CHAT_MESSAGE_WEBHOOK = "{MESSAGE}";
 
-    private transient static final String COMMAND_NORMAL = "**[{USER}]** executed **{COMMAND}** with the arguments **{ARGUMENTS}**";
-    private transient static final String COMMAND_WEBHOOK = "*executed **{COMMAND}** with the arguments **{ARGUMENTS}***";
+    private transient static final String COMMAND_NORMAL = "**[{USER}]** executed **{COMMAND} {ARGUMENTS}**";
+    private transient static final String COMMAND_WEBHOOK = "*executed **{COMMAND} {ARGUMENTS}***";
 
     private transient static final String PLAYER_JOIN_NORMAL = "**{USER}** just joined the server!";
     private transient static final String PLAYER_JOIN_WEBHOOK = "*Joined the server!*";

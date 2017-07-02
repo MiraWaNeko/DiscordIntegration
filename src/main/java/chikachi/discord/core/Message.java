@@ -113,7 +113,7 @@ public class Message {
 
     private String formatText(String text, Channel channel) {
         String message = text;
-        
+
         if (this.arguments == null) {
             this.arguments = new HashMap<>();
         }

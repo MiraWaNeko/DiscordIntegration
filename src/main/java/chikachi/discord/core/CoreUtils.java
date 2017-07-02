@@ -44,10 +44,6 @@ public class CoreUtils {
         return Joiner.on(" ").join(words);
     }
 
-    public static String tpsToColorString(double tps) {
-        return tpsToColorString(tps, true);
-    }
-
     public static String tpsToColorString(double tps, boolean isDiscord) {
         if (19 <= tps) {
             return isDiscord ? "+ " : TextFormatting.GREEN.toString();

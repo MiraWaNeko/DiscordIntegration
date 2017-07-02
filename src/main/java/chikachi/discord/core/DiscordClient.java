@@ -25,6 +25,7 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.ReadyEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 
+import javax.security.auth.login.LoginException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -100,6 +101,14 @@ public class DiscordClient extends ListenerAdapter {
 
             this.jda = builder
                 .buildAsync();
+        } catch (LoginException e) {
+            CoreLogger.Log(
+                String.format(
+                    "Failed to connect to Discord: %s",
+                    e.getMessage()
+                ),
+                true
+            );
         } catch (Exception e) {
             CoreLogger.Log("Failed to connect to Discord", true);
             e.printStackTrace();
@@ -156,8 +165,6 @@ public class DiscordClient extends ListenerAdapter {
     }
 
     public void broadcast(MessageConfig message, List<Long> channels) {
-        if (channels == null || channels.size() == 0) return;
-
         broadcast(new Message(message), channels);
     }
 
@@ -166,7 +173,7 @@ public class DiscordClient extends ListenerAdapter {
     }
 
     public void broadcast(Message message, List<Long> channels) {
-        if (channels == null || channels.size() == 0) return;
+        if (channels == null || channels.size() == 0 || this.jda == null || this.jda.getStatus() != JDA.Status.CONNECTED) return;
 
         for (Long channelId : channels) {
             TextChannel channel = this.jda.getTextChannelById(channelId);
