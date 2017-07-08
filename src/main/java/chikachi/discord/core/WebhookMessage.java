@@ -54,12 +54,14 @@ public class WebhookMessage {
 
             new RestAction<Void>(jda, route, json) {
                 protected void handleResponse(Response response, Request<Void> request) {
-                    if (response.isOk()) {
-                        request.onSuccess(null);
-                    } else {
-                        request.onFailure(response);
+                    try {
+                        if (response.isOk()) {
+                            request.onSuccess(null);
+                        } else {
+                            request.onFailure(response);
+                        }
+                    } catch (Exception ignored) {
                     }
-
                 }
             }.queue();
             return true;

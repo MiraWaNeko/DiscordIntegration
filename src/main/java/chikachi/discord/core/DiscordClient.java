@@ -145,7 +145,7 @@ public class DiscordClient extends ListenerAdapter {
             return;
         }
 
-        this.jda.shutdown();
+        this.jda.shutdown(false);
         if (!noMessage) {
             CoreLogger.Log("Disconnected from Discord", true);
         }

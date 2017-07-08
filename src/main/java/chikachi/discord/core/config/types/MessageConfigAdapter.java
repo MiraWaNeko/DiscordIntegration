@@ -37,7 +37,7 @@ public class MessageConfigAdapter implements JsonSerializer<MessageConfig>, Json
         String webhook = null;
 
         if (json.isJsonObject()) {
-            JsonObject object = new JsonObject();
+            JsonObject object = json.getAsJsonObject();
 
             if (object.has("normal")) {
                 normal = object.get("normal").getAsString();
