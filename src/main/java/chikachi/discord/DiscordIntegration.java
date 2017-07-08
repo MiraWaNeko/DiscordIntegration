@@ -42,17 +42,15 @@ public class DiscordIntegration {
     public void onPreInit(FMLPreInitializationEvent event) {
         coreProxy.onPreInit(event.getModConfigurationDirectory());
 
-        char softReset = '\ufffd';
-
-        Patterns.addDiscordToMinecraftPattern(Patterns.strikeThroughPattern, TextFormatting.STRIKETHROUGH + "$1" + softReset);
-        Patterns.addDiscordToMinecraftPattern(Patterns.underlinePattern, TextFormatting.UNDERLINE + "$1" + softReset);
-        Patterns.addDiscordToMinecraftPattern(Patterns.italicMePattern, TextFormatting.ITALIC + "$1" + softReset);
-        Patterns.addDiscordToMinecraftPattern(Patterns.italicPattern, TextFormatting.ITALIC + "$1" + softReset);
-        Patterns.addDiscordToMinecraftPattern(Patterns.boldPattern, TextFormatting.BOLD + "$1" + softReset);
+        Patterns.addDiscordToMinecraftPattern(Patterns.strikeThroughPattern, TextFormatting.STRIKETHROUGH + "$1\ufffd");
+        Patterns.addDiscordToMinecraftPattern(Patterns.underlinePattern, TextFormatting.UNDERLINE + "$1\ufffd");
+        Patterns.addDiscordToMinecraftPattern(Patterns.italicMePattern, TextFormatting.ITALIC + "$1\ufffd");
+        Patterns.addDiscordToMinecraftPattern(Patterns.italicPattern, TextFormatting.ITALIC + "$1\ufffd");
+        Patterns.addDiscordToMinecraftPattern(Patterns.boldPattern, TextFormatting.BOLD + "$1\ufffd");
         Patterns.addDiscordToMinecraftPattern(Patterns.multiCodePattern, "$1");
         Patterns.addDiscordToMinecraftPattern(Patterns.singleCodePattern, "$1");
 
-        Patterns.addMinecraftFormattingPattern(Pattern.compile("(?i)(([\u00a7&]([0-9A-FK-OR]))|" + softReset + ")"), new Patterns.ReplacementCallback() {
+        Patterns.addMinecraftFormattingPattern(Pattern.compile("(?i)((\u00c2?[\u00a7&]([0-9A-FK-OR]))|\ufffd)"), new Patterns.ReplacementCallback() {
             private ArrayList<TextFormatting> layers = new ArrayList<>();
 
             @Override
@@ -62,7 +60,7 @@ public class DiscordIntegration {
 
             @Override
             public String replace(ArrayList<String> groups) {
-                if (groups.get(0).charAt(0) == softReset) {
+                if (groups.get(0).charAt(0) == '\ufffd') {
                     if (layers.size() > 0) {
                         layers.remove(layers.size() - 1);
                         return TextFormatting.RESET + Joiner.on("").join(layers.stream().map(TextFormatting::toString).collect(Collectors.toList()));
@@ -71,11 +69,12 @@ public class DiscordIntegration {
                     return TextFormatting.RESET.toString();
                 }
 
-                String modifier = String.valueOf('\u00a7') + groups.get(2).substring(1);
+                String modifier = String.valueOf("\u00a7") + groups.get(2).substring(groups.get(2).length() - 1);
 
                 for (TextFormatting textFormatting : TextFormatting.values()) {
                     if (modifier.equalsIgnoreCase(textFormatting.toString())) {
                         layers.add(textFormatting);
+                        break;
                     }
                 }
 

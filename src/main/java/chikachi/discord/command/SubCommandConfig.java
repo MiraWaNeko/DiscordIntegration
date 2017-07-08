@@ -44,6 +44,9 @@ public class SubCommandConfig {
             case "save":
                 Configuration.save();
                 break;
+            case "clean":
+                Configuration.saveClean();
+                break;
             default:
                 sender.sendMessage(new TextComponentString("Unknown command"));
                 break;

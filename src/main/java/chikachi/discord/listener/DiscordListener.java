@@ -15,10 +15,10 @@
 package chikachi.discord.listener;
 
 import chikachi.discord.DiscordCommandSender;
+import chikachi.discord.DiscordIntegrationLogger;
 import chikachi.discord.IMCHandler;
 import chikachi.discord.core.DiscordClient;
 import chikachi.discord.core.Message;
-import chikachi.discord.core.Patterns;
 import chikachi.discord.core.config.ConfigWrapper;
 import chikachi.discord.core.config.Configuration;
 import chikachi.discord.core.config.discord.CommandConfig;
@@ -67,8 +67,8 @@ public class DiscordListener extends ListenerAdapter {
             channelConfig = discordConfig.channels.channels.get(channelId);
             dimensions = channelConfig.relayChat.getDimensions(discordConfig.channels.generic.relayChat);
         } else {
-            channelConfig = discordConfig.channels.generic;
-            dimensions = discordConfig.channels.generic.relayChat.getDimensions();
+            // Don't relay messages from channels not configured
+            return;
         }
 
         if (dimensions == null) {
@@ -125,9 +125,7 @@ public class DiscordListener extends ListenerAdapter {
         HashMap<String, String> arguments = new HashMap<>();
         arguments.put(
             "MESSAGE",
-            Patterns.discordToMinecraft(
-                event.getMessage().getContent()
-            )
+            event.getMessage().getContent()
         );
 
         Message message = new Message()
@@ -136,7 +134,8 @@ public class DiscordListener extends ListenerAdapter {
             .setArguments(arguments);
 
         for (EntityPlayerMP player : players) {
-            player.sendMessage(new TextComponentString(message.getFormattedText()));
+            DiscordIntegrationLogger.Log(message.getFormattedTextMinecraft());
+            player.sendMessage(new TextComponentString(message.getFormattedTextMinecraft()));
         }
     }
 }

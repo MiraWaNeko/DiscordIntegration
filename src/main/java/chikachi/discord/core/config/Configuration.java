@@ -27,11 +27,12 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 public class Configuration {
+    private static File directory;
     private static File configFile;
     private static ConfigWrapper config;
 
     public static void onPreInit(String directoryPath) {
-        File directory = new File(directoryPath);
+        directory = new File(directoryPath);
 
         //noinspection ResultOfMethodCallIgnored
         directory.mkdirs();
@@ -41,12 +42,8 @@ public class Configuration {
         load();
     }
 
-    public static void load() {
-        if (configFile == null) {
-            return;
-        }
-
-        Gson gson = new GsonBuilder()
+    private static Gson createGson() {
+        return new GsonBuilder()
             .registerTypeAdapter(ChannelConfigType.class, new ChannelConfigTypeAdapter())
             .registerTypeAdapter(DimensionConfigType.class, new DimensionConfigTypeAdapter())
             .registerTypeAdapter(MessageConfig.class, new MessageConfigAdapter())
@@ -54,6 +51,14 @@ public class Configuration {
             .serializeNulls()
             .setPrettyPrinting()
             .create();
+    }
+
+    public static void load() {
+        if (configFile == null) {
+            return;
+        }
+
+        Gson gson = createGson();
 
         if (!configFile.exists()) {
             config = new ConfigWrapper();
@@ -83,7 +88,8 @@ public class Configuration {
                 if (fileReader != null) {
                     try {
                         fileReader.close();
-                    } catch (IOException ignored) {}
+                    } catch (IOException ignored) {
+                    }
                 }
             }
         }
@@ -92,17 +98,25 @@ public class Configuration {
     }
 
     public static void save() {
-        Gson gson = new GsonBuilder()
-            .registerTypeAdapter(ChannelConfigType.class, new ChannelConfigTypeAdapter())
-            .registerTypeAdapter(DimensionConfigType.class, new DimensionConfigTypeAdapter())
-            .registerTypeAdapter(MessageConfig.class, new MessageConfigAdapter())
-            .setVersion(3.0)
-            .setPrettyPrinting()
-            .create();
+        Gson gson = createGson();
 
         try {
             FileWriter writer = new FileWriter(configFile);
             writer.write(gson.toJson(config));
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void saveClean() {
+        Gson gson = createGson();
+
+        try {
+            FileWriter writer = new FileWriter(new File(directory, CoreConstants.MODID + "_clean.json"));
+            ConfigWrapper cleanConfig = new ConfigWrapper();
+            cleanConfig.fillFields();
+            writer.write(gson.toJson(cleanConfig));
             writer.close();
         } catch (IOException e) {
             e.printStackTrace();

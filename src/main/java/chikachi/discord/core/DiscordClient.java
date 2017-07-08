@@ -160,11 +160,7 @@ public class DiscordClient extends ListenerAdapter {
         return this.jda.getSelfUser();
     }
 
-    public void broadcast(MessageConfig message, Long... channels) {
-        broadcast(message, Arrays.asList(channels));
-    }
-
-    public void broadcast(MessageConfig message, List<Long> channels) {
+    void broadcast(MessageConfig message, List<Long> channels) {
         broadcast(new Message(message), channels);
     }
 
@@ -173,7 +169,9 @@ public class DiscordClient extends ListenerAdapter {
     }
 
     public void broadcast(Message message, List<Long> channels) {
-        if (channels == null || channels.size() == 0 || this.jda == null || this.jda.getStatus() != JDA.Status.CONNECTED) return;
+        if (channels == null || channels.size() == 0 || this.jda == null || this.jda.getStatus() != JDA.Status.CONNECTED) {
+            return;
+        }
 
         for (Long channelId : channels) {
             TextChannel channel = this.jda.getTextChannelById(channelId);
@@ -187,7 +185,7 @@ public class DiscordClient extends ListenerAdapter {
                     }
                 }
 
-                channel.sendMessage(message.getFormattedText(channel)).queue();
+                channel.sendMessage(message.getFormattedTextDiscord(channel)).queue();
             }
         }
     }

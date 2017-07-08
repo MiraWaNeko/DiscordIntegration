@@ -4,7 +4,7 @@
   "description": "MC <=> Discord communication",
   "version": "${version}",
   "mcversion": "${mcversion}",
-  "url": "",
+  "url": "https://discordintegration.net",
   "updateUrl": "",
   "authorList": ["Chikachi"],
   "credits": "",

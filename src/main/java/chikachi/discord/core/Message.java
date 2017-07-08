@@ -78,11 +78,6 @@ public class Message {
         return webhookMessage;
     }
 
-    public Message setAuthor(String author) {
-        this.author = author;
-        return this;
-    }
-
     public Message setMessage(MessageConfig message) {
         this.message = message;
         return this;
@@ -107,11 +102,16 @@ public class Message {
         return this.author;
     }
 
-    private String formatText(String text) {
-        return formatText(text, null);
+    public Message setAuthor(String author) {
+        this.author = author;
+        return this;
     }
 
     private String formatText(String text, Channel channel) {
+        return formatText(text, channel, true);
+    }
+
+    private String formatText(String text, Channel channel, boolean isDiscord) {
         String message = text;
 
         if (this.arguments == null) {
@@ -167,18 +167,18 @@ public class Message {
             }
         }
 
-        return (this.prefix != null && this.prefix.trim().length() > 0 ? this.prefix.trim() + " " : "") + Patterns.minecraftToDiscord(message);
+        return (this.prefix != null && this.prefix.trim().length() > 0 ? this.prefix.trim() + " " : "") + (isDiscord ? Patterns.minecraftToDiscord(message) : Patterns.discordToMinecraft(message));
     }
 
-    public String getUnformattedText() {
+    private String getUnformattedText() {
         return this.message != null ? this.message.normal : "";
     }
 
-    public String getFormattedText() {
-        return getFormattedText(null);
+    String getFormattedTextDiscord(Channel channel) {
+        return formatText(getUnformattedText(), channel, true);
     }
 
-    public String getFormattedText(Channel channel) {
-        return formatText(getUnformattedText(), channel);
+    public String getFormattedTextMinecraft() {
+        return formatText(getUnformattedText(), null, false);
     }
 }

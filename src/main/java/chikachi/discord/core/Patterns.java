@@ -34,20 +34,12 @@ public class Patterns {
     public static final Pattern singleCodePattern = Pattern.compile("`(.*)`");
     public static final Pattern multiCodePattern = Pattern.compile("```(.*)```");
 
-    public static final Pattern tagPattern = Pattern.compile("@([^\\s]+)");
+    static final Pattern tagPattern = Pattern.compile("@([^\\s]+)");
 
     private static final HashMap<Pattern, String> discordToMinecraftPatterns = new HashMap<>();
     private static final HashMap<Pattern, String> minecraftToDiscordPatterns = new HashMap<>();
     private static final HashMap<Pattern, ReplacementCallback> minecraftFormattingPatterns = new HashMap<>();
     private static final HashMap<Pattern, ReplacementCallback> discordFormattingPatterns = new HashMap<>();
-
-    public interface ReplacementCallback {
-        String pre(String text);
-
-        String replace(ArrayList<String> groups);
-
-        String post(String text);
-    }
 
     public static void addDiscordToMinecraftPattern(Pattern pattern, String replacement) {
         discordToMinecraftPatterns.put(pattern, replacement);
@@ -65,7 +57,7 @@ public class Patterns {
         discordFormattingPatterns.put(pattern, replacement);
     }
 
-    public static String discordToMinecraft(String content) {
+    static String discordToMinecraft(String content) {
         if (content == null) {
             return "";
         }
@@ -81,7 +73,7 @@ public class Patterns {
         return content;
     }
 
-    public static String minecraftToDiscord(String content) {
+    static String minecraftToDiscord(String content) {
         if (content == null) {
             return "";
         }
@@ -118,5 +110,13 @@ public class Patterns {
         }
 
         return content;
+    }
+
+    public interface ReplacementCallback {
+        String pre(String text);
+
+        String replace(ArrayList<String> groups);
+
+        String post(String text);
     }
 }
