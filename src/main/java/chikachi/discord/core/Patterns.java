@@ -38,8 +38,15 @@ public class Patterns {
 
     private static final HashMap<Pattern, String> discordToMinecraftPatterns = new HashMap<>();
     private static final HashMap<Pattern, String> minecraftToDiscordPatterns = new HashMap<>();
-    private static final HashMap<Pattern, ReplacementCallback> minecraftFormattingPatterns = new HashMap<>();
     private static final HashMap<Pattern, ReplacementCallback> discordFormattingPatterns = new HashMap<>();
+    private static final HashMap<Pattern, ReplacementCallback> minecraftFormattingPatterns = new HashMap<>();
+
+    public static void clearCustomPatterns() {
+        discordFormattingPatterns.clear();
+        minecraftToDiscordPatterns.clear();
+        discordFormattingPatterns.clear();
+        minecraftFormattingPatterns.clear();
+    }
 
     public static void addDiscordToMinecraftPattern(Pattern pattern, String replacement) {
         discordToMinecraftPatterns.put(pattern, replacement);
@@ -57,7 +64,7 @@ public class Patterns {
         discordFormattingPatterns.put(pattern, replacement);
     }
 
-    static String discordToMinecraft(String content) {
+    public static String discordToMinecraft(String content) {
         if (content == null) {
             return "";
         }
@@ -73,7 +80,7 @@ public class Patterns {
         return content;
     }
 
-    static String minecraftToDiscord(String content) {
+    public static String minecraftToDiscord(String content) {
         if (content == null) {
             return "";
         }

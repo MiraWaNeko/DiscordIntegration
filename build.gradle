@@ -108,6 +108,8 @@ dependencies {
 
     // IntelliJ
     compile 'org.jetbrains:annotations:15.0'
+
+    testCompile 'junit:junit:4.12'
 }
 
 jar {
@@ -161,6 +163,10 @@ processResources {
     from(sourceSets.main.resources.srcDirs) {
         exclude 'mcmod.info'
     }
+}
+
+test {
+    useJUnit()
 }
 
 reobf { shadowJar { mappingType = "SEARGE" } }

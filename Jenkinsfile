@@ -12,7 +12,12 @@ pipeline {
     }
     stage('Build') {
       steps {
-        sh './gradlew setupCiWorkspace clean build jar'
+        sh './gradlew setupCiWorkspace clean build test jar'
+      }
+    }
+    stage('Test') {
+      steps {
+        junit '**/build/test-reports/*.xml'
       }
     }
     stage('Archive') {

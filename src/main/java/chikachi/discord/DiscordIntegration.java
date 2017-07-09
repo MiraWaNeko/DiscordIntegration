@@ -42,6 +42,14 @@ public class DiscordIntegration {
     public void onPreInit(FMLPreInitializationEvent event) {
         coreProxy.onPreInit(event.getModConfigurationDirectory());
 
+        addPatterns();
+
+        MinecraftForge.EVENT_BUS.register(new MinecraftListener());
+    }
+
+    public static void addPatterns() {
+        Patterns.clearCustomPatterns();
+
         Patterns.addDiscordToMinecraftPattern(Patterns.strikeThroughPattern, TextFormatting.STRIKETHROUGH + "$1\ufffd");
         Patterns.addDiscordToMinecraftPattern(Patterns.underlinePattern, TextFormatting.UNDERLINE + "$1\ufffd");
         Patterns.addDiscordToMinecraftPattern(Patterns.italicMePattern, TextFormatting.ITALIC + "$1\ufffd");
@@ -166,8 +174,6 @@ public class DiscordIntegration {
                 return text;
             }
         });
-
-        MinecraftForge.EVENT_BUS.register(new MinecraftListener());
     }
 
     @Mod.EventHandler
