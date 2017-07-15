@@ -29,7 +29,7 @@ pipeline {
   }
   post {
     always {
-      junit 'build/test-reports/TEST-*.xml'
+      junit 'build/test-results/TEST-*.xml'
     }
     success {
       withCredentials([string(credentialsId: 'discord.webhook.channel', variable: 'WEBHOOK_CHANNEL'), string(credentialsId: 'discord.webhook.token', variable: 'WEBHOOK_TOKEN')]) {
