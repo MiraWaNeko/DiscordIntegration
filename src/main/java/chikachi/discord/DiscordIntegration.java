@@ -50,16 +50,11 @@ public class DiscordIntegration {
     public static void addPatterns() {
         Patterns.clearCustomPatterns();
 
-        Patterns.addDiscordToMinecraftPattern(Patterns.strikeThroughPattern, TextFormatting.STRIKETHROUGH + "$1\ufffd");
-        Patterns.addDiscordToMinecraftPattern(Patterns.underlinePattern, TextFormatting.UNDERLINE + "$1\ufffd");
-        Patterns.addDiscordToMinecraftPattern(Patterns.italicMePattern, TextFormatting.ITALIC + "$1\ufffd");
-        Patterns.addDiscordToMinecraftPattern(Patterns.italicPattern, TextFormatting.ITALIC + "$1\ufffd");
-        Patterns.addDiscordToMinecraftPattern(Patterns.boldPattern, TextFormatting.BOLD + "$1\ufffd");
-        Patterns.addDiscordToMinecraftPattern(Patterns.multiCodePattern, "$1");
-        Patterns.addDiscordToMinecraftPattern(Patterns.singleCodePattern, "$1");
-
-        Patterns.addMinecraftFormattingPattern(Pattern.compile("(?i)((\u00c2?[\u00a7&]([0-9A-FK-OR]))|\ufffd)"), new Patterns.ReplacementCallback() {
-            private ArrayList<TextFormatting> layers = new ArrayList<>();
+        Patterns.addMinecraftFormattingPattern(Pattern.compile("(?i)(\\*\\*|\\*|__|_|~~|`|```)"), new Patterns.ReplacementCallback() {
+            private boolean bold = false;
+            private boolean italic = false;
+            private boolean underline = false;
+            private boolean strikethrough = false;
 
             @Override
             public String pre(String text) {
@@ -68,30 +63,51 @@ public class DiscordIntegration {
 
             @Override
             public String replace(ArrayList<String> groups) {
-                if (groups.get(0).charAt(0) == '\ufffd') {
-                    if (layers.size() > 0) {
-                        layers.remove(layers.size() - 1);
-                        return TextFormatting.RESET + Joiner.on("").join(layers.stream().map(TextFormatting::toString).collect(Collectors.toList()));
-                    }
+                String modifier = groups.get(0);
 
-                    return TextFormatting.RESET.toString();
-                }
-
-                String modifier = String.valueOf("\u00a7") + groups.get(2).substring(groups.get(2).length() - 1);
-
-                for (TextFormatting textFormatting : TextFormatting.values()) {
-                    if (modifier.equalsIgnoreCase(textFormatting.toString())) {
-                        layers.add(textFormatting);
+                switch (modifier) {
+                    case "**":
+                        bold = !bold;
+                        modifier = bold ? TextFormatting.BOLD.toString() : resetString();
                         break;
-                    }
+                    case "*":
+                    case "_":
+                        italic = !italic;
+                        modifier = italic ? TextFormatting.ITALIC.toString() : resetString();
+                        break;
+                    case "__":
+                        underline = !underline;
+                        modifier = underline ? TextFormatting.UNDERLINE.toString() : resetString();
+                        break;
+                    case "~~":
+                        strikethrough = !strikethrough;
+                        modifier = strikethrough ? TextFormatting.STRIKETHROUGH.toString() : resetString();
+                        break;
                 }
 
                 return modifier;
             }
 
+            private String resetString() {
+                String text = TextFormatting.RESET.toString();
+                if (strikethrough) {
+                    text += TextFormatting.STRIKETHROUGH.toString();
+                }
+                if (underline) {
+                    text += TextFormatting.UNDERLINE.toString();
+                }
+                if (italic) {
+                    text += TextFormatting.ITALIC.toString();
+                }
+                if (bold) {
+                    text += TextFormatting.BOLD.toString();
+                }
+                return text;
+            }
+
             @Override
             public String post(String text) {
-                layers.clear();
+                text = Pattern.compile("(?i)\u00a7r(\u00a7([0-9A-FK-OR]))+\u00a7r").matcher(text).replaceAll(TextFormatting.RESET.toString());
                 return text;
             }
         });
@@ -155,23 +171,23 @@ public class DiscordIntegration {
 
             @Override
             public String post(String text) {
-                if (bold) {
-                    text += "**";
-                }
-                if (italic) {
-                    text += "*";
+                if (strikethrough) {
+                    text += "~~";
+                    strikethrough = false;
                 }
                 if (underline) {
                     text += "__";
+                    underline = false;
                 }
-                if (strikethrough) {
-                    text += "~~";
+                if (italic) {
+                    text += "*";
+                    italic = false;
                 }
-                bold = false;
-                italic = false;
-                underline = false;
-                strikethrough = false;
-                return text;
+                if (bold) {
+                    text += "**";
+                    bold = false;
+                }
+                return text.replaceAll("\\*\\*\\*\\*\\*", "*");
             }
         });
     }

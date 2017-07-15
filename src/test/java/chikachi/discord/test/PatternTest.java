@@ -28,6 +28,9 @@ public class PatternTest {
     @Test
     public void discordToMinecraft() {
         Assert.assertTrue("Bold", "\u00a7lBold\u00a7r".equals(Patterns.discordToMinecraft("**Bold**")));
+        Assert.assertTrue("BoldItalic", "\u00a7lBold \u00a7oItalic\u00a7r".equals(Patterns.discordToMinecraft("**Bold *Italic***")));
+        Assert.assertTrue("BoldItalicUnderline", "\u00a7lBold \u00a7oItalic \u00a7nUnderline\u00a7r".equals(Patterns.discordToMinecraft("**Bold *Italic __Underline__***")));
+        Assert.assertTrue("BoldItalicUnderline2", "\u00a7lBold \u00a7oItalic\u00a7r\u00a7l \u00a7nUnderline\u00a7r".equals(Patterns.discordToMinecraft("**Bold *Italic* __Underline__**")));
         Assert.assertTrue("Strikethrough", "\u00a7mStrikethrough\u00a7r".equals(Patterns.discordToMinecraft("~~Strikethrough~~")));
         Assert.assertTrue("Underline", "\u00a7nUnderline\u00a7r".equals(Patterns.discordToMinecraft("__Underline__")));
         Assert.assertTrue("Italic", "\u00a7oItalic\u00a7r".equals(Patterns.discordToMinecraft("*Italic*")));
@@ -40,6 +43,9 @@ public class PatternTest {
         Assert.assertTrue("Color", "Color".equals(Patterns.minecraftToDiscord("\u00a70\u00a71\u00a72\u00a73\u00a74\u00a75\u00a76\u00a77\u00a78\u00a79\u00a7a\u00a7b\u00a7c\u00a7d\u00a7e\u00a7fColor")));
         Assert.assertTrue("Obfuscated", "Obfuscated".equals(Patterns.minecraftToDiscord("\u00a7kObfuscated")));
         Assert.assertTrue("Bold", "**Bold**".equals(Patterns.minecraftToDiscord("\u00a7lBold")));
+        Assert.assertTrue("BoldItalic", "**Bold *Italic***".equals(Patterns.minecraftToDiscord("\u00a7lBold \u00a7oItalic")));
+        Assert.assertTrue("BoldItalicUnderline", "**Bold *Italic __Underline__***".equals(Patterns.minecraftToDiscord("\u00a7lBold \u00a7oItalic \u00a7nUnderline")));
+        Assert.assertTrue("BoldItalicUnderline2", "**Bold *Italic* __Underline__**".equals(Patterns.minecraftToDiscord("\u00a7lBold \u00a7oItalic\u00a7r\u00a7l \u00a7nUnderline")));
         Assert.assertTrue("Strikethrough", "~~Strikethrough~~".equals(Patterns.minecraftToDiscord("\u00a7mStrikethrough")));
         Assert.assertTrue("Underline", "__Underline__".equals(Patterns.minecraftToDiscord("\u00a7nUnderline")));
         Assert.assertTrue("Italic", "*Italic*".equals(Patterns.minecraftToDiscord("\u00a7oItalic")));

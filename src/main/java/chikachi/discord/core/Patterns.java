@@ -23,37 +23,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Patterns {
-    public static final Pattern everyonePattern = Pattern.compile("(^|\\W)@everyone\\b");
-    public static final Pattern herePattern = Pattern.compile("(^|\\W)@here\\b");
-
-    public static final Pattern boldPattern = Pattern.compile("\\*\\*(.*)\\*\\*");
-    public static final Pattern underlinePattern = Pattern.compile("__(.*)__");
-    public static final Pattern italicPattern = Pattern.compile("\\*(.*)\\*");
-    public static final Pattern italicMePattern = Pattern.compile("_(.*)_");
-    public static final Pattern strikeThroughPattern = Pattern.compile("~~(.*)~~");
-    public static final Pattern singleCodePattern = Pattern.compile("`(.*)`");
-    public static final Pattern multiCodePattern = Pattern.compile("```(.*)```");
-
     static final Pattern tagPattern = Pattern.compile("@([^\\s]+)");
 
-    private static final HashMap<Pattern, String> discordToMinecraftPatterns = new HashMap<>();
-    private static final HashMap<Pattern, String> minecraftToDiscordPatterns = new HashMap<>();
     private static final HashMap<Pattern, ReplacementCallback> discordFormattingPatterns = new HashMap<>();
     private static final HashMap<Pattern, ReplacementCallback> minecraftFormattingPatterns = new HashMap<>();
 
     public static void clearCustomPatterns() {
         discordFormattingPatterns.clear();
-        minecraftToDiscordPatterns.clear();
-        discordFormattingPatterns.clear();
         minecraftFormattingPatterns.clear();
-    }
-
-    public static void addDiscordToMinecraftPattern(Pattern pattern, String replacement) {
-        discordToMinecraftPatterns.put(pattern, replacement);
-    }
-
-    public static void addMinecraftToDiscordPattern(Pattern pattern, String replacement) {
-        minecraftToDiscordPatterns.put(pattern, replacement);
     }
 
     public static void addMinecraftFormattingPattern(Pattern pattern, ReplacementCallback replacement) {
@@ -69,10 +46,6 @@ public class Patterns {
             return "";
         }
 
-        for (Map.Entry<Pattern, String> entry : discordToMinecraftPatterns.entrySet()) {
-            content = entry.getKey().matcher(content).replaceAll(entry.getValue());
-        }
-
         for (Map.Entry<Pattern, ReplacementCallback> entry : minecraftFormattingPatterns.entrySet()) {
             content = executeReplacement(content, entry);
         }
@@ -83,10 +56,6 @@ public class Patterns {
     public static String minecraftToDiscord(String content) {
         if (content == null) {
             return "";
-        }
-
-        for (Map.Entry<Pattern, String> entry : minecraftToDiscordPatterns.entrySet()) {
-            content = entry.getKey().matcher(content).replaceAll(entry.getValue());
         }
 
         for (Map.Entry<Pattern, ReplacementCallback> entry : discordFormattingPatterns.entrySet()) {
