@@ -20,7 +20,6 @@ import com.google.common.base.Joiner;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentString;
-import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 
@@ -61,15 +60,17 @@ class SubCommandTps {
 
             tpsTimes.add(
                 String.format(
-                    "%s%s : Mean tick time: %s ms. Mean TPS: %s",
+                    "%s%s : Mean tick time: %s%s ms. Mean TPS: %s%s",
                     colored && isDiscord ? CoreUtils.tpsToColorString(worldTPS, true) : "",
                     String.format(
                         "Dim %s %s",
                         CoreUtils.padLeft(dimensionId + "", maxDimensionIdLength),
                         CoreUtils.padRight(dimensionName, maxDimensionNameLength)
                     ),
-                    CoreUtils.padLeft(color + timeFormatter.format(worldTickTime) + TextFormatting.RESET, 6),
-                    CoreUtils.padLeft(color + timeFormatter.format(worldTPS) + TextFormatting.RESET, 6)
+                    CoreUtils.padLeft(color + timeFormatter.format(worldTickTime), 6),
+                    colored && isDiscord ? "" : "\u00a7r",
+                    CoreUtils.padLeft(color + timeFormatter.format(worldTPS), 6),
+                    colored && isDiscord ? "" : "\u00a7r"
                 )
             );
         }
@@ -81,11 +82,13 @@ class SubCommandTps {
 
         tpsTimes.add(
             String.format(
-                "%s%s : Mean tick time: %s ms. Mean TPS: %s",
+                "%s%s : Mean tick time: %s%s ms. Mean TPS: %s%s",
                 colored && isDiscord ? CoreUtils.tpsToColorString(meanTPS, true) : "",
                 CoreUtils.padRight("Overall", maxDimensionIdLength + maxDimensionNameLength + 5),
-                CoreUtils.padLeft(color + timeFormatter.format(meanTickTime) + TextFormatting.RESET, 6),
-                CoreUtils.padLeft(color + timeFormatter.format(meanTPS) + TextFormatting.RESET, 6)
+                CoreUtils.padLeft(color + timeFormatter.format(meanTickTime), 6),
+                colored && isDiscord ? "" : "\u00a7r",
+                CoreUtils.padLeft(color + timeFormatter.format(meanTPS), 6),
+                colored && isDiscord ? "" : "\u00a7r"
             )
         );
 

@@ -25,6 +25,10 @@ public class DiscordChannelGenericConfig {
     @Since(3.0)
     public Boolean canExecuteCommands;
     @Since(3.0)
+    public Boolean stripMinecraftCodes;
+    @Since(3.0)
+    public Boolean allowDMCommands;
+    @Since(3.0)
     public DimensionConfigType relayChat;
     @Since(3.0)
     public DiscordMessagesConfig messages;
@@ -39,6 +43,14 @@ public class DiscordChannelGenericConfig {
 
             if (this.canExecuteCommands == null) {
                 this.canExecuteCommands = false;
+            }
+
+            if (this.stripMinecraftCodes == null) {
+                this.stripMinecraftCodes = true;
+            }
+
+            if (this.allowDMCommands == null) {
+                this.allowDMCommands = false;
             }
         }
 

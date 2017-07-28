@@ -15,6 +15,7 @@
 package chikachi.discord.command;
 
 import chikachi.discord.core.DiscordClient;
+import chikachi.discord.core.DiscordIntegrationLogger;
 import chikachi.discord.core.config.Configuration;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.util.text.TextComponentString;
@@ -30,7 +31,7 @@ public class SubCommandConfig {
             case "reload":
                 String oldToken = Configuration.getConfig().discord.token;
 
-                Configuration.load();
+                Configuration.loadConfig();
 
                 if (!DiscordClient.getInstance().isConnected()) {
                     // Connect to Discord, if not already connected
@@ -40,12 +41,18 @@ public class SubCommandConfig {
                     DiscordClient.getInstance().disconnect();
                     DiscordClient.getInstance().connect();
                 }
+
+                sender.sendMessage(new TextComponentString("Config reloaded"));
                 break;
             case "save":
-                Configuration.save();
+                Configuration.saveConfig();
+
+                sender.sendMessage(new TextComponentString("Config saved"));
                 break;
             case "clean":
                 Configuration.saveClean();
+
+                sender.sendMessage(new TextComponentString("Clean config saved"));
                 break;
             default:
                 sender.sendMessage(new TextComponentString("Unknown command"));

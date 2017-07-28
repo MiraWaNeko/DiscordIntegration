@@ -16,35 +16,72 @@ package chikachi.discord;
 
 import chikachi.discord.command.CommandDiscord;
 import chikachi.discord.core.CoreConstants;
-import chikachi.discord.core.CoreProxy;
+import chikachi.discord.core.Proxy;
 import chikachi.discord.core.DiscordClient;
 import chikachi.discord.core.Patterns;
 import chikachi.discord.listener.DiscordListener;
 import chikachi.discord.listener.MinecraftListener;
-import com.google.common.base.Joiner;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.*;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 @Mod(modid = CoreConstants.MODID, name = CoreConstants.MODNAME, version = CoreConstants.VERSION, serverSideOnly = true, acceptableRemoteVersions = "*")
 public class DiscordIntegration {
     @Mod.Instance
     public static DiscordIntegration instance;
 
-    private static CoreProxy coreProxy = new CoreProxy();
+    private static Proxy proxy = new Proxy();
 
     @Mod.EventHandler
     public void onPreInit(FMLPreInitializationEvent event) {
-        coreProxy.onPreInit(event.getModConfigurationDirectory());
+        proxy.onPreInit(event.getModConfigurationDirectory());
 
         addPatterns();
 
         MinecraftForge.EVENT_BUS.register(new MinecraftListener());
+    }
+
+    @Mod.EventHandler
+    public void onPostInit(FMLPostInitializationEvent event) {
+        event.buildSoftDependProxy("Dynmap", "chikachi.discord.integration.DynmapIntegration");
+    }
+
+    @Mod.EventHandler
+    public void onServerAboutToStart(FMLServerAboutToStartEvent event) {
+    }
+
+    @Mod.EventHandler
+    public void onServerStarting(FMLServerStartingEvent event) {
+        proxy.onServerStarting();
+
+        DiscordClient.getInstance().addEventListener(new DiscordListener());
+
+        event.registerServerCommand(new CommandDiscord());
+    }
+
+    @Mod.EventHandler
+    public void onServerStarted(FMLServerStartedEvent event) {
+        proxy.onServerStarted();
+    }
+
+    @Mod.EventHandler
+    public void onServerStopping(FMLServerStoppingEvent event) {
+        proxy.onServerStopping();
+    }
+
+    @Mod.EventHandler
+    public void onServerStopped(FMLServerStoppedEvent event) {
+        proxy.onServerStopped();
+    }
+
+    @Mod.EventHandler
+    public void imcReceived(FMLInterModComms.IMCEvent event) {
+        event.getMessages().forEach(IMCHandler::onMessageReceived);
     }
 
     public static void addPatterns() {
@@ -67,21 +104,21 @@ public class DiscordIntegration {
 
                 switch (modifier) {
                     case "**":
-                        bold = !bold;
-                        modifier = bold ? TextFormatting.BOLD.toString() : resetString();
+                        this.bold = !this.bold;
+                        modifier = this.bold ? "\u00a7l" : resetString();
                         break;
                     case "*":
                     case "_":
-                        italic = !italic;
-                        modifier = italic ? TextFormatting.ITALIC.toString() : resetString();
+                        this.italic = !this.italic;
+                        modifier = this.italic ? "\u00a7o" : resetString();
                         break;
                     case "__":
-                        underline = !underline;
-                        modifier = underline ? TextFormatting.UNDERLINE.toString() : resetString();
+                        this.underline = !this.underline;
+                        modifier = this.underline ? "\u00a7n" : resetString();
                         break;
                     case "~~":
-                        strikethrough = !strikethrough;
-                        modifier = strikethrough ? TextFormatting.STRIKETHROUGH.toString() : resetString();
+                        this.strikethrough = !this.strikethrough;
+                        modifier = this.strikethrough ? "\u00a7m" : resetString();
                         break;
                 }
 
@@ -90,17 +127,17 @@ public class DiscordIntegration {
 
             private String resetString() {
                 String text = TextFormatting.RESET.toString();
-                if (strikethrough) {
-                    text += TextFormatting.STRIKETHROUGH.toString();
+                if (this.strikethrough) {
+                    text += "\u00a7m";
                 }
-                if (underline) {
-                    text += TextFormatting.UNDERLINE.toString();
+                if (this.underline) {
+                    text += "\u00a7n";
                 }
-                if (italic) {
-                    text += TextFormatting.ITALIC.toString();
+                if (this.italic) {
+                    text += "\u00a7o";
                 }
-                if (bold) {
-                    text += TextFormatting.BOLD.toString();
+                if (this.bold) {
+                    text += "\u00a7l";
                 }
                 return text;
             }
@@ -112,7 +149,7 @@ public class DiscordIntegration {
             }
         });
 
-        Patterns.addDiscordFormattingPattern(Pattern.compile("(?i)(\u00a7[0-9A-FK-OR])"), new Patterns.ReplacementCallback() {
+        Patterns.addDiscordFormattingPattern(Patterns.minecraftCodePattern, new Patterns.ReplacementCallback() {
             private boolean bold = false;
             private boolean italic = false;
             private boolean underline = false;
@@ -130,33 +167,33 @@ public class DiscordIntegration {
                 for (TextFormatting textFormatting : TextFormatting.values()) {
                     if (modifier.equalsIgnoreCase(textFormatting.toString())) {
                         if (textFormatting.equals(TextFormatting.BOLD)) {
-                            bold = true;
+                            this.bold = true;
                             modifier = "**";
                         } else if (textFormatting.equals(TextFormatting.ITALIC)) {
-                            italic = true;
+                            this.italic = true;
                             modifier = "*";
                         } else if (textFormatting.equals(TextFormatting.UNDERLINE)) {
-                            underline = true;
+                            this.underline = true;
                             modifier = "__";
                         } else if (textFormatting.equals(TextFormatting.STRIKETHROUGH)) {
-                            strikethrough = true;
+                            this.strikethrough = true;
                             modifier = "~~";
                         } else if (textFormatting.equals(TextFormatting.RESET)) {
                             modifier = "";
-                            if (bold) {
-                                bold = false;
+                            if (this.bold) {
+                                this.bold = false;
                                 modifier += "**";
                             }
-                            if (italic) {
-                                italic = false;
+                            if (this.italic) {
+                                this.italic = false;
                                 modifier += "*";
                             }
-                            if (underline) {
-                                underline = false;
+                            if (this.underline) {
+                                this.underline = false;
                                 modifier += "__";
                             }
-                            if (strikethrough) {
-                                strikethrough = false;
+                            if (this.strikethrough) {
+                                this.strikethrough = false;
                                 modifier += "~~";
                             }
                         } else {
@@ -171,57 +208,24 @@ public class DiscordIntegration {
 
             @Override
             public String post(String text) {
-                if (strikethrough) {
+                if (this.strikethrough) {
                     text += "~~";
-                    strikethrough = false;
+                    this.strikethrough = false;
                 }
-                if (underline) {
+                if (this.underline) {
                     text += "__";
-                    underline = false;
+                    this.underline = false;
                 }
-                if (italic) {
+                if (this.italic) {
                     text += "*";
-                    italic = false;
+                    this.italic = false;
                 }
-                if (bold) {
+                if (this.bold) {
                     text += "**";
-                    bold = false;
+                    this.bold = false;
                 }
                 return text.replaceAll("\\*\\*\\*\\*\\*", "*");
             }
         });
-    }
-
-    @Mod.EventHandler
-    public void onServerAboutToStart(FMLServerAboutToStartEvent event) {
-    }
-
-    @Mod.EventHandler
-    public void onServerStarting(FMLServerStartingEvent event) {
-        coreProxy.onServerStarting();
-
-        DiscordClient.getInstance().addEventListner(new DiscordListener());
-
-        event.registerServerCommand(new CommandDiscord());
-    }
-
-    @Mod.EventHandler
-    public void onServerStarted(FMLServerStartedEvent event) {
-        coreProxy.onServerStarted();
-    }
-
-    @Mod.EventHandler
-    public void onServerStopping(FMLServerStoppingEvent event) {
-        coreProxy.onServerStopping();
-    }
-
-    @Mod.EventHandler
-    public void onServerStopped(FMLServerStoppedEvent event) {
-        coreProxy.onServerStopped();
-    }
-
-    @Mod.EventHandler
-    public void imcReceived(FMLInterModComms.IMCEvent event) {
-        event.getMessages().forEach(IMCHandler::onMessageReceived);
     }
 }

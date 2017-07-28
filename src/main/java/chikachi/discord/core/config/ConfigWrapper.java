@@ -16,6 +16,7 @@ package chikachi.discord.core.config;
 
 import chikachi.discord.core.config.discord.DiscordConfig;
 import chikachi.discord.core.config.minecraft.MinecraftConfig;
+import chikachi.discord.core.config.imc.IMCConfig;
 import com.google.gson.annotations.Since;
 
 public class ConfigWrapper {
@@ -23,6 +24,8 @@ public class ConfigWrapper {
     public DiscordConfig discord;
     @Since(3.0)
     public MinecraftConfig minecraft;
+    @Since(3.0)
+    public IMCConfig imc;
 
     public void fillFields() {
         if (this.discord == null) {
@@ -34,5 +37,10 @@ public class ConfigWrapper {
             this.minecraft = new MinecraftConfig();
         }
         this.minecraft.fillFields();
+
+        if (this.imc == null) {
+            this.imc = new IMCConfig();
+        }
+        this.imc.fillFields();
     }
 }

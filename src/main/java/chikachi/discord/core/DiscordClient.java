@@ -22,6 +22,7 @@ import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.entities.SelfUser;
 import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.ReadyEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 
@@ -49,9 +50,9 @@ public class DiscordClient extends ListenerAdapter {
 
     @Override
     public void onReady(ReadyEvent event) {
-        CoreLogger.Log("!!! THIS IS AN ALPHA VERSION !!!", true);
-        CoreLogger.Log("!!! YOU HAVE BEEN WARNED !!!");
-        CoreLogger.Log("Logged in as " + getSelf().getName());
+        DiscordIntegrationLogger.Log("!!! THIS IS AN ALPHA VERSION !!!", true);
+        DiscordIntegrationLogger.Log("!!! YOU HAVE BEEN WARNED !!!");
+        DiscordIntegrationLogger.Log("Logged in as " + getSelf().getName());
 
         this.isReady = true;
 
@@ -71,10 +72,11 @@ public class DiscordClient extends ListenerAdapter {
         connect(false);
     }
 
-    public void connect(boolean noMessage) {
+    @SuppressWarnings("SameParameterValue")
+    private void connect(boolean noMessage) {
         if (this.jda != null) {
             if (noMessage) {
-                CoreLogger.Log("Is already connected", true);
+                DiscordIntegrationLogger.Log("Is already connected", true);
             }
             return;
         }
@@ -83,7 +85,7 @@ public class DiscordClient extends ListenerAdapter {
 
         if (token == null || token.isEmpty()) {
             if (noMessage) {
-                CoreLogger.Log("Missing token", true);
+                DiscordIntegrationLogger.Log("Missing token", true);
             }
             return;
         }
@@ -102,7 +104,7 @@ public class DiscordClient extends ListenerAdapter {
             this.jda = builder
                 .buildAsync();
         } catch (LoginException e) {
-            CoreLogger.Log(
+            DiscordIntegrationLogger.Log(
                 String.format(
                     "Failed to connect to Discord: %s",
                     e.getMessage()
@@ -110,12 +112,12 @@ public class DiscordClient extends ListenerAdapter {
                 true
             );
         } catch (Exception e) {
-            CoreLogger.Log("Failed to connect to Discord", true);
+            DiscordIntegrationLogger.Log("Failed to connect to Discord", true);
             e.printStackTrace();
         }
     }
 
-    public void addEventListner(ListenerAdapter eventListener) {
+    public void addEventListener(ListenerAdapter eventListener) {
         if (eventListener != null) {
             if (this.eventListeners.contains(eventListener)) {
                 return;
@@ -137,19 +139,23 @@ public class DiscordClient extends ListenerAdapter {
         disconnect(false);
     }
 
-    public void disconnect(boolean noMessage) {
+    void disconnect(boolean noMessage) {
         if (this.jda == null) {
             if (!noMessage) {
-                CoreLogger.Log("Is already disconnected", true);
+                DiscordIntegrationLogger.Log("Is already disconnected", true);
             }
             return;
         }
 
         this.jda.shutdown(false);
         if (!noMessage) {
-            CoreLogger.Log("Disconnected from Discord", true);
+            DiscordIntegrationLogger.Log("Disconnected from Discord", true);
         }
         this.jda = null;
+    }
+
+    public JDA getJda() {
+        return this.jda;
     }
 
     public SelfUser getSelf() {
@@ -158,6 +164,14 @@ public class DiscordClient extends ListenerAdapter {
         }
 
         return this.jda.getSelfUser();
+    }
+
+    public User getUser(long userId) {
+        if (this.jda == null) {
+            return null;
+        }
+
+        return this.jda.getUserById(userId);
     }
 
     void broadcast(MessageConfig message, List<Long> channels) {
@@ -169,13 +183,31 @@ public class DiscordClient extends ListenerAdapter {
     }
 
     public void broadcast(Message message, List<Long> channels) {
-        if (channels == null || channels.size() == 0 || this.jda == null || this.jda.getStatus() != JDA.Status.CONNECTED) {
+        if (channels == null || channels.size() == 0 || this.jda == null || (!this.isReady && this.jda.getStatus() != JDA.Status.CONNECTED)) {
             return;
         }
 
         for (Long channelId : channels) {
             TextChannel channel = this.jda.getTextChannelById(channelId);
-            if (channel != null) {
+            if (channel == null) {
+                DiscordIntegrationLogger.Log(
+                    String.format(
+                        "Could not find channel %s",
+                        channelId
+                    )
+                );
+            } else {
+                if (!channel.canTalk()) {
+                    DiscordIntegrationLogger.Log(
+                        String.format(
+                            "Missing permission to write in channel %s (%s)",
+                            channel.getName(),
+                            channelId
+                        )
+                    );
+                    continue;
+                }
+
                 if (Configuration.getConfig().discord.channels.channels.containsKey(channelId)) {
                     if (Configuration.getConfig().discord.channels.channels.get(channelId).webhook.trim().length() > 0) {
                         WebhookMessage webhookMessage = message.toWebhook(channel);
@@ -185,7 +217,13 @@ public class DiscordClient extends ListenerAdapter {
                     }
                 }
 
-                channel.sendMessage(message.getFormattedTextDiscord(channel)).queue();
+                String text = message.getFormattedTextDiscord(channel);
+
+                if (text.length() > 2000) {
+                    text = text.substring(0, 1997) + "...";
+                }
+
+                channel.sendMessage(text).queue();
             }
         }
     }

@@ -16,6 +16,7 @@ package chikachi.discord.core;
 
 import chikachi.discord.core.config.Configuration;
 import chikachi.discord.core.config.types.MessageConfig;
+import com.vdurmont.emoji.EmojiParser;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Channel;
 import net.dv8tion.jda.core.entities.Member;
@@ -33,6 +34,7 @@ public class Message {
     private String prefix = null;
     private MessageConfig message = null;
     private HashMap<String, String> arguments = null;
+    private boolean parsing = true;
 
     public Message() {
     }
@@ -70,12 +72,12 @@ public class Message {
         this.arguments.put("USER", getAuthor());
     }
 
-    public WebhookMessage toWebhook(TextChannel channel) {
-        WebhookMessage webhookMessage = new WebhookMessage();
-        webhookMessage.content = formatText(message.webhook, channel);
-        webhookMessage.username = this.author;
-        webhookMessage.avatar_url = this.avatarUrl;
-        return webhookMessage;
+    WebhookMessage toWebhook(TextChannel channel) {
+        return new WebhookMessage(
+            formatText(message.webhook, channel),
+            this.author,
+            this.avatarUrl
+        );
     }
 
     public Message setMessage(MessageConfig message) {
@@ -98,12 +100,21 @@ public class Message {
         return this;
     }
 
-    public String getAuthor() {
+    private String getAuthor() {
         return this.author;
     }
 
     public Message setAuthor(String author) {
         this.author = author;
+        return this;
+    }
+
+    private boolean isParsing() {
+        return this.parsing;
+    }
+
+    public Message setParsing(boolean parsing) {
+        this.parsing = parsing;
         return this;
     }
 
@@ -132,6 +143,22 @@ public class Message {
                 StringBuffer sb = new StringBuffer();
                 while (m.find()) {
                     String name = m.group(1);
+
+                    if (name.equalsIgnoreCase("everyone")) {
+                        if (Configuration.getConfig().minecraft.dimensions.generic.canMentionEveryone) {
+                            return "@everyone";
+                        } else {
+                            return name;
+                        }
+                    }
+
+                    if (name.equalsIgnoreCase("here")) {
+                        if (Configuration.getConfig().minecraft.dimensions.generic.canMentionHere) {
+                            return "@here";
+                        } else {
+                            return name;
+                        }
+                    }
 
                     if (Configuration.getConfig().minecraft.dimensions.generic.canMentionUsers) {
                         Optional<Member> theMember = channel.getGuild().getMembersByName(name, true)
@@ -167,7 +194,24 @@ public class Message {
             }
         }
 
-        return (this.prefix != null && this.prefix.trim().length() > 0 ? this.prefix.trim() + " " : "") + (isDiscord ? Patterns.minecraftToDiscord(message) : Patterns.discordToMinecraft(message));
+        if (this.isParsing()) {
+            if (isDiscord) {
+                message = CoreUtils.Replace(CoreConstants.minecraftToDiscordEmotes, message);
+                message = EmojiParser.parseToUnicode(message);
+                message = Patterns.minecraftToDiscord(message);
+            } else {
+                message = EmojiParser.parseToAliases(message, EmojiParser.FitzpatrickAction.REMOVE);
+                message = CoreUtils.Replace(CoreConstants.discordToMinecraftEmotes, message);
+                message = Patterns.discordToMinecraft(message);
+            }
+
+        }
+
+        return String.format(
+            "%s%s",
+            this.prefix != null && this.prefix.trim().length() > 0 ? this.prefix.trim() + " " : "",
+            message
+        );
     }
 
     private String getUnformattedText() {

@@ -141,4 +141,8 @@ public class CoreUtils {
     public static long mean(long[] values) {
         return LongStream.of(values).sum() / values.length;
     }
+
+    public static String getAvatarUrl(String minecraftUsername) {
+        return String.format("https://minotar.net/helm/%s/128.png", minecraftUsername);
+    }
 }

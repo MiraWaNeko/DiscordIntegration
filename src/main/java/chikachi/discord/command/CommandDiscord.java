@@ -15,11 +15,15 @@
 package chikachi.discord.command;
 
 import chikachi.discord.core.DiscordClient;
+import chikachi.discord.core.config.Configuration;
+import chikachi.discord.core.config.linking.LinkingRequest;
 import mcp.MethodsReturnNonnullByDefault;
+import net.dv8tion.jda.core.entities.User;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
@@ -27,10 +31,7 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
@@ -42,7 +43,7 @@ public class CommandDiscord extends CommandBase {
 
     @Override
     public String getUsage(ICommandSender sender) {
-        return "";
+        return "/discord <config|online" + (Configuration.getConfig().discord.allowLinking ? "|link|unlink" : "") + "|tps|unstuck|uptime> [options]";
     }
 
     @Override
@@ -58,25 +59,99 @@ public class CommandDiscord extends CommandBase {
 
         ArrayList<String> argsList = new ArrayList<>(Arrays.asList(args));
         String commandName = argsList.remove(0).toLowerCase();
+        UUID minecraftUUID;
 
         switch (commandName) {
             case "config":
                 SubCommandConfig.execute(sender, argsList);
                 break;
-            case "connect":
+            /*case "connect":
                 DiscordClient.getInstance().connect(true);
                 break;
             case "disconnect":
                 DiscordClient.getInstance().disconnect(true);
-                break;
+                break;*/
             case "online":
                 SubCommandOnline.execute(sender);
+                break;
+            case "link":
+                if (!Configuration.getConfig().discord.allowLinking) {
+                    sender.sendMessage(new TextComponentString("\u00A74Linking is not enabled"));
+                    break;
+                }
+
+                if (!(sender instanceof EntityPlayer)) {
+                    sender.sendMessage(new TextComponentString("\u00A74You need to be a player"));
+                    break;
+                }
+
+                minecraftUUID = ((EntityPlayer) sender).getGameProfile().getId();
+                Long discordId = Configuration.getLinking().getDiscordId(minecraftUUID);
+
+                if (discordId != null) {
+                    User discordUser = DiscordClient.getInstance().getJda().getUserById(discordId);
+                    sender.sendMessage(
+                        new TextComponentString(
+                            String.format(
+                                "\u00A7eYou're already linked to %s#%s",
+                                discordUser.getName(),
+                                discordUser.getDiscriminator()
+                            )
+                        )
+                    );
+                    break;
+                }
+
+                if (argsList.size() == 0) {
+                    sender.sendMessage(new TextComponentString("\u00A74Missing code"));
+                    break;
+                }
+
+                Optional<LinkingRequest> requestOptional = Configuration.getLinking().getRequestByCode(argsList.remove(0));
+                if (requestOptional.isPresent()) {
+                    LinkingRequest request = requestOptional.get();
+
+                    if (request.hasExpired()) {
+                        sender.sendMessage(new TextComponentString("\u00A74Linking request has expired"));
+                        break;
+                    }
+
+                    request.executeLinking(minecraftUUID);
+                    sender.sendMessage(new TextComponentString("\u00A7aLinked"));
+                } else {
+                    sender.sendMessage(new TextComponentString("\u00A74Linking request not found"));
+                    break;
+                }
+                break;
+            case "unlink":
+                if (!Configuration.getConfig().discord.allowLinking) {
+                    sender.sendMessage(new TextComponentString("\u00A74Linking is not enabled"));
+                    break;
+                }
+
+                if (!(sender instanceof EntityPlayer)) {
+                    sender.sendMessage(new TextComponentString("\u00A74You need to be a player"));
+                    break;
+                }
+
+                minecraftUUID = ((EntityPlayer) sender).getGameProfile().getId();
+
+                if (Configuration.getLinking().getDiscordId(minecraftUUID) == null) {
+                    sender.sendMessage(new TextComponentString("\u00A74You aren't linked"));
+                    break;
+                }
+
+                Configuration.getLinking().removeLink(minecraftUUID);
+                sender.sendMessage(new TextComponentString("\u00A7aUnlinked"));
                 break;
             case "tps":
                 SubCommandTps.execute(sender, argsList);
                 break;
             case "unstuck":
                 SubCommandUnstuck.execute(sender, argsList);
+                break;
+            case "uptime":
+                SubCommandUptime.execute(sender);
                 break;
             default:
                 sender.sendMessage(new TextComponentString("Unknown command"));
@@ -94,7 +169,10 @@ public class CommandDiscord extends CommandBase {
         int position = args.length;
 
         if (position == 1) {
-            return getListOfStringsMatchingLastWord(args, "config", "connect", "disconnect", "online", "tps", "unstuck");
+            if (!Configuration.getConfig().discord.allowLinking) {
+                return getListOfStringsMatchingLastWord(args, "config", /*"connect", "disconnect",*/ "link", "online", "tps", "unstuck", "uptime", "unlink");
+            }
+            return getListOfStringsMatchingLastWord(args, "config", /*"connect", "disconnect",*/ "link", "online", "tps", "unstuck", "uptime", "unlink");
         } else if (position == 2) {
             if (args[0].equalsIgnoreCase("config")) {
                 return getListOfStringsMatchingLastWord(args, "load", "reload", "save");

@@ -17,9 +17,21 @@ package chikachi.discord.core.config.minecraft;
 import chikachi.discord.core.config.types.ChannelConfigType;
 import com.google.gson.annotations.Since;
 
+import java.util.regex.Pattern;
+
 public class MinecraftGenericConfig extends MinecraftDimensionConfig {
     @Since(3.0)
     public boolean ignoreFakePlayerChat = true;
+    @Since(3.0)
+    public boolean relaySayCommand = true;
+    @Since(3.0)
+    public boolean relayMeCommand = true;
+    @Since(3.0)
+    public boolean canMentionEveryone = false;
+    @Since(3.0)
+    public boolean canMentionHere = false;
+    @Since(3.0)
+    public Pattern[] messageIgnoreRegex = new Pattern[0];
     @Since(3.0)
     public ChannelConfigType relayServerStart = new ChannelConfigType();
     @Since(3.0)
@@ -41,5 +53,21 @@ public class MinecraftGenericConfig extends MinecraftDimensionConfig {
         if (this.relayServerCrash == null) {
             this.relayServerCrash = new ChannelConfigType();
         }
+    }
+
+    public boolean isMessageIgnored(String message) {
+        if (this.messageIgnoreRegex.length > 0) {
+            Pattern[] ignoreRegex = this.messageIgnoreRegex;
+
+            for (Pattern anIgnoreRegex : ignoreRegex) {
+                if (anIgnoreRegex != null) {
+                    if (anIgnoreRegex.matcher(message).find()) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
     }
 }

@@ -14,11 +14,14 @@
 
 package chikachi.discord.core.config.discord;
 
+import chikachi.discord.core.DiscordClient;
+import chikachi.discord.core.config.Configuration;
 import com.google.common.base.Joiner;
 import net.dv8tion.jda.core.entities.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 @SuppressWarnings({"MismatchedQueryAndUpdateOfCollection", "unused"})
 public class CommandConfig {
@@ -27,6 +30,7 @@ public class CommandConfig {
     private boolean enabled;
     private List<String> aliases = new ArrayList<>();
     private List<String> permissions = new ArrayList<>();
+    private static Pattern specificArgPattern = Pattern.compile("\\{ARG_([0-9]+)\\}", Pattern.CASE_INSENSITIVE);
 
     public String getName() {
         return name;
@@ -46,11 +50,11 @@ public class CommandConfig {
         int argsCount = args.size();
         if (argsCount > 0) {
             for (int i = 0; i < argsCount; i++) {
-                cmd = cmd.replace("%" + (i + 1) + "%", args.get(i));
+                cmd = cmd.replace("(?i){ARG_" + (i + 1) + "}", args.get(i));
             }
-            cmd = cmd.replace("%args%", Joiner.on(' ').join(args));
+            cmd = cmd.replace("(?i){ARGS}", Joiner.on(' ').join(args));
         }
-        cmd = cmd.replaceAll("/%([0-9]+|args)%/", "");
+        cmd = cmd.replaceAll("(?i)\\{(ARG_[0-9]+|ARGS)\\}", "");
 
         return cmd;
     }
@@ -64,17 +68,25 @@ public class CommandConfig {
             return true;
         }
 
-        List<Role> roles = null;
+        final List<Role> roles = new ArrayList<>();
         if (channel instanceof TextChannel) {
             Member member = ((TextChannel) channel).getGuild().getMember(user);
             if (member != null) {
-                roles = member.getRoles();
+                roles.addAll(member.getRoles());
             }
+        } else if (channel instanceof PrivateChannel && Configuration.getConfig().discord.channels.generic.allowDMCommands) {
+            DiscordClient.getInstance().getJda().getGuilds()
+                .forEach(guild -> {
+                    Member member = guild.getMember(user);
+                    if (member != null) {
+                        roles.addAll(member.getRoles());
+                    }
+                });
         }
 
         for (String permission : permissions) {
             if (permission.startsWith("role:")) {
-                if (roles != null) {
+                if (roles.size() == 0) {
                     if (roles.stream().anyMatch(role -> role.getName().equalsIgnoreCase(permission.substring(5)) || role.getId().equals(permission.substring(5)))) {
                         return true;
                     }

@@ -14,8 +14,11 @@
 
 package chikachi.discord;
 
+import chikachi.discord.core.DiscordIntegrationLogger;
 import chikachi.discord.core.DiscordClient;
 import chikachi.discord.core.Message;
+import chikachi.discord.core.config.Configuration;
+import chikachi.discord.core.config.imc.IMCConfig;
 import chikachi.discord.core.config.types.MessageConfig;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.common.event.FMLInterModComms;
@@ -35,7 +38,7 @@ public class IMCHandler {
         return error;
     }
 
-    public static void onMessageReceived(FMLInterModComms.IMCMessage imcMessage) {
+    static void onMessageReceived(FMLInterModComms.IMCMessage imcMessage) {
         String modId = imcMessage.getSender();
         if (imcMessage.isStringMessage()) {
             onMessageReceived(modId, imcMessage.key, imcMessage.getStringValue());
@@ -45,16 +48,29 @@ public class IMCHandler {
     }
 
     @SuppressWarnings("UnusedParameters")
-    public static void onMessageReceived(String modId, String key, String message) {
+    private static void onMessageReceived(String modId, String key, String message) {
+        IMCConfig imcConfig = Configuration.getConfig().imc;
         if (key.equalsIgnoreCase("registerListener")) {
             if (!registeredIMCMods.contains(modId)) {
-                DiscordIntegrationLogger.Log(String.format(
-                    "Added %s as listener",
-                    modId
-                ));
+                if (imcConfig.isAllowed(modId)) {
+                    DiscordIntegrationLogger.Log(
+                        String.format(
+                            "Added %s as listener",
+                            modId
+                        )
+                    );
 
-                registeredIMCMods.add(modId);
-            } else {
+                    registeredIMCMods.add(modId);
+                } else {
+                    DiscordIntegrationLogger.Log(
+                        String.format(
+                            "%s tried to register as IMC listener but %s",
+                            modId,
+                            imcConfig.isWhitelist() ? "wasn't on the whitelist" : "was on the blacklist"
+                        )
+                    );
+                }
+            } else if (imcConfig.isAllowed(modId)) {
                 FMLInterModComms.sendRuntimeMessage(
                     DiscordIntegration.instance,
                     modId,
@@ -64,13 +80,15 @@ public class IMCHandler {
             }
         } else if (key.equalsIgnoreCase("unregisterListener")) {
             if (registeredIMCMods.contains(modId)) {
-                DiscordIntegrationLogger.Log(String.format(
-                    "Removed %s as listener",
-                    modId
-                ));
+                DiscordIntegrationLogger.Log(
+                    String.format(
+                        "Removed %s as listener",
+                        modId
+                    )
+                );
 
                 registeredIMCMods.remove(modId);
-            } else {
+            } else if (imcConfig.isAllowed(modId)) {
                 FMLInterModComms.sendRuntimeMessage(
                     DiscordIntegration.instance,
                     modId,
@@ -81,8 +99,9 @@ public class IMCHandler {
         }
     }
 
-    public static void onMessageReceived(String modId, String key, NBTTagCompound message) {
-        if (key.equalsIgnoreCase("sendMessage")) {
+    private static void onMessageReceived(String modId, String key, NBTTagCompound message) {
+        IMCConfig imcConfig = Configuration.getConfig().imc;
+        if (key.equalsIgnoreCase("sendMessage") && imcConfig.isAllowed(modId)) {
             if (!message.hasKey("message") || message.getString("message").trim().length() == 0) {
                 FMLInterModComms.sendRuntimeMessage(
                     DiscordIntegration.instance,
@@ -112,6 +131,14 @@ public class IMCHandler {
                 ),
                 message.getLong("channel")
             );
+        } else {
+            DiscordIntegrationLogger.Log(
+                String.format(
+                    "%s tried to register as IMC listener but %s",
+                    modId,
+                    imcConfig.isWhitelist() ? "wasn't on the whitelist" : "was on the blacklist"
+                )
+            );
         }
     }
 
@@ -119,10 +146,12 @@ public class IMCHandler {
         return registeredIMCMods.size() > 0;
     }
 
+    @SuppressWarnings("unused")
     public static List<String> getRegisteredIMCMods() {
         return registeredIMCMods;
     }
 
+    @SuppressWarnings("unused")
     public static void emitMessage(String key, String message) {
         registeredIMCMods.forEach(registeredIMCMod -> FMLInterModComms.sendRuntimeMessage(
             DiscordIntegration.instance,

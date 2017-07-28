@@ -18,12 +18,14 @@ import com.mojang.authlib.GameProfile;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.UUID;
 
+@SuppressWarnings("EntityConstructor")
 @ParametersAreNonnullByDefault
 public class DiscordCommandSender extends FakePlayer {
     private static final UUID playerUUID = UUID.fromString("828653ca-0185-43d4-b26d-620a7f016be6");
@@ -34,8 +36,9 @@ public class DiscordCommandSender extends FakePlayer {
         this.channel = channel;
     }
 
-    public DiscordCommandSender(MessageChannel channel, String name) {
-        super(FMLCommonHandler.instance().getMinecraftServerInstance().worlds[0], new GameProfile(playerUUID, "@" + name));
+    @SuppressWarnings("unused")
+    public DiscordCommandSender(WorldServer world, MessageChannel channel, String name) {
+        super(world, new GameProfile(playerUUID, "@" + name));
         this.channel = channel;
     }
 

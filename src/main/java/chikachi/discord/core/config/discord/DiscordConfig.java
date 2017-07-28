@@ -25,6 +25,8 @@ public class DiscordConfig {
     @Since(3.0)
     public boolean ignoresBots = true;
     @Since(3.0)
+    public boolean allowLinking = true;
+    @Since(3.0)
     public ArrayList<String> ignoresUsers = new ArrayList<>();
     @Since(3.0)
     public DiscordMainChannelConfig channels = new DiscordMainChannelConfig();

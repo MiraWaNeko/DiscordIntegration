@@ -25,10 +25,16 @@ import org.json.JSONObject;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class WebhookMessage {
-    public String content;
-    public String username;
-    public String avatar_url;
+class WebhookMessage {
+    private String content;
+    private String username;
+    private String avatarUrl;
+
+    WebhookMessage(String content, String username, String avatarUrl) {
+        this.content = content;
+        this.username = username;
+        this.avatarUrl = avatarUrl;
+    }
 
     boolean queue(JDA jda, Long channelId) {
         if (this.content == null || this.content.trim().length() == 0) {
@@ -36,7 +42,7 @@ public class WebhookMessage {
         }
 
         String webhook = Configuration.getConfig().discord.channels.channels.get(channelId).webhook.trim();
-        Matcher matcher = Pattern.compile("https://(ptb\\.|)discordapp\\.com/api/webhooks/([0-9]+)/([a-zA-Z0-9\\-_]+)").matcher(webhook);
+        Matcher matcher = Pattern.compile("https://(ptb\\.)?discordapp\\.com/api/webhooks/([0-9]+)/([a-zA-Z0-9\\-_]+)").matcher(webhook);
         if (matcher.matches()) {
             String webhookId = matcher.group(2);
             String webhookToken = matcher.group(3);
@@ -47,10 +53,17 @@ public class WebhookMessage {
             if (this.username != null) {
                 json.put("username", this.username);
             }
-            if (this.avatar_url != null) {
-                json.put("avatar_url", this.avatar_url);
+            if (this.avatarUrl != null) {
+                json.put("avatar_url", this.avatarUrl);
             }
-            json.put("content", Patterns.minecraftToDiscord(this.content));
+
+            String text = this.content;
+
+            if (text.length() > 2000) {
+                text = text.substring(0, 1997) + "...";
+            }
+
+            json.put("content", text);
 
             new RestAction<Void>(jda, route, json) {
                 protected void handleResponse(Response response, Request<Void> request) {

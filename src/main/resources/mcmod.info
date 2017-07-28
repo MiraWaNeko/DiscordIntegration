@@ -1,7 +1,7 @@
 [{
   "modid": "DiscordIntegration",
   "name": "DiscordIntegration",
-  "description": "MC <=> Discord communication",
+  "description": "MC <=> Discord integration",
   "version": "${version}",
   "mcversion": "${mcversion}",
   "url": "https://discordintegration.net",
