@@ -25,6 +25,32 @@ public class Proxy {
     private static boolean serverStopping = false;
     private static long started;
 
+    public static String getUptime() {
+        if (started == 0) {
+            return "UNKNOWN";
+        }
+
+        long diff = new Date().getTime() - started;
+
+        int seconds = (int) Math.floorDiv(diff, 1000);
+        if (seconds < 60) {
+            return seconds + " second" + (seconds == 1 ? "" : "s");
+        }
+        int minutes = Math.floorDiv(seconds, 60);
+        seconds -= minutes * 60;
+        if (minutes < 60) {
+            return minutes + " minute" + (minutes == 1 ? "" : "s") + ", " + seconds + " second" + (seconds == 1 ? "" : "s");
+        }
+        int hours = Math.floorDiv(minutes, 60);
+        minutes -= hours * 60;
+        if (hours < 60) {
+            return hours + " hour" + (hours == 1 ? "" : "s") + ", " + minutes + " minute" + (minutes == 1 ? "" : "s") + ", " + seconds + " second" + (seconds == 1 ? "" : "s");
+        }
+        int days = Math.floorDiv(hours, 24);
+        hours -= days * 60;
+        return days + " day" + (days == 1 ? "" : "s") + ", " + hours + " hour" + (hours == 1 ? "" : "s") + ", " + minutes + " minute" + (minutes == 1 ? "" : "s") + ", " + seconds + " second" + (seconds == 1 ? "" : "s");
+    }
+
     public void onPreInit(File configurationPath) {
         if (preInit) {
             return;
@@ -74,31 +100,5 @@ public class Proxy {
         }
 
         DiscordClient.getInstance().disconnect(true);
-    }
-
-    public static String getUptime() {
-        if (started == 0) {
-            return "UNKNOWN";
-        }
-
-        long diff = new Date().getTime() - started;
-
-        int seconds = (int) Math.floorDiv(diff, 1000);
-        if (seconds < 60) {
-            return seconds + " second" + (seconds == 1 ? "" : "s");
-        }
-        int minutes = Math.floorDiv(seconds, 60);
-        seconds -= minutes * 60;
-        if (minutes < 60) {
-            return minutes + " minute" + (minutes == 1 ? "" : "s") + ", " + seconds + " second" + (seconds == 1 ? "" : "s");
-        }
-        int hours = Math.floorDiv(minutes, 60);
-        minutes -= hours * 60;
-        if (hours < 60) {
-            return hours + " hour" + (hours == 1 ? "" : "s") + ", " + minutes + " minute" + (minutes == 1 ? "" : "s") + ", " + seconds + " second" + (seconds == 1 ? "" : "s");
-        }
-        int days = Math.floorDiv(hours, 24);
-        hours -= days * 60;
-        return days + " day" + (days == 1 ? "" : "s") + ", " + hours + " hour" + (hours == 1 ? "" : "s") + ", " + minutes + " minute" + (minutes == 1 ? "" : "s") + ", " + seconds + " second" + (seconds == 1 ? "" : "s");
     }
 }

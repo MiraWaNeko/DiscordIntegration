@@ -1,31 +1,33 @@
 buildscript {
-    repositories {
-        jcenter()
-        maven {
-            name = "forge"
-            url = "http://files.minecraftforge.net/maven"
-        }
+  repositories {
+    jcenter()
+    maven {
+      name = "forge"
+      url = "http://files.minecraftforge.net/maven"
     }
-    dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT'
-        classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.4'
-    }
+  }
+  dependencies {
+    classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT'
+    classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.4'
+    classpath 'com.diffplug.spotless:spotless-plugin-gradle:3.4.1'
+  }
 }
 
 repositories {
-    ivy {
-        name "CurseForge"
-        artifactPattern 'http://addons-origin.cursecdn.com/files/[organisation]/[module]-[revision].[ext]'
-    }
-    jcenter()
-    flatDir {
-        dirs "libs"
-    }
+  ivy {
+    name "CurseForge"
+    artifactPattern 'http://addons-origin.cursecdn.com/files/[organisation]/[module]-[revision].[ext]'
+  }
+  jcenter()
+  flatDir {
+    dirs "libs"
+  }
 }
 
 apply plugin: 'net.minecraftforge.gradle.forge'
 apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'java'
+apply plugin: 'com.diffplug.gradle.spotless'
 
 def mcVersion = '1.10.2'
 def forgeVersion = '12.18.3.2185'
@@ -39,19 +41,19 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 minecraft {
-    version = mcVersion + '-' + forgeVersion
+  version = mcVersion + '-' + forgeVersion
 
-    if (file('../run').exists()) {
-        runDir = '../run'
-    } else {
-        runDir = 'run'
-    }
+  if (file('../run').exists()) {
+    runDir = '../run'
+  } else {
+    runDir = 'run'
+  }
 
-    mappings = "stable_29"
+  mappings = "stable_29"
 }
 
 def printDebug(message) {
-    println '[' + archivesBaseName + '] ' + message
+  println '[' + archivesBaseName + '] ' + message
 }
 
 /*
@@ -69,19 +71,19 @@ def printDebug(message) {
  */
 
 class CurseForgeDependencyInfo {
-    public String module, version, ext
-    private String fileid
+  public String module, version, ext
+  private String fileid
 
-    CurseForgeDependencyInfo(String module, String version, String ext, String fileid) {
-        this.module = module
-        this.version = version
-        this.ext = ext
-        this.fileid = fileid
-    }
+  CurseForgeDependencyInfo(String module, String version, String ext, String fileid) {
+    this.module = module
+    this.version = version
+    this.ext = ext
+    this.fileid = fileid
+  }
 
-    String GetFileId() {
-        return Integer.parseInt(fileid.substring(0, 4)) + "/" + Integer.parseInt(fileid.substring(4))
-    }
+  String GetFileId() {
+    return Integer.parseInt(fileid.substring(0, 4)) + "/" + Integer.parseInt(fileid.substring(4))
+  }
 }
 
 // Dependencies on CurseForge
@@ -89,85 +91,95 @@ List<CurseForgeDependencyInfo> curseForgeDependencies = new ArrayList<CurseForge
 curseForgeDependencies.add(new CurseForgeDependencyInfo("Dynmap", "2.4-forge-1.10.2", "jar", "2380601"))
 
 dependencies {
-    compile files('./libs/JDA-3.2.0_226-withDependencies.jar')
-    compile 'com.vdurmont:emoji-java:3.2.0'
+  compile files('./libs/JDA-3.2.0_226-withDependencies.jar')
+  compile 'com.vdurmont:emoji-java:3.2.0'
 
-    // CurseForge
-    for (CurseForgeDependencyInfo dependency : curseForgeDependencies) {
-        if (file('../' + dependency.module).exists()) {
-            printDebug 'Using local ' + dependency.module + ' project'
-            compile project(':' + dependency.module)
-            continue
-        }
-        if (file('./' + dependency.module + '.jar').exists()) {
-            printDebug 'Using local ' + dependency.module + ' compiled jar'
-            compile files('./' + dependency.module + '.jar')
-            continue
-        }
-        compile group: dependency.GetFileId(), name: dependency.module, version: dependency.version, ext: dependency.ext
+  // CurseForge
+  for (CurseForgeDependencyInfo dependency : curseForgeDependencies) {
+    if (file('../' + dependency.module).exists()) {
+      printDebug 'Using local ' + dependency.module + ' project'
+      compile project(':' + dependency.module)
+      continue
     }
+    if (file('./' + dependency.module + '.jar').exists()) {
+      printDebug 'Using local ' + dependency.module + ' compiled jar'
+      compile files('./' + dependency.module + '.jar')
+      continue
+    }
+    compile group: dependency.GetFileId(), name: dependency.module, version: dependency.version, ext: dependency.ext
+  }
 
-    // IntelliJ
-    compile 'org.jetbrains:annotations:15.0'
+  // IntelliJ
+  compile 'org.jetbrains:annotations:15.0'
 
-    testCompile 'junit:junit:4.12'
+  testCompile 'junit:junit:4.12'
 }
 
 jar {
-    manifest {
-        attributes(
-                "FMLAT": 'discordintegration_at.cfg'
-        )
-    }
+  manifest {
+    attributes(
+      "FMLAT": 'discordintegration_at.cfg'
+    )
+  }
 }
 
 shadowJar {
-    classifier = ""
-    relocate "com.mashape.unirest", "chikachi.discord.repack.com.mashape.unirest"
-    relocate "com.neovisionaries.ws.client", "chikachi.discord.repack.com.neovisionaries.ws.client"
-    relocate "com.sun.jna", "chikachi.discord.repack.com.sun.jna"
-    relocate "com.vdurmont.emoji", "chikachi.discord.repack.com.vdurmont.emoji"
-    relocate "javax.sound", "chikachi.discord.repack.javax.sound"
-    relocate "javazoom", "chikachi.discord.repack.javazoom"
-    relocate "net.dv8tion.jda", "chikachi.discord.repack.net.dv8tion.jda"
-    relocate "net.sourceforge.jaad", "chikachi.discord.repack.net.sourceforge.jaad"
-    relocate "org.apache.commons.codec", "chikachi.discord.repack.org.apache.commons.codec"
-    relocate "org.apache.commons.lang3", "chikachi.discord.repack.org.apache.commons.lang3"
-    relocate "org.json", "chikachi.discord.repack.org.json"
-    relocate "org.kc7bfi.jflac", "chikachi.discord.repack.orgkc7bfi.jflac"
-    relocate "org.tritonus", "chikachi.discord.repack.org.tritonus"
-    relocate "tomp2p.opuswrapper", "chikachi.discord.repack.tomp2p.opuswrapper"
+  classifier = ""
+  relocate "com.mashape.unirest", "chikachi.discord.repack.com.mashape.unirest"
+  relocate "com.neovisionaries.ws.client", "chikachi.discord.repack.com.neovisionaries.ws.client"
+  relocate "com.sun.jna", "chikachi.discord.repack.com.sun.jna"
+  relocate "com.vdurmont.emoji", "chikachi.discord.repack.com.vdurmont.emoji"
+  relocate "javax.sound", "chikachi.discord.repack.javax.sound"
+  relocate "javazoom", "chikachi.discord.repack.javazoom"
+  relocate "net.dv8tion.jda", "chikachi.discord.repack.net.dv8tion.jda"
+  relocate "net.sourceforge.jaad", "chikachi.discord.repack.net.sourceforge.jaad"
+  relocate "org.apache.commons.codec", "chikachi.discord.repack.org.apache.commons.codec"
+  relocate "org.apache.commons.lang3", "chikachi.discord.repack.org.apache.commons.lang3"
+  relocate "org.json", "chikachi.discord.repack.org.json"
+  relocate "org.kc7bfi.jflac", "chikachi.discord.repack.orgkc7bfi.jflac"
+  relocate "org.tritonus", "chikachi.discord.repack.org.tritonus"
+  relocate "tomp2p.opuswrapper", "chikachi.discord.repack.tomp2p.opuswrapper"
 
-    relocate "org.apache.http", "chikachi.discord.repack.org.apache.http"
-    relocate "org.apache.commons.logging", "chikachi.discord.repack.org.apache.commons.logging"
+  relocate "org.apache.http", "chikachi.discord.repack.org.apache.http"
+  relocate "org.apache.commons.logging", "chikachi.discord.repack.org.apache.commons.logging"
 
-    dependencies {
-        include(dependency('net.dv8tion:JDA:3.2.0_226:withDependencies'))
-        include(dependency('com.vdurmont:emoji-java:3.2.0'))
-    }
+  dependencies {
+    include(dependency('net.dv8tion:JDA:3.2.0_226:withDependencies'))
+    include(dependency('com.vdurmont:emoji-java:3.2.0'))
+  }
 }
 
 processResources {
-    // this will ensure that this task is redone when the versions change.
-    inputs.property "version", project.version
-    inputs.property "mcversion", project.minecraft.version
+  // this will ensure that this task is redone when the versions change.
+  inputs.property "version", project.version
+  inputs.property "mcversion", project.minecraft.version
 
-    // replace stuff in mcmod.info, nothing else
-    from(sourceSets.main.resources.srcDirs) {
-        include 'mcmod.info'
+  // replace stuff in mcmod.info, nothing else
+  from(sourceSets.main.resources.srcDirs) {
+    include 'mcmod.info'
 
-        // replace version and mcversion
-        expand 'version': modVersion, 'mcversion': project.minecraft.version
-    }
+    // replace version and mcversion
+    expand 'version': modVersion, 'mcversion': project.minecraft.version
+  }
 
-    // copy everything else, thats not the mcmod.info
-    from(sourceSets.main.resources.srcDirs) {
-        exclude 'mcmod.info'
-    }
+  // copy everything else, thats not the mcmod.info
+  from(sourceSets.main.resources.srcDirs) {
+    exclude 'mcmod.info'
+  }
 }
 
 test {
-    useJUnit()
+  useJUnit()
+}
+
+spotless {
+  java {
+    encoding 'UTF-8'
+    removeUnusedImports()
+    trimTrailingWhitespace()
+    indentWithSpaces(4)
+    endWithNewline()
+  }
 }
 
 reobf { shadowJar { mappingType = "SEARGE" } }

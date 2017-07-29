@@ -16,9 +16,9 @@ package chikachi.discord;
 
 import chikachi.discord.command.CommandDiscord;
 import chikachi.discord.core.CoreConstants;
-import chikachi.discord.core.Proxy;
 import chikachi.discord.core.DiscordClient;
 import chikachi.discord.core.Patterns;
+import chikachi.discord.core.Proxy;
 import chikachi.discord.listener.DiscordListener;
 import chikachi.discord.listener.MinecraftListener;
 import net.minecraft.util.text.TextFormatting;
@@ -27,7 +27,6 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.*;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.regex.Pattern;
 
 @Mod(modid = CoreConstants.MODID, name = CoreConstants.MODNAME, version = CoreConstants.VERSION, serverSideOnly = true, acceptableRemoteVersions = "*")
@@ -36,53 +35,6 @@ public class DiscordIntegration {
     public static DiscordIntegration instance;
 
     private static Proxy proxy = new Proxy();
-
-    @Mod.EventHandler
-    public void onPreInit(FMLPreInitializationEvent event) {
-        proxy.onPreInit(event.getModConfigurationDirectory());
-
-        addPatterns();
-
-        MinecraftForge.EVENT_BUS.register(new MinecraftListener());
-    }
-
-    @Mod.EventHandler
-    public void onPostInit(FMLPostInitializationEvent event) {
-        event.buildSoftDependProxy("Dynmap", "chikachi.discord.integration.DynmapIntegration");
-    }
-
-    @Mod.EventHandler
-    public void onServerAboutToStart(FMLServerAboutToStartEvent event) {
-    }
-
-    @Mod.EventHandler
-    public void onServerStarting(FMLServerStartingEvent event) {
-        proxy.onServerStarting();
-
-        DiscordClient.getInstance().addEventListener(new DiscordListener());
-
-        event.registerServerCommand(new CommandDiscord());
-    }
-
-    @Mod.EventHandler
-    public void onServerStarted(FMLServerStartedEvent event) {
-        proxy.onServerStarted();
-    }
-
-    @Mod.EventHandler
-    public void onServerStopping(FMLServerStoppingEvent event) {
-        proxy.onServerStopping();
-    }
-
-    @Mod.EventHandler
-    public void onServerStopped(FMLServerStoppedEvent event) {
-        proxy.onServerStopped();
-    }
-
-    @Mod.EventHandler
-    public void imcReceived(FMLInterModComms.IMCEvent event) {
-        event.getMessages().forEach(IMCHandler::onMessageReceived);
-    }
 
     public static void addPatterns() {
         Patterns.clearCustomPatterns();
@@ -227,5 +179,52 @@ public class DiscordIntegration {
                 return text.replaceAll("\\*\\*\\*\\*\\*", "*");
             }
         });
+    }
+
+    @Mod.EventHandler
+    public void onPreInit(FMLPreInitializationEvent event) {
+        proxy.onPreInit(event.getModConfigurationDirectory());
+
+        addPatterns();
+
+        MinecraftForge.EVENT_BUS.register(new MinecraftListener());
+    }
+
+    @Mod.EventHandler
+    public void onPostInit(FMLPostInitializationEvent event) {
+        event.buildSoftDependProxy("Dynmap", "chikachi.discord.integration.DynmapIntegration");
+    }
+
+    @Mod.EventHandler
+    public void onServerAboutToStart(FMLServerAboutToStartEvent event) {
+    }
+
+    @Mod.EventHandler
+    public void onServerStarting(FMLServerStartingEvent event) {
+        proxy.onServerStarting();
+
+        DiscordClient.getInstance().addEventListener(new DiscordListener());
+
+        event.registerServerCommand(new CommandDiscord());
+    }
+
+    @Mod.EventHandler
+    public void onServerStarted(FMLServerStartedEvent event) {
+        proxy.onServerStarted();
+    }
+
+    @Mod.EventHandler
+    public void onServerStopping(FMLServerStoppingEvent event) {
+        proxy.onServerStopping();
+    }
+
+    @Mod.EventHandler
+    public void onServerStopped(FMLServerStoppedEvent event) {
+        proxy.onServerStopped();
+    }
+
+    @Mod.EventHandler
+    public void imcReceived(FMLInterModComms.IMCEvent event) {
+        event.getMessages().forEach(IMCHandler::onMessageReceived);
     }
 }

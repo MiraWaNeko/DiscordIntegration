@@ -15,7 +15,6 @@
 package chikachi.discord.integration;
 
 import chikachi.discord.core.DiscordClient;
-import chikachi.discord.core.DiscordIntegrationLogger;
 import chikachi.discord.core.Message;
 import chikachi.discord.core.config.Configuration;
 import chikachi.discord.core.config.minecraft.MinecraftGenericConfig;

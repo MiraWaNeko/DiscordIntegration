@@ -25,12 +25,12 @@ import java.util.regex.Pattern;
 
 @SuppressWarnings({"MismatchedQueryAndUpdateOfCollection", "unused"})
 public class CommandConfig {
+    private static Pattern specificArgPattern = Pattern.compile("\\{ARG_([0-9]+)\\}", Pattern.CASE_INSENSITIVE);
     private String name;
     private String command;
     private boolean enabled;
     private List<String> aliases = new ArrayList<>();
     private List<String> permissions = new ArrayList<>();
-    private static Pattern specificArgPattern = Pattern.compile("\\{ARG_([0-9]+)\\}", Pattern.CASE_INSENSITIVE);
 
     public String getName() {
         return name;

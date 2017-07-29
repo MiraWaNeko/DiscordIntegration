@@ -23,9 +23,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Patterns {
-    static final Pattern tagPattern = Pattern.compile("@([^\\s]+)");
     public static final Pattern minecraftCodePattern = Pattern.compile("(?i)(\u00a7[0-9A-FK-OR])");
-
+    static final Pattern tagPattern = Pattern.compile("@([^\\s]+)");
     private static final HashMap<Pattern, ReplacementCallback> discordFormattingPatterns = new HashMap<>();
     private static final HashMap<Pattern, ReplacementCallback> minecraftFormattingPatterns = new HashMap<>();
 

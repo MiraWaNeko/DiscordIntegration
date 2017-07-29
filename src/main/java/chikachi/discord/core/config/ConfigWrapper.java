@@ -15,8 +15,8 @@
 package chikachi.discord.core.config;
 
 import chikachi.discord.core.config.discord.DiscordConfig;
-import chikachi.discord.core.config.minecraft.MinecraftConfig;
 import chikachi.discord.core.config.imc.IMCConfig;
+import chikachi.discord.core.config.minecraft.MinecraftConfig;
 import com.google.gson.annotations.Since;
 
 public class ConfigWrapper {

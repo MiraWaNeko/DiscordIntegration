@@ -15,7 +15,6 @@
 package chikachi.discord.command;
 
 import chikachi.discord.core.DiscordClient;
-import chikachi.discord.core.DiscordIntegrationLogger;
 import chikachi.discord.core.config.Configuration;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.util.text.TextComponentString;
