@@ -1,14 +1,18 @@
-[{
-  "modid": "DiscordIntegration",
-  "name": "DiscordIntegration",
-  "description": "MC <=> Discord communication",
-  "version": "${version}",
-  "mcversion": "${mcversion}",
-  "url": "",
-  "updateUrl": "",
-  "authorList": ["Chikachi"],
-  "credits": "",
-  "logoFile": "",
-  "screenshots": [],
-  "dependencies": []
-}]
+[
+  {
+    "modid": "DiscordIntegration",
+    "name": "DiscordIntegration",
+    "description": "MC <=> Discord integration",
+    "version": "${version}",
+    "mcversion": "${mcversion}",
+    "url": "https://discordintegration.net",
+    "updateUrl": "",
+    "authorList": [
+      "Chikachi"
+    ],
+    "credits": "",
+    "logoFile": "",
+    "screenshots": [],
+    "dependencies": []
+  }
+]
