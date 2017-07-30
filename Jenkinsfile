@@ -8,11 +8,12 @@ pipeline {
       steps {
         checkout scm
         sh 'chmod +x gradlew'
+        sh './gradlew setupCiWorkspace clean spotlessApply'
       }
     }
     stage('Build') {
       steps {
-        sh './gradlew setupCiWorkspace clean build jar'
+        sh './gradlew build jar'
       }
     }
     stage('Test') {
