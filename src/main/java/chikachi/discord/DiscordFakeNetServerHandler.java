@@ -20,6 +20,7 @@ import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.*;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.text.ITextComponent;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
@@ -38,7 +39,7 @@ public class DiscordFakeNetServerHandler extends NetHandlerPlayServer {
     }
 
     @Override
-    public void disconnect(String reason) {
+    public void disconnect(final ITextComponent textComponent) {
 
     }
 

@@ -27,15 +27,10 @@ import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.stats.Achievement;
-import net.minecraft.stats.StatisticsManagerServer;
-import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.CommandEvent;
 import net.minecraftforge.event.ServerChatEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
-import net.minecraftforge.event.entity.player.AchievementEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
@@ -263,6 +258,7 @@ public class MinecraftListener {
         );
     }
 
+    /*
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onPlayerAchievement(AchievementEvent event) {
         if (event.isCanceled()) return;
@@ -319,6 +315,7 @@ public class MinecraftListener {
             );
         }
     }
+    */
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event) {

@@ -7,7 +7,7 @@ buildscript {
     }
   }
   dependencies {
-    classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT'
+    classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
     classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.4'
     classpath 'com.diffplug.spotless:spotless-plugin-gradle:3.4.1'
   }
@@ -29,9 +29,9 @@ apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'java'
 apply plugin: 'com.diffplug.gradle.spotless'
 
-def mcVersion = '1.10.2'
-def forgeVersion = '12.18.3.2185'
-def modVersion = '3.0.0-alpha'
+def mcVersion = '1.12'
+def forgeVersion = '14.21.1.2426'
+def modVersion = '3.0.0'
 
 version = 'mc' + mcVersion + '-' + modVersion
 group = "chikachi.discord"
@@ -49,7 +49,7 @@ minecraft {
     runDir = 'run'
   }
 
-  mappings = "stable_29"
+  mappings = "snapshot_20170624"
 }
 
 def printDebug(message) {
@@ -88,7 +88,7 @@ class CurseForgeDependencyInfo {
 
 // Dependencies on CurseForge
 List<CurseForgeDependencyInfo> curseForgeDependencies = new ArrayList<CurseForgeDependencyInfo>()
-curseForgeDependencies.add(new CurseForgeDependencyInfo("Dynmap", "2.4-forge-1.10.2", "jar", "2380601"))
+curseForgeDependencies.add(new CurseForgeDependencyInfo("Dynmap", "2.6-beta-1-forge-1.12", "jar", "2436596"))
 
 dependencies {
   compile files('./libs/JDA-3.2.0_226-withDependencies.jar')
@@ -113,14 +113,6 @@ dependencies {
   compile 'org.jetbrains:annotations:15.0'
 
   testCompile 'junit:junit:4.12'
-}
-
-jar {
-  manifest {
-    attributes(
-      "FMLAT": 'discordintegration_at.cfg'
-    )
-  }
 }
 
 shadowJar {
