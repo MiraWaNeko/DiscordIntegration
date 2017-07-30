@@ -1,0 +1,20 @@
+root = true
+
+[*]
+charset=utf-8
+end_of_line=lf
+indent_style = space
+
+[*.java]
+insert_final_newline = true
+indent_size = 4
+
+[*.gradle]
+insert_final_newline = true
+indent_size = 2
+
+[*.{md,json}]
+indent_size = 2
+
+[{mcmod.info}]
+indent_size = 2
