@@ -46,7 +46,6 @@ minecraft {
     runDir = 'run'
   }
 
-  mappings = "stable_12"
   srgExtra "PK: com/mashape/unirest chikachi/discord/repack/com/mashape/unirest"
   srgExtra "PK: com/neovisionaries/ws/client chikachi/discord/repack/com/neovisionaries/ws/client"
   srgExtra "PK: com/sun/jna chikachi/discord/repack/com/sun/jna"
