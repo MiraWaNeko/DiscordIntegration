@@ -18,7 +18,6 @@ repositories {
     name "CurseForge"
     artifactPattern 'http://addons-origin.cursecdn.com/files/[organisation]/[module]-[revision].[ext]'
   }
-  jcenter()
   flatDir {
     dirs "libs"
   }
@@ -29,9 +28,9 @@ apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'java'
 apply plugin: 'com.diffplug.gradle.spotless'
 
-def mcVersion = '1.10.2'
-def forgeVersion = '12.18.3.2185'
-def modVersion = '3.0.0-alpha'
+def mcVersion = '1.11.2'
+def forgeVersion = '13.20.1.2425'
+def modVersion = '3.0.0'
 
 version = 'mc' + mcVersion + '-' + modVersion
 group = "chikachi.discord"
@@ -49,26 +48,12 @@ minecraft {
     runDir = 'run'
   }
 
-  mappings = "stable_29"
+  mappings = "stable_32"
 }
 
 def printDebug(message) {
   println '[' + archivesBaseName + '] ' + message
 }
-
-/*
- * Copyright (C) 2017 Chikachi
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see http://www.gnu.org/licenses.
- */
 
 class CurseForgeDependencyInfo {
   public String module, version, ext
@@ -88,13 +73,12 @@ class CurseForgeDependencyInfo {
 
 // Dependencies on CurseForge
 List<CurseForgeDependencyInfo> curseForgeDependencies = new ArrayList<CurseForgeDependencyInfo>()
-curseForgeDependencies.add(new CurseForgeDependencyInfo("Dynmap", "2.4-forge-1.10.2", "jar", "2380601"))
+curseForgeDependencies.add(new CurseForgeDependencyInfo("Dynmap", "2.4-forge-1.11.2", "jar", "2380603"))
 
 dependencies {
   compile files('./libs/JDA-3.2.0_226-withDependencies.jar')
   compile 'com.vdurmont:emoji-java:3.2.0'
 
-  // CurseForge
   for (CurseForgeDependencyInfo dependency : curseForgeDependencies) {
     if (file('../' + dependency.module).exists()) {
       printDebug 'Using local ' + dependency.module + ' project'
