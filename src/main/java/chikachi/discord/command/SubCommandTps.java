@@ -24,10 +24,11 @@ import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.*;
 
 class SubCommandTps {
-    private static final DecimalFormat timeFormatter = new DecimalFormat("########0.000");
+    private static final DecimalFormat timeFormatter = new DecimalFormat("########0.000", DecimalFormatSymbols.getInstance(Locale.ENGLISH));
 
     static void execute(ICommandSender sender, ArrayList<String> args) {
         boolean isDiscord = sender instanceof DiscordCommandSender;
@@ -68,9 +69,9 @@ class SubCommandTps {
                         CoreUtils.padRight(dimensionName, maxDimensionNameLength)
                     ),
                     CoreUtils.padLeft(color + timeFormatter.format(worldTickTime), 6),
-                    colored && isDiscord ? "" : "\u00a7r",
+                    isDiscord ? "" : "\u00a7r",
                     CoreUtils.padLeft(color + timeFormatter.format(worldTPS), 6),
-                    colored && isDiscord ? "" : "\u00a7r"
+                    isDiscord ? "" : "\u00a7r"
                 )
             );
         }
@@ -86,9 +87,9 @@ class SubCommandTps {
                 colored && isDiscord ? CoreUtils.tpsToColorString(meanTPS, true) : "",
                 CoreUtils.padRight("Overall", maxDimensionIdLength + maxDimensionNameLength + 5),
                 CoreUtils.padLeft(color + timeFormatter.format(meanTickTime), 6),
-                colored && isDiscord ? "" : "\u00a7r",
+                isDiscord ? "" : "\u00a7r",
                 CoreUtils.padLeft(color + timeFormatter.format(meanTPS), 6),
-                colored && isDiscord ? "" : "\u00a7r"
+                isDiscord ? "" : "\u00a7r"
             )
         );
 
