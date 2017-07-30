@@ -1,91 +1,211 @@
-/**
- * Copyright (C) 2016 Chikachi
- *
+/*
+ * Copyright (C) 2017 Chikachi
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Affero General Public License for more details.
- *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see http://www.gnu.org/licenses.
  */
 
 package chikachi.discord;
 
-import chikachi.discord.command.mc.NonLibCommandHandler;
-import cpw.mods.fml.common.Loader;
+import chikachi.discord.command.CommandDiscord;
+import chikachi.discord.core.CoreConstants;
+import chikachi.discord.core.DiscordClient;
+import chikachi.discord.core.Patterns;
+import chikachi.discord.core.Proxy;
+import chikachi.discord.listener.DiscordListener;
+import chikachi.discord.listener.MinecraftListener;
+import com.mojang.realmsclient.gui.ChatFormatting;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.event.*;
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import net.minecraftforge.common.MinecraftForge;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.regex.Pattern;
 
-@Mod(
-        modid = Constants.MODID,
-        name = Constants.MODNAME,
-        version = Constants.VERSION,
-        dependencies = "after:ChikachiLib",
-        acceptableRemoteVersions = "*"
-)
+@Mod(modid = CoreConstants.MODID, name = CoreConstants.MODNAME, version = CoreConstants.VERSION, acceptableRemoteVersions = "*")
 public class DiscordIntegration {
     @Mod.Instance
-    public static DiscordIntegration instance;
+    static DiscordIntegration instance;
 
     private static Proxy proxy = new Proxy();
 
-    private static final Logger logger = LogManager.getLogger(Constants.MODID);
+    public static void addPatterns() {
+        Patterns.clearCustomPatterns();
 
-    private static boolean receivedStoppingEvent = false;
+        Patterns.addMinecraftFormattingPattern(Pattern.compile("(?i)(\\*\\*|\\*|__|_|~~|`|```)"), new Patterns.ReplacementCallback() {
+            private boolean bold = false;
+            private boolean italic = false;
+            private boolean underline = false;
+            private boolean strikethrough = false;
+
+            @Override
+            public String pre(String text) {
+                return text;
+            }
+
+            @Override
+            public String replace(ArrayList<String> groups) {
+                String modifier = groups.get(0);
+
+                switch (modifier) {
+                    case "**":
+                        this.bold = !this.bold;
+                        modifier = this.bold ? "\u00a7l" : resetString();
+                        break;
+                    case "*":
+                    case "_":
+                        this.italic = !this.italic;
+                        modifier = this.italic ? "\u00a7o" : resetString();
+                        break;
+                    case "__":
+                        this.underline = !this.underline;
+                        modifier = this.underline ? "\u00a7n" : resetString();
+                        break;
+                    case "~~":
+                        this.strikethrough = !this.strikethrough;
+                        modifier = this.strikethrough ? "\u00a7m" : resetString();
+                        break;
+                }
+
+                return modifier;
+            }
+
+            private String resetString() {
+                String text = ChatFormatting.RESET.toString();
+                if (this.strikethrough) {
+                    text += "\u00a7m";
+                }
+                if (this.underline) {
+                    text += "\u00a7n";
+                }
+                if (this.italic) {
+                    text += "\u00a7o";
+                }
+                if (this.bold) {
+                    text += "\u00a7l";
+                }
+                return text;
+            }
+
+            @Override
+            public String post(String text) {
+                text = Pattern.compile("(?i)\u00a7r(\u00a7([0-9A-FK-OR]))+\u00a7r").matcher(text).replaceAll(ChatFormatting.RESET.toString());
+                return text;
+            }
+        });
+
+        Patterns.addDiscordFormattingPattern(Patterns.minecraftCodePattern, new Patterns.ReplacementCallback() {
+            private boolean bold = false;
+            private boolean italic = false;
+            private boolean underline = false;
+            private boolean strikethrough = false;
+
+            @Override
+            public String pre(String text) {
+                return text;
+            }
+
+            @Override
+            public String replace(ArrayList<String> groups) {
+                String modifier = groups.get(0);
+
+                for (ChatFormatting chatFormatting : ChatFormatting.values()) {
+                    if (modifier.equalsIgnoreCase(chatFormatting.toString())) {
+                        if (chatFormatting.equals(ChatFormatting.BOLD)) {
+                            this.bold = true;
+                            modifier = "**";
+                        } else if (chatFormatting.equals(ChatFormatting.ITALIC)) {
+                            this.italic = true;
+                            modifier = "*";
+                        } else if (chatFormatting.equals(ChatFormatting.UNDERLINE)) {
+                            this.underline = true;
+                            modifier = "__";
+                        } else if (chatFormatting.equals(ChatFormatting.STRIKETHROUGH)) {
+                            this.strikethrough = true;
+                            modifier = "~~";
+                        } else if (chatFormatting.equals(ChatFormatting.RESET)) {
+                            modifier = "";
+                            if (this.bold) {
+                                this.bold = false;
+                                modifier += "**";
+                            }
+                            if (this.italic) {
+                                this.italic = false;
+                                modifier += "*";
+                            }
+                            if (this.underline) {
+                                this.underline = false;
+                                modifier += "__";
+                            }
+                            if (this.strikethrough) {
+                                this.strikethrough = false;
+                                modifier += "~~";
+                            }
+                        } else {
+                            modifier = "";
+                        }
+                        break;
+                    }
+                }
+
+                return modifier;
+            }
+
+            @Override
+            public String post(String text) {
+                if (this.strikethrough) {
+                    text += "~~";
+                    this.strikethrough = false;
+                }
+                if (this.underline) {
+                    text += "__";
+                    this.underline = false;
+                }
+                if (this.italic) {
+                    text += "*";
+                    this.italic = false;
+                }
+                if (this.bold) {
+                    text += "**";
+                    this.bold = false;
+                }
+                return text.replaceAll("\\*\\*\\*\\*\\*", "*");
+            }
+        });
+    }
 
     @Mod.EventHandler
     public void onPreInit(FMLPreInitializationEvent event) {
-        proxy.onPreInit(event);
+        proxy.onPreInit(event.getModConfigurationDirectory());
+
+        addPatterns();
+
+        MinecraftForge.EVENT_BUS.register(new MinecraftListener());
+    }
+
+    @Mod.EventHandler
+    public void onPostInit(FMLPostInitializationEvent event) {
+        event.buildSoftDependProxy("Dynmap", "chikachi.discord.integration.DynmapIntegration");
     }
 
     @Mod.EventHandler
     public void onServerAboutToStart(FMLServerAboutToStartEvent event) {
-        proxy.onServerAboutToStart();
     }
 
     @Mod.EventHandler
     public void onServerStarting(FMLServerStartingEvent event) {
         proxy.onServerStarting();
 
-        if (Loader.isModLoaded("ChikachiLib")) {
-            Log("Trying to hook into ChikachiLib", false);
-            try {
-                Class subCommandHandlerClass = Class.forName("chikachi.discord.command.mc.LibCommandHandler");
-                Class libClass = Class.forName("chikachi.lib.ChikachiLib");
-                Class commandClass = Class.forName("chikachi.lib.common.command.sub.CommandChikachiBase");
-                if (subCommandHandlerClass != null && libClass != null && commandClass != null) {
-                    Field commandHandlerField = libClass.getField("commandHandler");
-                    if (commandHandlerField != null) {
-                        Object obj = commandHandlerField.get(null);
-                        if (obj != null) {
-                            Method registerCommandHandlerMethod = obj.getClass().getMethod("RegisterSubCommandHandler", commandClass);
-                            if (registerCommandHandlerMethod != null) {
-                                registerCommandHandlerMethod.invoke(obj, subCommandHandlerClass.newInstance());
-                                Log("Hooked into ChikachiLib", false);
-                            }
-                        }
-                    }
-                }
-            } catch (ClassNotFoundException | NoSuchFieldException | NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
-                Log("Failed to hook into ChikachiLib", false);
-                event.registerServerCommand(new NonLibCommandHandler());
-            }
-        } else {
-            event.registerServerCommand(new NonLibCommandHandler());
-        }
+        DiscordClient.getInstance().addEventListener(new DiscordListener());
+
+        event.registerServerCommand(new CommandDiscord());
     }
 
     @Mod.EventHandler
@@ -94,31 +214,17 @@ public class DiscordIntegration {
     }
 
     @Mod.EventHandler
-    public void onServerShutdown(FMLServerStoppingEvent event) {
-        proxy.onServerShutdown();
-        receivedStoppingEvent = true;
+    public void onServerStopping(FMLServerStoppingEvent event) {
+        proxy.onServerStopping();
     }
 
     @Mod.EventHandler
     public void onServerStopped(FMLServerStoppedEvent event) {
-        if (!receivedStoppingEvent) {
-            proxy.onServerCrash();
-        }
-
-        DiscordClient.getInstance().disconnect();
+        proxy.onServerStopped();
     }
 
     @Mod.EventHandler
     public void imcReceived(FMLInterModComms.IMCEvent event) {
         event.getMessages().forEach(IMCHandler::onMessageReceived);
-    }
-
-    @SuppressWarnings("WeakerAccess")
-    public static void Log(String message) {
-        Log(message, false);
-    }
-
-    public static void Log(String message, boolean warning) {
-        logger.log(warning ? Level.WARN : Level.INFO, String.format("[%s] %s", Constants.VERSION, message));
     }
 }
