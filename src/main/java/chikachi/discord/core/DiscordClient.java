@@ -50,8 +50,6 @@ public class DiscordClient extends ListenerAdapter {
 
     @Override
     public void onReady(ReadyEvent event) {
-        DiscordIntegrationLogger.Log("!!! THIS IS AN ALPHA VERSION !!!", true);
-        DiscordIntegrationLogger.Log("!!! YOU HAVE BEEN WARNED !!!");
         DiscordIntegrationLogger.Log("Logged in as " + getSelf().getName());
 
         this.isReady = true;
