@@ -56,9 +56,16 @@ minecraft {
   srgExtra "PK: net/sourceforge/jaad chikachi/discord/repack/net/sourceforge/jaad"
   srgExtra "PK: org/json chikachi/discord/repack/org/json"
   srgExtra "PK: org/kc7bfi/jflac chikachi/discord/repack/orgkc7bfi/jflac"
-  srgExtra "PK: org/apache/http chikachi/discord/repack/org/apache/http"
   srgExtra "PK: org/tritonus chikachi/discord/repack/org/tritonus"
   srgExtra "PK: tomp2p/opuswrapper chikachi/discord/repack/tomp2p/opuswrapper"
+
+  srgExtra "PK: org/apache/http chikachi/discord/repack/org/apache/http"
+  srgExtra "PK: org/apache/commons/logging chikachi/discord/repack/org/apache/commons/logging"
+  srgExtra "PK: org/apache/commons/codec chikachi/discord/repack/org/apache/commons/codec"
+  srgExtra "PK: org/apache/commons/lang3 chikachi/discord/repack/org/apache/commons/lang3"
+
+  srgExtra "PK: net/dv8tion/jda chikachi/discord/repack/net/dv8tion/jda"
+  srgExtra "PK: com/vdurmont/emoji chikachi/discord/repack/com/vdurmont/emoji"
 }
 
 def printDebug(message) {

@@ -1,5 +1,8 @@
 # Changelog (MC 1.7.10)
 
+### 3.0.1
+- Fix crash
+
 ### 3.0.0
 - Complete rewrite
   - Added support for sending to multiple Discord channels

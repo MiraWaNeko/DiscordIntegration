@@ -1,0 +1,34 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "target": "es6",
+    "removeComments": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "outDir": "dist",
+    "sourceMap": true,
+    "pretty": true,
+    "typeRoots": [
+      "node_modules/@types"
+    ],
+    "types": [
+      "node"
+    ],
+    "lib": [
+      "dom",
+      "es2015",
+      "es2016.array.include"
+    ],
+    "baseUrl": ".",
+    "paths": {
+      "rethinkdbdash": [
+        "node_modules/rethinkts/types/rethinkdbdash"
+      ]
+    }
+  },
+  "exclude": [
+    "dist",
+    "node_modules"
+  ]
+}
