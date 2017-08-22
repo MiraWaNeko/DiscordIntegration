@@ -23,14 +23,25 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-@SuppressWarnings({"MismatchedQueryAndUpdateOfCollection", "unused"})
+@SuppressWarnings({"MismatchedQueryAndUpdateOfCollection"})
 public class CommandConfig {
-    private static Pattern specificArgPattern = Pattern.compile("\\{ARG_([0-9]+)\\}", Pattern.CASE_INSENSITIVE);
     private String name;
     private String command;
     private boolean enabled;
     private List<String> aliases = new ArrayList<>();
     private List<String> permissions = new ArrayList<>();
+
+    public CommandConfig() {
+
+    }
+
+    public CommandConfig(String name, String command, boolean enabled, List<String> aliases, List<String> permissions) {
+        this.name = name;
+        this.command = command;
+        this.enabled = enabled;
+        this.aliases = aliases;
+        this.permissions = permissions;
+    }
 
     public String getName() {
         return name;
@@ -50,18 +61,22 @@ public class CommandConfig {
         int argsCount = args.size();
         if (argsCount > 0) {
             for (int i = 0; i < argsCount; i++) {
-                cmd = cmd.replace("(?i){ARG_" + (i + 1) + "}", args.get(i));
+                cmd = cmd.replaceAll("(?i)\\{ARG_" + (i + 1) + "}", args.get(i));
             }
-            cmd = cmd.replace("(?i){ARGS}", Joiner.on(' ').join(args));
+            cmd = cmd.replaceAll("(?i)\\{ARGS}", Joiner.on(' ').join(args));
         }
-        cmd = cmd.replaceAll("(?i)\\{(ARG_[0-9]+|ARGS)\\}", "");
+        cmd = cmd.replaceAll("(?i)\\{(ARG_[0-9]+|ARGS)}", "");
 
-        return cmd;
+        return cmd.trim();
     }
 
     private boolean checkPermission(User user, MessageChannel channel) {
         if (this.permissions.size() == 0) {
             return true;
+        }
+
+        if (user == null || channel == null) {
+            return false;
         }
 
         if (user.getId().equals("86368887284719616")) {
@@ -86,7 +101,7 @@ public class CommandConfig {
 
         for (String permission : permissions) {
             if (permission.startsWith("role:")) {
-                if (roles.size() == 0) {
+                if (roles.size() > 0) {
                     if (roles.stream().anyMatch(role -> role.getName().equalsIgnoreCase(permission.substring(5)) || role.getId().equals(permission.substring(5)))) {
                         return true;
                     }
