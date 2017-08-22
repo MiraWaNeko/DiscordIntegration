@@ -1,5 +1,8 @@
 # Changelog (MC 1.9.4)
 
+### 3.0.1
+- Fix for command arguments (#71)
+
 ### 3.0.0
 - Complete rewrite
   - Added support for sending to multiple Discord channels
