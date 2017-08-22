@@ -32,7 +32,7 @@ import java.util.regex.Pattern;
 @Mod(modid = CoreConstants.MODID, name = CoreConstants.MODNAME, version = CoreConstants.VERSION, serverSideOnly = true, acceptableRemoteVersions = "*")
 public class DiscordIntegration {
     @Mod.Instance
-    public static DiscordIntegration instance;
+    static DiscordIntegration instance;
 
     private static Proxy proxy = new Proxy();
 
@@ -225,6 +225,8 @@ public class DiscordIntegration {
 
     @Mod.EventHandler
     public void imcReceived(FMLInterModComms.IMCEvent event) {
-        event.getMessages().forEach(IMCHandler::onMessageReceived);
+        for (FMLInterModComms.IMCMessage imcMessage : event.getMessages()) {
+            IMCHandler.onMessageReceived(imcMessage);
+        }
     }
 }
