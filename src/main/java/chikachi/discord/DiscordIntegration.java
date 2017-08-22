@@ -225,6 +225,8 @@ public class DiscordIntegration {
 
     @Mod.EventHandler
     public void imcReceived(FMLInterModComms.IMCEvent event) {
-        event.getMessages().forEach(IMCHandler::onMessageReceived);
+        for (FMLInterModComms.IMCMessage imcMessage : event.getMessages()) {
+            IMCHandler.onMessageReceived(imcMessage);
+        }
     }
 }

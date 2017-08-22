@@ -1,7 +1,8 @@
 # Changelog (MC 1.7.10)
 
 ### 3.0.1
-- Fix crash
+- Fix for command arguments (#71)
+- Fix crash (#74)
 
 ### 3.0.0
 - Complete rewrite
