@@ -57,7 +57,6 @@ public class Configuration {
             .registerTypeAdapter(MessageConfig.class, new MessageConfigAdapter())
             .registerTypeAdapter(Pattern.class, new PatternAdapter())
             .setVersion(3.0)
-            .serializeNulls()
             .setPrettyPrinting()
             .create();
     }
