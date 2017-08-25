@@ -10,6 +10,7 @@ pipeline {
   stages {
     stage('Prepare') {
       steps {
+        sh 'git submodules update --init'
         sh 'chmod +x gradlew'
         sh './gradlew setupCiWorkspace clean spotlessApply'
       }
