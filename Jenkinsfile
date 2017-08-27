@@ -38,7 +38,7 @@ pipeline {
         withCredentials([file(credentialsId: 'discordintegration.test.config', variable: 'CONFIG_FILE')]) {
           sh 'cp "$CONFIG_FILE" ./run/config/Chikachi/'
           dir('serverTest') {
-            sh 'npm install'
+            sh 'npm update'
             sh 'tsc'
             sh 'npm start'
           }
