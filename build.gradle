@@ -40,6 +40,24 @@ archivesBaseName = "DiscordIntegration"
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
+sourceSets {
+  main {
+    java {
+      srcDir 'src/main/java'
+      srcDir 'src/main/resources'
+      srcDir 'core/src/main/java'
+    }
+    resources {
+      srcDir 'core/src/main/resources'
+    }
+  }
+  test {
+    java {
+      srcDir 'core/src/test/java'
+    }
+  }
+}
+
 minecraft {
   version = mcVersion + '-' + forgeVersion
 
