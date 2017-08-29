@@ -30,7 +30,7 @@ apply plugin: 'com.diffplug.gradle.spotless'
 
 def mcVersion = '1.9.4'
 def forgeVersion = '12.17.0.1976'
-def modVersion = '3.0.0'
+def modVersion = '3.0.2'
 
 version = 'mc' + mcVersion + '-' + modVersion
 group = "chikachi.discord"
@@ -38,6 +38,24 @@ archivesBaseName = "DiscordIntegration"
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
+
+sourceSets {
+  main {
+    java {
+      srcDir 'src/main/java'
+      srcDir 'src/main/resources'
+      srcDir 'core/src/main/java'
+    }
+    resources {
+      srcDir 'core/src/main/resources'
+    }
+  }
+  test {
+    java {
+      srcDir 'core/src/test/java'
+    }
+  }
+}
 
 minecraft {
   version = mcVersion + '-' + forgeVersion
@@ -143,7 +161,7 @@ processResources {
     include 'mcmod.info'
 
     // replace version and mcversion
-    expand 'version': modVersion, 'mcversion': project.minecraft.version
+    expand 'version': modVersion, 'mcversion': mcVersion
   }
 
   // copy everything else, thats not the mcmod.info
