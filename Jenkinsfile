@@ -32,10 +32,8 @@ pipeline {
     }
     stage('Run Server Test') {
       steps {
-        sh 'mkdir -p run/config/Chikachi'
-        sh 'mkdir -p run/mods'
-        writeFile file: 'run/eula.txt', text: 'eula=true'
         withCredentials([file(credentialsId: 'discordintegration.test.config', variable: 'CONFIG_FILE')]) {
+          sh 'mkdir -p run/config/Chikachi'
           sh 'cp "$CONFIG_FILE" ./run/config/Chikachi/'
           dir('serverTest') {
             sh 'npm update'
@@ -55,6 +53,28 @@ pipeline {
       steps {
         archiveArtifacts 'build/libs/*.jar'
         fingerprint 'build/libs/*.jar'
+      }
+    }
+  }
+  post {
+    success {
+      withCredentials([string(credentialsId: 'discord.webhook.channel', variable: 'WEBHOOK_CHANNEL'), string(credentialsId: 'discord.webhook.token', variable: 'WEBHOOK_TOKEN')]) {
+        sh "curl -X POST --data '{ \"embeds\": [{\"title\": \"[DiscordIntegration][$BRANCH_NAME] Build $BUILD_DISPLAY_NAME : $currentBuild.currentResult\", \"type\": \"link\", \"url\": \"$BUILD_URL\", \"thumbnail\": { \"url\": \"https://build.chikachi.net/static/e0a4a1db/images/48x48/blue.png\" } }] }' -H \"Content-Type: application/json\"  https://discordapp.com/api/webhooks/$WEBHOOK_CHANNEL/$WEBHOOK_TOKEN"
+      }
+    }
+    unstable {
+      withCredentials([string(credentialsId: 'discord.webhook.channel', variable: 'WEBHOOK_CHANNEL'), string(credentialsId: 'discord.webhook.token', variable: 'WEBHOOK_TOKEN')]) {
+        sh "curl -X POST --data '{ \"embeds\": [{\"title\": \"[DiscordIntegration][$BRANCH_NAME] Build $BUILD_DISPLAY_NAME : $currentBuild.currentResult\", \"type\": \"link\", \"url\": \"$BUILD_URL\", \"thumbnail\": { \"url\": \"https://build.chikachi.net/static/e0a4a1db/images/48x48/yellow.png\" } }] }' -H \"Content-Type: application/json\"  https://discordapp.com/api/webhooks/$WEBHOOK_CHANNEL/$WEBHOOK_TOKEN"
+      }
+    }
+    failure {
+      withCredentials([string(credentialsId: 'discord.webhook.channel', variable: 'WEBHOOK_CHANNEL'), string(credentialsId: 'discord.webhook.token', variable: 'WEBHOOK_TOKEN')]) {
+        sh "curl -X POST --data '{ \"embeds\": [{\"title\": \"[DiscordIntegration][$BRANCH_NAME] Build $BUILD_DISPLAY_NAME : $currentBuild.currentResult\", \"type\": \"link\", \"url\": \"$BUILD_URL\", \"thumbnail\": { \"url\": \"https://build.chikachi.net/static/e0a4a1db/images/48x48/red.png\" } }] }' -H \"Content-Type: application/json\"  https://discordapp.com/api/webhooks/$WEBHOOK_CHANNEL/$WEBHOOK_TOKEN"
+      }
+    }
+    aborted {
+      withCredentials([string(credentialsId: 'discord.webhook.channel', variable: 'WEBHOOK_CHANNEL'), string(credentialsId: 'discord.webhook.token', variable: 'WEBHOOK_TOKEN')]) {
+        sh "curl -X POST --data '{ \"embeds\": [{\"title\": \"[DiscordIntegration][$BRANCH_NAME] Build $BUILD_DISPLAY_NAME : $currentBuild.currentResult\", \"type\": \"link\", \"url\": \"$BUILD_URL\", \"thumbnail\": { \"url\": \"https://build.chikachi.net/static/e0a4a1db/images/48x48/aborted.png\" } }] }' -H \"Content-Type: application/json\"  https://discordapp.com/api/webhooks/$WEBHOOK_CHANNEL/$WEBHOOK_TOKEN"
       }
     }
   }

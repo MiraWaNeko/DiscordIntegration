@@ -29,8 +29,6 @@ public class DiscordIntegration {
 
     private static Proxy proxy = new Proxy();
 
-
-
     @Mod.EventHandler
     public void onPreInit(FMLPreInitializationEvent event) {
         proxy.onPreInit(event.getModConfigurationDirectory());
