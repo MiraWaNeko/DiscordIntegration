@@ -15,7 +15,10 @@
 package chikachi.discord;
 
 import chikachi.discord.command.CommandDiscord;
-import chikachi.discord.core.*;
+import chikachi.discord.core.CoreConstants;
+import chikachi.discord.core.CoreUtils;
+import chikachi.discord.core.DiscordClient;
+import chikachi.discord.core.Proxy;
 import chikachi.discord.listener.DiscordListener;
 import chikachi.discord.listener.MinecraftListener;
 import net.minecraftforge.common.MinecraftForge;
@@ -40,7 +43,7 @@ public class DiscordIntegration {
 
     @Mod.EventHandler
     public void onPostInit(FMLPostInitializationEvent event) {
-        event.buildSoftDependProxy("Dynmap", "chikachi.discord.integration.DynmapIntegration");
+        event.buildSoftDependProxy("dynmap", "chikachi.discord.integration.DynmapIntegration");
     }
 
     @Mod.EventHandler

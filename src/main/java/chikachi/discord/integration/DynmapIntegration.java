@@ -15,6 +15,7 @@
 package chikachi.discord.integration;
 
 import chikachi.discord.core.DiscordClient;
+import chikachi.discord.core.DiscordIntegrationLogger;
 import chikachi.discord.core.Message;
 import chikachi.discord.core.config.Configuration;
 import chikachi.discord.core.config.minecraft.MinecraftGenericConfig;
@@ -28,31 +29,34 @@ import org.dynmap.DynmapCommonAPIListener;
 import java.util.HashMap;
 
 @SuppressWarnings("unused")
-@Optional.Interface(iface = "org.dynmap.DynmapCommonAPIListener", modid = "Dynmap")
+@Optional.Interface(iface = "org.dynmap.DynmapCommonAPIListener", modid = "dynmap")
 public class DynmapIntegration extends DynmapCommonAPIListener implements EventListener {
     private DynmapCommonAPI dynmapCommonAPI;
 
     public DynmapIntegration() {
         DynmapCommonAPIListener.register(this);
+        DiscordIntegrationLogger.Log("Listening to Dynmap");
     }
 
     @Override
-    @Optional.Method(modid = "Dynmap")
+    @Optional.Method(modid = "dynmap")
     public void apiEnabled(DynmapCommonAPI dynmapCommonAPI) {
+        DiscordIntegrationLogger.Log("Dynmap API enabled");
         this.dynmapCommonAPI = dynmapCommonAPI;
         DiscordClient.getInstance().addEventListener(this);
     }
 
     @Override
-    @Optional.Method(modid = "Dynmap")
+    @Optional.Method(modid = "dynmap")
     public void apiDisabled(DynmapCommonAPI api) {
         super.apiDisabled(api);
+        DiscordIntegrationLogger.Log("Dynmap API disabled");
         this.dynmapCommonAPI = null;
         DiscordClient.getInstance().removeEventListener(this);
     }
 
     @Override
-    @Optional.Method(modid = "Dynmap")
+    @Optional.Method(modid = "dynmap")
     public boolean webChatEvent(String source, String name, String message) {
         if (Configuration.getConfig().minecraft.integrations.dynmapEnabled) {
             MinecraftGenericConfig genericConfig = Configuration.getConfig().minecraft.dimensions.generic;
