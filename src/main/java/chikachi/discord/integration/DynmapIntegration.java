@@ -34,13 +34,13 @@ public class DynmapIntegration extends DynmapCommonAPIListener implements EventL
 
     public DynmapIntegration() {
         DynmapCommonAPIListener.register(this);
-        DiscordClient.getInstance().addEventListener(this);
     }
 
     @Override
     @Optional.Method(modid = "Dynmap")
     public void apiEnabled(DynmapCommonAPI dynmapCommonAPI) {
         this.dynmapCommonAPI = dynmapCommonAPI;
+        DiscordClient.getInstance().addEventListener(this);
     }
 
     @Override
