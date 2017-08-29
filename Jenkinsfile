@@ -10,6 +10,7 @@ pipeline {
   stages {
     stage('Prepare') {
       steps {
+        sh 'git submodule update --init'
         sh 'chmod +x gradlew'
         sh './gradlew setupCiWorkspace clean spotlessApply'
       }
@@ -31,13 +32,11 @@ pipeline {
     }
     stage('Run Server Test') {
       steps {
-        sh 'mkdir -p run/config/Chikachi'
-        sh 'mkdir -p run/mods'
-        writeFile file: 'run/eula.txt', text: 'eula=true'
         withCredentials([file(credentialsId: 'discordintegration.test.config', variable: 'CONFIG_FILE')]) {
+          sh 'mkdir -p run/config/Chikachi'
           sh 'cp "$CONFIG_FILE" ./run/config/Chikachi/'
           dir('serverTest') {
-            sh 'npm install'
+            sh 'npm update'
             sh 'tsc'
             sh 'npm start'
           }
