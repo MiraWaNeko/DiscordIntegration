@@ -14,6 +14,7 @@
 
 package chikachi.discord;
 
+import chikachi.discord.core.Patterns;
 import com.mojang.authlib.GameProfile;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
@@ -49,6 +50,10 @@ public class DiscordCommandSender extends FakePlayer {
 
     @Override
     public void addChatComponentMessage(ITextComponent component) {
-        this.channel.sendMessage(component.getUnformattedText()).queue();
+        this.channel.sendMessage(
+            Patterns.minecraftCodePattern.matcher(
+                component.getUnformattedText()
+            ).replaceAll("")
+        ).queue();
     }
 }
