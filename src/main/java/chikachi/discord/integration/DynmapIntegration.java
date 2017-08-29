@@ -18,6 +18,9 @@ import chikachi.discord.core.DiscordClient;
 import chikachi.discord.core.Message;
 import chikachi.discord.core.config.Configuration;
 import chikachi.discord.core.config.minecraft.MinecraftGenericConfig;
+import net.dv8tion.jda.core.events.Event;
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.hooks.EventListener;
 import net.minecraftforge.fml.common.Optional;
 import org.dynmap.DynmapCommonAPI;
 import org.dynmap.DynmapCommonAPIListener;
@@ -26,7 +29,9 @@ import java.util.HashMap;
 
 @SuppressWarnings("unused")
 @Optional.Interface(iface = "org.dynmap.DynmapCommonAPIListener", modid = "Dynmap")
-public class DynmapIntegration extends DynmapCommonAPIListener {
+public class DynmapIntegration extends DynmapCommonAPIListener implements EventListener {
+    private DynmapCommonAPI dynmapCommonAPI;
+
     public DynmapIntegration() {
         DynmapCommonAPIListener.register(this);
     }
@@ -34,6 +39,16 @@ public class DynmapIntegration extends DynmapCommonAPIListener {
     @Override
     @Optional.Method(modid = "Dynmap")
     public void apiEnabled(DynmapCommonAPI dynmapCommonAPI) {
+        this.dynmapCommonAPI = dynmapCommonAPI;
+        DiscordClient.getInstance().addEventListener(this);
+    }
+
+    @Override
+    @Optional.Method(modid = "Dynmap")
+    public void apiDisabled(DynmapCommonAPI api) {
+        super.apiDisabled(api);
+        this.dynmapCommonAPI = null;
+        DiscordClient.getInstance().removeEventListener(this);
     }
 
     @Override
@@ -56,5 +71,20 @@ public class DynmapIntegration extends DynmapCommonAPIListener {
             );
         }
         return true;
+    }
+
+    @Override
+    public void onEvent(Event event) {
+        if (this.dynmapCommonAPI == null) {
+            return;
+        }
+
+        if (event instanceof MessageReceivedEvent) {
+            MessageReceivedEvent messageReceivedEvent = (MessageReceivedEvent) event;
+            this.dynmapCommonAPI.sendBroadcastToWeb(
+                messageReceivedEvent.getAuthor().getName(),
+                messageReceivedEvent.getMessage().getStrippedContent()
+            );
+        }
     }
 }

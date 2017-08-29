@@ -16,18 +16,14 @@ package chikachi.discord;
 
 import chikachi.discord.command.CommandDiscord;
 import chikachi.discord.core.CoreConstants;
+import chikachi.discord.core.CoreUtils;
 import chikachi.discord.core.DiscordClient;
-import chikachi.discord.core.Patterns;
 import chikachi.discord.core.Proxy;
 import chikachi.discord.listener.DiscordListener;
 import chikachi.discord.listener.MinecraftListener;
-import com.mojang.realmsclient.gui.ChatFormatting;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.*;
-
-import java.util.ArrayList;
-import java.util.regex.Pattern;
 
 @Mod(modid = CoreConstants.MODID, name = CoreConstants.MODNAME, version = CoreConstants.VERSION, serverSideOnly = true, acceptableRemoteVersions = "*")
 public class DiscordIntegration {
@@ -36,156 +32,11 @@ public class DiscordIntegration {
 
     private static Proxy proxy = new Proxy();
 
-    public static void addPatterns() {
-        Patterns.clearCustomPatterns();
-
-        Patterns.addMinecraftFormattingPattern(Pattern.compile("(?i)(\\*\\*|\\*|__|_|~~|`|```)"), new Patterns.ReplacementCallback() {
-            private boolean bold = false;
-            private boolean italic = false;
-            private boolean underline = false;
-            private boolean strikethrough = false;
-
-            @Override
-            public String pre(String text) {
-                return text;
-            }
-
-            @Override
-            public String replace(ArrayList<String> groups) {
-                String modifier = groups.get(0);
-
-                switch (modifier) {
-                    case "**":
-                        this.bold = !this.bold;
-                        modifier = this.bold ? "\u00a7l" : resetString();
-                        break;
-                    case "*":
-                    case "_":
-                        this.italic = !this.italic;
-                        modifier = this.italic ? "\u00a7o" : resetString();
-                        break;
-                    case "__":
-                        this.underline = !this.underline;
-                        modifier = this.underline ? "\u00a7n" : resetString();
-                        break;
-                    case "~~":
-                        this.strikethrough = !this.strikethrough;
-                        modifier = this.strikethrough ? "\u00a7m" : resetString();
-                        break;
-                }
-
-                return modifier;
-            }
-
-            private String resetString() {
-                String text = ChatFormatting.RESET.toString();
-                if (this.strikethrough) {
-                    text += "\u00a7m";
-                }
-                if (this.underline) {
-                    text += "\u00a7n";
-                }
-                if (this.italic) {
-                    text += "\u00a7o";
-                }
-                if (this.bold) {
-                    text += "\u00a7l";
-                }
-                return text;
-            }
-
-            @Override
-            public String post(String text) {
-                text = Pattern.compile("(?i)\u00a7r(\u00a7([0-9A-FK-OR]))+\u00a7r").matcher(text).replaceAll(ChatFormatting.RESET.toString());
-                return text;
-            }
-        });
-
-        Patterns.addDiscordFormattingPattern(Patterns.minecraftCodePattern, new Patterns.ReplacementCallback() {
-            private boolean bold = false;
-            private boolean italic = false;
-            private boolean underline = false;
-            private boolean strikethrough = false;
-
-            @Override
-            public String pre(String text) {
-                return text;
-            }
-
-            @Override
-            public String replace(ArrayList<String> groups) {
-                String modifier = groups.get(0);
-
-                for (ChatFormatting chatFormatting : ChatFormatting.values()) {
-                    if (modifier.equalsIgnoreCase(chatFormatting.toString())) {
-                        if (chatFormatting.equals(ChatFormatting.BOLD)) {
-                            this.bold = true;
-                            modifier = "**";
-                        } else if (chatFormatting.equals(ChatFormatting.ITALIC)) {
-                            this.italic = true;
-                            modifier = "*";
-                        } else if (chatFormatting.equals(ChatFormatting.UNDERLINE)) {
-                            this.underline = true;
-                            modifier = "__";
-                        } else if (chatFormatting.equals(ChatFormatting.STRIKETHROUGH)) {
-                            this.strikethrough = true;
-                            modifier = "~~";
-                        } else if (chatFormatting.equals(ChatFormatting.RESET)) {
-                            modifier = "";
-                            if (this.bold) {
-                                this.bold = false;
-                                modifier += "**";
-                            }
-                            if (this.italic) {
-                                this.italic = false;
-                                modifier += "*";
-                            }
-                            if (this.underline) {
-                                this.underline = false;
-                                modifier += "__";
-                            }
-                            if (this.strikethrough) {
-                                this.strikethrough = false;
-                                modifier += "~~";
-                            }
-                        } else {
-                            modifier = "";
-                        }
-                        break;
-                    }
-                }
-
-                return modifier;
-            }
-
-            @Override
-            public String post(String text) {
-                if (this.strikethrough) {
-                    text += "~~";
-                    this.strikethrough = false;
-                }
-                if (this.underline) {
-                    text += "__";
-                    this.underline = false;
-                }
-                if (this.italic) {
-                    text += "*";
-                    this.italic = false;
-                }
-                if (this.bold) {
-                    text += "**";
-                    this.bold = false;
-                }
-                return text.replaceAll("\\*\\*\\*\\*\\*", "*");
-            }
-        });
-    }
-
     @Mod.EventHandler
     public void onPreInit(FMLPreInitializationEvent event) {
         proxy.onPreInit(event.getModConfigurationDirectory());
 
-        addPatterns();
+        CoreUtils.addPatterns();
 
         MinecraftForge.EVENT_BUS.register(new MinecraftListener());
     }
