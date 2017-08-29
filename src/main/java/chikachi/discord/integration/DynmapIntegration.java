@@ -28,7 +28,7 @@ import org.dynmap.DynmapCommonAPIListener;
 import java.util.HashMap;
 
 @SuppressWarnings("unused")
-@Optional.Interface(iface = "org.dynmap.DynmapCommonAPIListener", modid = "Dynmap")
+@Optional.Interface(iface = "org.dynmap.DynmapCommonAPIListener", modid = "dynmap")
 public class DynmapIntegration extends DynmapCommonAPIListener implements EventListener {
     private DynmapCommonAPI dynmapCommonAPI;
 
@@ -37,14 +37,14 @@ public class DynmapIntegration extends DynmapCommonAPIListener implements EventL
     }
 
     @Override
-    @Optional.Method(modid = "Dynmap")
+    @Optional.Method(modid = "dynmap")
     public void apiEnabled(DynmapCommonAPI dynmapCommonAPI) {
         this.dynmapCommonAPI = dynmapCommonAPI;
         DiscordClient.getInstance().addEventListener(this);
     }
 
     @Override
-    @Optional.Method(modid = "Dynmap")
+    @Optional.Method(modid = "dynmap")
     public void apiDisabled(DynmapCommonAPI api) {
         super.apiDisabled(api);
         this.dynmapCommonAPI = null;
@@ -52,7 +52,7 @@ public class DynmapIntegration extends DynmapCommonAPIListener implements EventL
     }
 
     @Override
-    @Optional.Method(modid = "Dynmap")
+    @Optional.Method(modid = "dynmap")
     public boolean webChatEvent(String source, String name, String message) {
         if (Configuration.getConfig().minecraft.integrations.dynmapEnabled) {
             MinecraftGenericConfig genericConfig = Configuration.getConfig().minecraft.dimensions.generic;

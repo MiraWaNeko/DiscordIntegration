@@ -43,7 +43,7 @@ public class DiscordIntegration {
 
     @Mod.EventHandler
     public void onPostInit(FMLPostInitializationEvent event) {
-        event.buildSoftDependProxy("Dynmap", "chikachi.discord.integration.DynmapIntegration");
+        event.buildSoftDependProxy("dynmap", "chikachi.discord.integration.DynmapIntegration");
     }
 
     @Mod.EventHandler
