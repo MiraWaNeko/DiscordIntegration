@@ -1,6 +1,7 @@
 # ![](http://media-elerium.cursecdn.com/avatars/46/357/636053578365458286.png) **DiscordIntegration**
 
-[![Build Status](https://build.chikachi.net/buildStatus/icon?job=Chikachi/DiscordIntegration/1.10.2)](https://build.chikachi.net/job/Chikachi/job/DiscordIntegration/job/1.10.2/)
+[![Build Status](https://build.chikachi.net/buildStatus/icon?job=Chikachi/DiscordIntegration/1.10.2)](https://build.chikachi.net/job/Chikachi/job/DiscordIntegration/job/1.10.2/)[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bhttps%3A%2F%2Fgithub.com%2FChikachi%2FDiscordIntegration.svg?type=shield)](https://app.fossa.io/projects/git%2Bhttps%3A%2F%2Fgithub.com%2FChikachi%2FDiscordIntegration?ref=badge_shield)
+
 
 This mod combines your Discord to your Minecraft server.
 
@@ -15,3 +16,6 @@ This is a server-side mod and therefore don't need to be on the client.
 Guide on how to get the information needed from Discord can be found on [the wiki](https://github.com/Chikachi/ChikachiDiscord/wiki/How-to-get-a-token-and-channel-ID-for-Discord).
 
 _This mod is not affiliated with Discord in any way._
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bhttps%3A%2F%2Fgithub.com%2FChikachi%2FDiscordIntegration.svg?type=large)](https://app.fossa.io/projects/git%2Bhttps%3A%2F%2Fgithub.com%2FChikachi%2FDiscordIntegration?ref=badge_large)
