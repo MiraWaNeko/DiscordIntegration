@@ -1,5 +1,12 @@
 # Changelog (MC 1.11.2)
 
+### 3.0.2
+- Fix for messages with a single modifier being changed (#76)
+- Convert Minecraft formatting with `&` to `§` (#77)
+- Made Dynmap integration work both ways (#80)
+- Fixed client code crashes (#78)
+- Config generated will now make `discordChannels` an empty array in `generic` dimension settings.
+
 ### 3.0.1
 - Fix for command arguments (#71)
 
