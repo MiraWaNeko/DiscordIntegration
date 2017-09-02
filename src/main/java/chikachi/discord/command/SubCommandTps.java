@@ -16,6 +16,7 @@ package chikachi.discord.command;
 
 import chikachi.discord.DiscordCommandSender;
 import chikachi.discord.core.CoreUtils;
+import chikachi.discord.core.MinecraftFormattingCodes;
 import com.google.common.base.Joiner;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.server.MinecraftServer;
@@ -68,9 +69,9 @@ class SubCommandTps {
                         CoreUtils.padRight(dimensionName, maxDimensionNameLength)
                     ),
                     CoreUtils.padLeft(color + timeFormatter.format(worldTickTime), 6),
-                    isDiscord ? "" : "\u00a7r",
+                    isDiscord ? "" : MinecraftFormattingCodes.RESET,
                     CoreUtils.padLeft(color + timeFormatter.format(worldTPS), 6),
-                    isDiscord ? "" : "\u00a7r"
+                    isDiscord ? "" : MinecraftFormattingCodes.RESET
                 )
             );
         }
@@ -86,9 +87,9 @@ class SubCommandTps {
                 colored && isDiscord ? CoreUtils.tpsToColorString(meanTPS, true) : "",
                 CoreUtils.padRight("Overall", maxDimensionIdLength + maxDimensionNameLength + 5),
                 CoreUtils.padLeft(color + timeFormatter.format(meanTickTime), 6),
-                isDiscord ? "" : "\u00a7r",
+                isDiscord ? "" : MinecraftFormattingCodes.RESET,
                 CoreUtils.padLeft(color + timeFormatter.format(meanTPS), 6),
-                isDiscord ? "" : "\u00a7r"
+                isDiscord ? "" : MinecraftFormattingCodes.RESET
             )
         );
 

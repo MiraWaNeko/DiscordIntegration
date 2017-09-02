@@ -15,6 +15,7 @@
 package chikachi.discord.command;
 
 import chikachi.discord.core.DiscordClient;
+import chikachi.discord.core.MinecraftFormattingCodes;
 import chikachi.discord.core.config.Configuration;
 import chikachi.discord.core.config.linking.LinkingRequest;
 import net.dv8tion.jda.core.entities.User;
@@ -71,12 +72,12 @@ public class CommandDiscord extends CommandBase {
                 break;
             case "link":
                 if (!Configuration.getConfig().discord.allowLinking) {
-                    sender.addChatMessage(new ChatComponentText("\u00A74Linking is not enabled"));
+                    sender.addChatMessage(new ChatComponentText(MinecraftFormattingCodes.DARK_RED + "Linking is not enabled"));
                     break;
                 }
 
                 if (!(sender instanceof EntityPlayer)) {
-                    sender.addChatMessage(new ChatComponentText("\u00A74You need to be a player"));
+                    sender.addChatMessage(new ChatComponentText(MinecraftFormattingCodes.DARK_RED + "You need to be a player"));
                     break;
                 }
 
@@ -88,7 +89,7 @@ public class CommandDiscord extends CommandBase {
                     sender.addChatMessage(
                         new ChatComponentText(
                             String.format(
-                                "\u00A7eYou're already linked to %s#%s",
+                                MinecraftFormattingCodes.YELLOW + "You're already linked to %s#%s",
                                 discordUser.getName(),
                                 discordUser.getDiscriminator()
                             )
@@ -98,7 +99,7 @@ public class CommandDiscord extends CommandBase {
                 }
 
                 if (argsList.size() == 0) {
-                    sender.addChatMessage(new ChatComponentText("\u00A74Missing code"));
+                    sender.addChatMessage(new ChatComponentText(MinecraftFormattingCodes.DARK_RED + "Missing code"));
                     break;
                 }
 
@@ -107,37 +108,37 @@ public class CommandDiscord extends CommandBase {
                     LinkingRequest request = requestOptional.get();
 
                     if (request.hasExpired()) {
-                        sender.addChatMessage(new ChatComponentText("\u00A74Linking request has expired"));
+                        sender.addChatMessage(new ChatComponentText(MinecraftFormattingCodes.DARK_RED + "Linking request has expired"));
                         break;
                     }
 
                     request.executeLinking(minecraftUUID);
-                    sender.addChatMessage(new ChatComponentText("\u00A7aLinked"));
+                    sender.addChatMessage(new ChatComponentText(MinecraftFormattingCodes.GREEN + "Linked"));
                 } else {
-                    sender.addChatMessage(new ChatComponentText("\u00A74Linking request not found"));
+                    sender.addChatMessage(new ChatComponentText(MinecraftFormattingCodes.DARK_RED + "Linking request not found"));
                     break;
                 }
                 break;
             case "unlink":
                 if (!Configuration.getConfig().discord.allowLinking) {
-                    sender.addChatMessage(new ChatComponentText("\u00A74Linking is not enabled"));
+                    sender.addChatMessage(new ChatComponentText(MinecraftFormattingCodes.DARK_RED + "Linking is not enabled"));
                     break;
                 }
 
                 if (!(sender instanceof EntityPlayer)) {
-                    sender.addChatMessage(new ChatComponentText("\u00A74You need to be a player"));
+                    sender.addChatMessage(new ChatComponentText(MinecraftFormattingCodes.DARK_RED + "You need to be a player"));
                     break;
                 }
 
                 minecraftUUID = ((EntityPlayer) sender).getGameProfile().getId();
 
                 if (Configuration.getLinking().getDiscordId(minecraftUUID) == null) {
-                    sender.addChatMessage(new ChatComponentText("\u00A74You aren't linked"));
+                    sender.addChatMessage(new ChatComponentText(MinecraftFormattingCodes.DARK_RED + "You aren't linked"));
                     break;
                 }
 
                 Configuration.getLinking().removeLink(minecraftUUID);
-                sender.addChatMessage(new ChatComponentText("\u00A7aUnlinked"));
+                sender.addChatMessage(new ChatComponentText(MinecraftFormattingCodes.GREEN + "Unlinked"));
                 break;
             case "tps":
                 SubCommandTps.execute(sender, argsList);
