@@ -16,8 +16,12 @@ package chikachi.discord.integration;
 
 import chikachi.discord.core.DiscordClient;
 import chikachi.discord.core.Message;
+import chikachi.discord.core.config.ConfigWrapper;
 import chikachi.discord.core.config.Configuration;
+import chikachi.discord.core.config.discord.DiscordChannelGenericConfig;
+import chikachi.discord.core.config.discord.DiscordConfig;
 import chikachi.discord.core.config.minecraft.MinecraftGenericConfig;
+import net.dv8tion.jda.core.entities.ChannelType;
 import net.dv8tion.jda.core.events.Event;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.EventListener;
@@ -25,6 +29,7 @@ import net.minecraftforge.fml.common.Optional;
 import org.dynmap.DynmapCommonAPI;
 import org.dynmap.DynmapCommonAPIListener;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 @SuppressWarnings("unused")
@@ -81,10 +86,43 @@ public class DynmapIntegration extends DynmapCommonAPIListener implements EventL
 
         if (event instanceof MessageReceivedEvent) {
             MessageReceivedEvent messageReceivedEvent = (MessageReceivedEvent) event;
-            this.dynmapCommonAPI.sendBroadcastToWeb(
-                messageReceivedEvent.getAuthor().getName(),
-                messageReceivedEvent.getMessage().getStrippedContent()
-            );
+
+            ConfigWrapper config = Configuration.getConfig();
+            DiscordConfig discordConfig = config.discord;
+
+            // Ignore bots
+            if (discordConfig.ignoresBots && messageReceivedEvent.getAuthor().isBot()) {
+                return;
+            }
+
+            // Ignore self
+            if (messageReceivedEvent.getAuthor().getId().equals(DiscordClient.getInstance().getSelf().getId())) {
+                return;
+            }
+
+            // Ignore specified users
+            if (discordConfig.isIgnoringUser(messageReceivedEvent.getAuthor())) {
+                return;
+            }
+
+            String content = messageReceivedEvent.getMessage().getContent().trim();
+
+            if (messageReceivedEvent.getChannelType() == ChannelType.TEXT) {
+                Long channelId = messageReceivedEvent.getChannel().getIdLong();
+
+                DiscordChannelGenericConfig channelConfig;
+                ArrayList<Integer> dimensions;
+                boolean stripMinecraftCodes = discordConfig.channels.generic.stripMinecraftCodes;
+                if (!discordConfig.channels.channels.containsKey(channelId)) {
+                    // Don't relay messages from channels not configured
+                    return;
+                }
+
+                this.dynmapCommonAPI.sendBroadcastToWeb(
+                    messageReceivedEvent.getAuthor().getName(),
+                    messageReceivedEvent.getMessage().getStrippedContent()
+                );
+            }
         }
     }
 }
