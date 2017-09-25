@@ -31,7 +31,7 @@ apply plugin: 'com.diffplug.gradle.spotless'
 
 def mcVersion = '1.10.2'
 def forgeVersion = '12.18.3.2185'
-def modVersion = '3.0.2'
+def modVersion = '3.0.3'
 
 version = 'mc' + mcVersion + '-' + modVersion
 group = "chikachi.discord"
@@ -109,8 +109,8 @@ List<CurseForgeDependencyInfo> curseForgeDependencies = new ArrayList<CurseForge
 curseForgeDependencies.add(new CurseForgeDependencyInfo("Dynmap", "2.4-forge-1.10.2", "jar", "2380601"))
 
 dependencies {
-  compile files('./libs/JDA-3.2.0_226-withDependencies.jar')
-  compile 'com.vdurmont:emoji-java:3.2.0'
+  compile files('./libs/JDA-3.3.1_280-withDependencies.jar')
+  compile 'com.vdurmont:emoji-java:3.3.0'
 
   // CurseForge
   for (CurseForgeDependencyInfo dependency : curseForgeDependencies) {
@@ -153,17 +153,17 @@ shadowJar {
   relocate "net.sourceforge.jaad", "chikachi.discord.repack.net.sourceforge.jaad"
   relocate "org.json", "chikachi.discord.repack.org.json"
   relocate "org.kc7bfi.jflac", "chikachi.discord.repack.orgkc7bfi.jflac"
+  relocate "org.slf4j", "chikachi.discord.repack.org.slf4j"
   relocate "org.tritonus", "chikachi.discord.repack.org.tritonus"
   relocate "tomp2p.opuswrapper", "chikachi.discord.repack.tomp2p.opuswrapper"
 
   relocate "org.apache.http", "chikachi.discord.repack.org.apache.http"
   relocate "org.apache.commons.logging", "chikachi.discord.repack.org.apache.commons.logging"
   relocate "org.apache.commons.codec", "chikachi.discord.repack.org.apache.commons.codec"
-  relocate "org.apache.commons.lang3", "chikachi.discord.repack.org.apache.commons.lang3"
 
   dependencies {
-    include(dependency('net.dv8tion:JDA:3.2.0_226:withDependencies'))
-    include(dependency('com.vdurmont:emoji-java:3.2.0'))
+    include(dependency('net.dv8tion:JDA:3.3.1_280:withDependencies'))
+    include(dependency('com.vdurmont:emoji-java:3.3.0'))
   }
 }
 
