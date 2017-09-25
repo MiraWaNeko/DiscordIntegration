@@ -109,7 +109,7 @@ List<CurseForgeDependencyInfo> curseForgeDependencies = new ArrayList<CurseForge
 curseForgeDependencies.add(new CurseForgeDependencyInfo("Dynmap", "2.6-beta-1-forge-1.12", "jar", "2436596"))
 
 dependencies {
-  compile files('./libs/JDA-3.3.0_272-withDependencies.jar')
+  compile files('./libs/JDA-3.3.1_280-withDependencies.jar')
   compile 'com.vdurmont:emoji-java:3.3.0'
 
   // CurseForge
@@ -144,9 +144,9 @@ shadowJar {
   relocate "net.dv8tion.jda", "chikachi.discord.repack.net.dv8tion.jda"
   relocate "net.sourceforge.jaad", "chikachi.discord.repack.net.sourceforge.jaad"
   relocate "org.apache.commons.codec", "chikachi.discord.repack.org.apache.commons.codec"
-  relocate "org.apache.commons.lang3", "chikachi.discord.repack.org.apache.commons.lang3"
   relocate "org.json", "chikachi.discord.repack.org.json"
   relocate "org.kc7bfi.jflac", "chikachi.discord.repack.orgkc7bfi.jflac"
+  relocate "org.slf4j", "chikachi.discord.repack.org.slf4j"
   relocate "org.tritonus", "chikachi.discord.repack.org.tritonus"
   relocate "tomp2p.opuswrapper", "chikachi.discord.repack.tomp2p.opuswrapper"
 
@@ -154,7 +154,7 @@ shadowJar {
   relocate "org.apache.commons.logging", "chikachi.discord.repack.org.apache.commons.logging"
 
   dependencies {
-    include(dependency('net.dv8tion:JDA:3.3.0_272:withDependencies'))
+    include(dependency('net.dv8tion:JDA:3.3.1_280:withDependencies'))
     include(dependency('com.vdurmont:emoji-java:3.3.0'))
   }
 }
