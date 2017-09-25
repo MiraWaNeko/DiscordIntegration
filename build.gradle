@@ -28,7 +28,7 @@ apply plugin: 'com.diffplug.gradle.spotless'
 
 def mcVersion = '1.7.10'
 def forgeVersion = '10.13.4.1558'
-def modVersion = '3.0.2'
+def modVersion = '3.0.3'
 
 version = 'mc' + mcVersion + '-' + modVersion
 group = "chikachi.discord"
@@ -74,6 +74,7 @@ minecraft {
   srgExtra "PK: net/sourceforge/jaad chikachi/discord/repack/net/sourceforge/jaad"
   srgExtra "PK: org/json chikachi/discord/repack/org/json"
   srgExtra "PK: org/kc7bfi/jflac chikachi/discord/repack/orgkc7bfi/jflac"
+  srgExtra "PK: org/slf4j chikachi/discord/repack/slf4j"
   srgExtra "PK: org/tritonus chikachi/discord/repack/org/tritonus"
   srgExtra "PK: tomp2p/opuswrapper chikachi/discord/repack/tomp2p/opuswrapper"
 
@@ -116,8 +117,8 @@ List<CurseForgeDependencyInfo> curseForgeDependencies = new ArrayList<CurseForge
 curseForgeDependencies.add(new CurseForgeDependencyInfo("Dynmap", "2.4-forge-1.7.10", "jar", "2380586"))
 
 dependencies {
-  shade files('./libs/JDA-3.2.0_226-withDependencies.jar')
-  shade 'com.vdurmont:emoji-java:3.2.0'
+  shade files('./libs/JDA-3.3.1_280-withDependencies.jar')
+  shade 'com.vdurmont:emoji-java:3.3.0'
 
   for (CurseForgeDependencyInfo dependency : curseForgeDependencies) {
     if (file('../' + dependency.module).exists()) {

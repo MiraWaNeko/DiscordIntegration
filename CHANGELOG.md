@@ -1,5 +1,11 @@
 # Changelog (MC 1.7.10)
 
+### 3.0.3
+- [Forge] Updated to build against 1.12.1-14.22.1.2478
+- [Library] Updated JDA (#87)
+- [Library] Updated emote-java
+- [Dynmap Integration] Use the same checks as Discord => Minecraft (#83) (#84)
+
 ### 3.0.2
 - Fix for messages with a single modifier being changed (#76)
 - Convert Minecraft formatting with `&` to `§` (#77)
