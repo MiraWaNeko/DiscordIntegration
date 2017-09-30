@@ -207,6 +207,4 @@ spotless {
   }
 }
 
-tasks.shadowJar.mustRunAfter build
-
 idea { module { inheritOutputDirs = true } }
