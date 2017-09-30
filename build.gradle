@@ -8,7 +8,6 @@ buildscript {
   }
   dependencies {
     classpath 'net.minecraftforge.gradle:ForgeGradle:1.2-SNAPSHOT'
-    classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.4'
     classpath 'com.diffplug.spotless:spotless-plugin-gradle:3.4.1'
   }
 }
@@ -24,7 +23,6 @@ repositories {
 }
 
 apply plugin: 'forge'
-apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'java'
 apply plugin: 'com.diffplug.gradle.spotless'
 
@@ -77,7 +75,6 @@ minecraft {
   srgExtra "PK: org/json chikachi/discord/repack/org/json"
   srgExtra "PK: org/kc7bfi/jflac chikachi/discord/repack/orgkc7bfi/jflac"
   srgExtra "PK: org/slf4j chikachi/discord/repack/slf4j"
-  srgExtra "PK: org/slf4j/impl chikachi/discord/repack/slf4j/impl"
   srgExtra "PK: org/tritonus chikachi/discord/repack/org/tritonus"
   srgExtra "PK: tomp2p/opuswrapper chikachi/discord/repack/tomp2p/opuswrapper"
 
@@ -92,6 +89,11 @@ minecraft {
 
 def printDebug(message) {
   println '[' + archivesBaseName + '] ' + message
+}
+
+configurations {
+  shade
+  compile.extendsFrom shade
 }
 
 class CurseForgeDependencyInfo {
@@ -115,9 +117,12 @@ List<CurseForgeDependencyInfo> curseForgeDependencies = new ArrayList<CurseForge
 curseForgeDependencies.add(new CurseForgeDependencyInfo("Dynmap", "2.4-forge-1.7.10", "jar", "2380586"))
 
 dependencies {
-  compile files('./libs/JDA-3.3.1_280-withDependencies.jar')
-  compile 'com.vdurmont:emoji-java:3.3.0'
-  compile 'org.slf4j:slf4j-simple:1.7.25'
+  shade files('./libs/JDA-3.3.1_280-withDependencies.jar')
+  shade 'com.vdurmont:emoji-java:3.3.0'
+
+  // JDA dependencies
+  shade 'org.json:json:20160810'
+  shade 'org.slf4j:slf4j-simple:1.7.25'
 
   for (CurseForgeDependencyInfo dependency : curseForgeDependencies) {
     if (file('../' + dependency.module).exists()) {
@@ -140,37 +145,15 @@ dependencies {
 }
 
 jar {
+  configurations.shade.each { dep ->
+    from(project.zipTree(dep)){
+      exclude 'META-INF', 'META-INF/**'
+    }
+  }
   manifest {
     attributes(
       "FMLAT": 'discordintegration_at.cfg'
     )
-  }
-}
-
-shadowJar {
-  classifier = ""
-  relocate "com.mashape.unirest", "chikachi.discord.repack.com.mashape.unirest"
-  relocate "com.neovisionaries.ws.client", "chikachi.discord.repack.com.neovisionaries.ws.client"
-  relocate "com.sun.jna", "chikachi.discord.repack.com.sun.jna"
-  relocate "com.vdurmont.emoji", "chikachi.discord.repack.com.vdurmont.emoji"
-  relocate "javax.sound", "chikachi.discord.repack.javax.sound"
-  relocate "javazoom", "chikachi.discord.repack.javazoom"
-  relocate "net.dv8tion.jda", "chikachi.discord.repack.net.dv8tion.jda"
-  relocate "net.sourceforge.jaad", "chikachi.discord.repack.net.sourceforge.jaad"
-  relocate "org.apache.commons.codec", "chikachi.discord.repack.org.apache.commons.codec"
-  relocate "org.apache.commons.lang3", "chikachi.discord.repack.org.apache.commons.lang3"
-  relocate "org.json", "chikachi.discord.repack.org.json"
-  relocate "org.kc7bfi.jflac", "chikachi.discord.repack.orgkc7bfi.jflac"
-  relocate "org.slf4j", "chikachi.discord.repack.org.slf4j"
-  relocate "org.tritonus", "chikachi.discord.repack.org.tritonus"
-  relocate "tomp2p.opuswrapper", "chikachi.discord.repack.tomp2p.opuswrapper"
-
-  relocate "org.apache.http", "chikachi.discord.repack.org.apache.http"
-  relocate "org.apache.commons.logging", "chikachi.discord.repack.org.apache.commons.logging"
-
-  dependencies {
-    include(dependency('net.dv8tion:JDA:3.3.1_280:withDependencies'))
-    include(dependency('com.vdurmont:emoji-java:3.3.0'))
   }
 }
 
