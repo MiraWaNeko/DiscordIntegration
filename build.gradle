@@ -75,6 +75,7 @@ minecraft {
   srgExtra "PK: org/json chikachi/discord/repack/org/json"
   srgExtra "PK: org/kc7bfi/jflac chikachi/discord/repack/orgkc7bfi/jflac"
   srgExtra "PK: org/slf4j chikachi/discord/repack/slf4j"
+  srgExtra "PK: org/slf4j/impl chikachi/discord/repack/slf4j/impl"
   srgExtra "PK: org/tritonus chikachi/discord/repack/org/tritonus"
   srgExtra "PK: tomp2p/opuswrapper chikachi/discord/repack/tomp2p/opuswrapper"
 
@@ -119,6 +120,7 @@ curseForgeDependencies.add(new CurseForgeDependencyInfo("Dynmap", "2.4-forge-1.7
 dependencies {
   shade files('./libs/JDA-3.3.1_280-withDependencies.jar')
   shade 'com.vdurmont:emoji-java:3.3.0'
+  shade 'org.slf4j:slf4j-simple:1.7.25'
 
   for (CurseForgeDependencyInfo dependency : curseForgeDependencies) {
     if (file('../' + dependency.module).exists()) {
