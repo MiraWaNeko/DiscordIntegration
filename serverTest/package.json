@@ -1,5 +1,5 @@
 {
-  "name": "ci-minecraft-server-test",
+  "name": "discordintegration-ci-minecraft-server-test",
   "author": {
     "name": "Chikachi",
     "email": "chikachi@chikachi.net"
@@ -11,15 +11,15 @@
   },
   "version": "0.0.1",
   "dependencies": {
-    "ci-minecraft-forge-server-test": "^1.0.2",
+    "ci-minecraft-forge-server-test": "^1.2.0",
     "semver": "^5.4.1"
   },
   "devDependencies": {
-    "@types/node": "^8.0.25",
+    "@types/node": "^8.0.31",
     "@types/semver": "^5.4.0",
     "tslint": "^5.7.0",
     "tslint-microsoft-contrib": "^5.0.1",
-    "typescript": "^2.5.1"
+    "typescript": "^2.5.3"
   },
   "private": true
 }

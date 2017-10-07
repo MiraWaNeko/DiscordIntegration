@@ -30,7 +30,7 @@ apply plugin: 'com.diffplug.gradle.spotless'
 
 def mcVersion = '1.9.4'
 def forgeVersion = '12.17.0.1976'
-def modVersion = '3.0.3'
+def modVersion = '3.0.4'
 
 version = 'mc' + mcVersion + '-' + modVersion
 group = "chikachi.discord"

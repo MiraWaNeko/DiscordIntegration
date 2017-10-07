@@ -1,5 +1,10 @@
 # Changelog (MC 1.9.4)
 
+### 3.0.4
+- [Command Execution] Fixed command response not being relayed
+- [Events] Fixed console spam on Discord => Minecraft chat messages
+- [IMC] Now sends a response to all requests
+
 ### 3.0.3
 - [Forge] Updated to build against 1.12.1-14.22.1.2478
 - [Library] Updated JDA (#87)

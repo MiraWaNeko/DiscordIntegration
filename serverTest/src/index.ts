@@ -67,7 +67,10 @@ getVersions()
             .acceptEULA()
             .useServerProperties()
             .setServerDirectory(serverDirectory)
-            .addLocalMod(modFilepath);
+            .addLocalMod(modFilepath)
+            .setDelayBeforeCommands(5000)
+            .addLocalMod(modFilepath)
+            .addCommand(`/say Hello from ${minecraftVersion}`);
 
         return tester.installForge()
             .then(() => tester.runServer());
