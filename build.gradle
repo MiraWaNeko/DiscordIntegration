@@ -29,9 +29,9 @@ apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'java'
 apply plugin: 'com.diffplug.gradle.spotless'
 
-def mcVersion = '1.12.1'
-def forgeVersion = '14.22.1.2478'
-def modVersion = '3.0.3'
+def mcVersion = '1.12.2'
+def forgeVersion = '14.23.0.2491'
+def modVersion = '3.0.4'
 
 version = 'mc' + mcVersion + '-' + modVersion
 group = "chikachi.discord"
