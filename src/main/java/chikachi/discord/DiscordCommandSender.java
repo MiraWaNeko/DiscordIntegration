@@ -49,6 +49,15 @@ public class DiscordCommandSender extends FakePlayer {
     }
 
     @Override
+    public void addChatMessage(IChatComponent component) {
+        this.channel.sendMessage(
+            Patterns.minecraftCodePattern.matcher(
+                component.getUnformattedText()
+            ).replaceAll("")
+        ).queue();
+    }
+
+    @Override
     public void addChatComponentMessage(IChatComponent component) {
         this.channel.sendMessage(
             Patterns.minecraftCodePattern.matcher(

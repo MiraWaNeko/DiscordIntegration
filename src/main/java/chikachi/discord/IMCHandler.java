@@ -29,13 +29,18 @@ import java.util.List;
 public class IMCHandler {
     private static List<String> registeredIMCMods = new ArrayList<>();
 
-    private static NBTTagCompound getErrorNBT(String method, String message) {
-        NBTTagCompound error = new NBTTagCompound();
+    private static void sendStatusIMC(String modId, boolean success, String method, String message) {
+        NBTTagCompound data = new NBTTagCompound();
 
-        error.setString("method", method);
-        error.setString("message", message);
+        data.setString("method", method);
+        data.setString("message", message);
 
-        return error;
+        FMLInterModComms.sendRuntimeMessage(
+            DiscordIntegration.instance,
+            modId,
+            success ? "success" : "error",
+            data
+        );
     }
 
     static void onMessageReceived(FMLInterModComms.IMCMessage imcMessage) {
@@ -60,23 +65,14 @@ public class IMCHandler {
                         )
                     );
 
+                    sendStatusIMC(modId, true, key, "Registered");
+
                     registeredIMCMods.add(modId);
                 } else {
-                    DiscordIntegrationLogger.Log(
-                        String.format(
-                            "%s tried to register as IMC listener but %s",
-                            modId,
-                            imcConfig.isWhitelist() ? "wasn't on the whitelist" : "was on the blacklist"
-                        )
-                    );
+                    notAllowed(modId, key, "register as IMC listener");
                 }
             } else if (imcConfig.isAllowed(modId)) {
-                FMLInterModComms.sendRuntimeMessage(
-                    DiscordIntegration.instance,
-                    modId,
-                    "error",
-                    getErrorNBT("registerListener", "Already registered")
-                );
+                sendStatusIMC(modId, false, key, "Already registered");
             }
         } else if (key.equalsIgnoreCase("unregisterListener")) {
             if (registeredIMCMods.contains(modId)) {
@@ -87,38 +83,30 @@ public class IMCHandler {
                     )
                 );
 
+                sendStatusIMC(modId, true, key, "Unregistered");
+
                 registeredIMCMods.remove(modId);
             } else if (imcConfig.isAllowed(modId)) {
-                FMLInterModComms.sendRuntimeMessage(
-                    DiscordIntegration.instance,
-                    modId,
-                    "error",
-                    getErrorNBT("registerListener", "Already unregistered")
-                );
+                sendStatusIMC(modId, false, key, "Already unregistered");
             }
         }
     }
 
     private static void onMessageReceived(String modId, String key, NBTTagCompound message) {
         IMCConfig imcConfig = Configuration.getConfig().imc;
-        if (key.equalsIgnoreCase("sendMessage") && imcConfig.isAllowed(modId)) {
+        if (key.equalsIgnoreCase("sendMessage")) {
+            if (!imcConfig.isAllowed(modId)) {
+                notAllowed(modId, key, "send a message");
+                return;
+            }
+
             if (!message.hasKey("message") || message.getString("message").trim().length() == 0) {
-                FMLInterModComms.sendRuntimeMessage(
-                    DiscordIntegration.instance,
-                    modId,
-                    "error",
-                    getErrorNBT("sendMessage", "Missing message")
-                );
+                sendStatusIMC(modId, false, key, "Missing message");
                 return;
             }
 
             if (!message.hasKey("channel") || message.getLong("channel") == 0) {
-                FMLInterModComms.sendRuntimeMessage(
-                    DiscordIntegration.instance,
-                    modId,
-                    "error",
-                    getErrorNBT("sendMessage", "Missing channel")
-                );
+                sendStatusIMC(modId, false, key, "Missing channel");
                 return;
             }
 
@@ -131,15 +119,24 @@ public class IMCHandler {
                 ),
                 message.getLong("channel")
             );
-        } else {
-            DiscordIntegrationLogger.Log(
-                String.format(
-                    "%s tried to register as IMC listener but %s",
-                    modId,
-                    imcConfig.isWhitelist() ? "wasn't on the whitelist" : "was on the blacklist"
-                )
-            );
+
+            sendStatusIMC(modId, true, key, "Sent");
         }
+    }
+
+    private static void notAllowed(String modId, String key, String action) {
+        IMCConfig imcConfig = Configuration.getConfig().imc;
+
+        DiscordIntegrationLogger.Log(
+            String.format(
+                "%s tried to %s but %s",
+                modId,
+                action,
+                imcConfig.isWhitelist() ? "wasn't on the whitelist" : "was on the blacklist"
+            )
+        );
+
+        sendStatusIMC(modId, false, key, "Not Allowed");
     }
 
     public static boolean haveListeners() {

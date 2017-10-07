@@ -131,8 +131,8 @@ public class DiscordListener extends ListenerAdapter {
                 .setMessage(config.discord.channels.generic.messages.chatMessage)
                 .setArguments(arguments);
 
+            DiscordIntegrationLogger.Log(message.getFormattedTextMinecraft());
             for (EntityPlayerMP player : players) {
-                DiscordIntegrationLogger.Log(message.getFormattedTextMinecraft());
                 player.addChatMessage(new ChatComponentText(message.getFormattedTextMinecraft()));
             }
         } else if (event.getChannelType() == ChannelType.PRIVATE && Configuration.getConfig().discord.channels.generic.allowDMCommands) {
