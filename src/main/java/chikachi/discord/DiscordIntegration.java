@@ -21,6 +21,7 @@ import chikachi.discord.core.DiscordClient;
 import chikachi.discord.core.Proxy;
 import chikachi.discord.listener.DiscordListener;
 import chikachi.discord.listener.MinecraftListener;
+import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.event.*;
 import net.minecraftforge.common.MinecraftForge;
@@ -31,6 +32,7 @@ public class DiscordIntegration {
     static DiscordIntegration instance;
 
     private static Proxy proxy = new Proxy();
+    private MinecraftListener minecraftListener = new MinecraftListener();
 
     @Mod.EventHandler
     public void onPreInit(FMLPreInitializationEvent event) {
@@ -38,7 +40,8 @@ public class DiscordIntegration {
 
         CoreUtils.addPatterns();
 
-        MinecraftForge.EVENT_BUS.register(new MinecraftListener());
+        MinecraftForge.EVENT_BUS.register(minecraftListener);
+        FMLCommonHandler.instance().bus().register(minecraftListener);
     }
 
     @Mod.EventHandler
