@@ -1,5 +1,12 @@
 # Changelog (MC 1.7.10)
 
+### 3.0.4
+- [Command Execution] Fixed command response not being relayed
+- [Events] Fixed console spam on Discord => Minecraft chat messages
+- [Events] Fixed Player join/leave not being relayed
+- [IMC] Now sends a response to all requests
+- [Library] Include JSON and slf4j as dependencies
+
 ### 3.0.3
 - [Forge] Updated to build against 1.12.1-14.22.1.2478
 - [Library] Updated JDA (#87)
