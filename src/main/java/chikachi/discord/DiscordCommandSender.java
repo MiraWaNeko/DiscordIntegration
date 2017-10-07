@@ -56,4 +56,13 @@ public class DiscordCommandSender extends FakePlayer {
             ).replaceAll("")
         ).queue();
     }
+
+    @Override
+    public void sendStatusMessage(ITextComponent component) {
+        this.channel.sendMessage(
+            Patterns.minecraftCodePattern.matcher(
+                component.getUnformattedText()
+            ).replaceAll("")
+        ).queue();
+    }
 }
