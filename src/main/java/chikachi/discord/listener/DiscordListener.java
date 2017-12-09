@@ -128,7 +128,7 @@ public class DiscordListener extends ListenerAdapter {
             );
 
             Message message = new Message()
-                .setAuthor(event.getAuthor().getName())
+                .setAuthor(event.getMember().getEffectiveName())
                 .setMessage(config.discord.channels.generic.messages.chatMessage)
                 .setArguments(arguments);
 
