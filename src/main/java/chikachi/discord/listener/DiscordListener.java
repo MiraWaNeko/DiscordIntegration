@@ -128,7 +128,7 @@ public class DiscordListener extends ListenerAdapter {
             );
 
             Message message = new Message()
-                .setAuthor(event.getAuthor().getName())
+                .setAuthor(event.getMember().getEffectiveName())
                 .setMessage(config.discord.channels.generic.messages.chatMessage)
                 .setArguments(arguments);
 
@@ -211,10 +211,13 @@ public class DiscordListener extends ListenerAdapter {
         List<CommandConfig> commands = Configuration.getConfig().discord.getCommandConfigs();
         for (CommandConfig command : commands) {
             if (command.shouldExecute(cmd, event.getAuthor(), event.getChannel())) {
-                FMLCommonHandler.instance().getMinecraftServerInstance().getCommandManager().executeCommand(
-                    new DiscordCommandSender(event.getChannel(), event.getAuthor()),
-                    command.buildCommand(args)
-                );
+                FMLCommonHandler.instance().getMinecraftServerInstance().callFromMainThread(() -> {
+                    FMLCommonHandler.instance().getMinecraftServerInstance().getCommandManager().executeCommand(
+                        new DiscordCommandSender(event.getChannel(), event.getAuthor()),
+                        command.buildCommand(args)
+                    );
+                    return 0;
+                });
                 return;
             }
         }
