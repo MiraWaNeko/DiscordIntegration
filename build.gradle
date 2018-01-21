@@ -30,7 +30,7 @@ apply plugin: 'java'
 apply plugin: 'com.diffplug.gradle.spotless'
 
 def mcVersion = '1.12.2'
-def forgeVersion = '14.23.0.2491'
+def forgeVersion = '14.23.1.2600'
 def modVersion = '3.0.4'
 
 version = 'mc' + mcVersion + '-' + modVersion
@@ -144,6 +144,7 @@ shadowJar {
   relocate "net.dv8tion.jda", "chikachi.discord.repack.net.dv8tion.jda"
   relocate "net.sourceforge.jaad", "chikachi.discord.repack.net.sourceforge.jaad"
   relocate "org.apache.commons.codec", "chikachi.discord.repack.org.apache.commons.codec"
+  relocate "org.apache.commons.collections4", "chikachi.discord.repack.org.apache.commons.collections4"
   relocate "org.json", "chikachi.discord.repack.org.json"
   relocate "org.kc7bfi.jflac", "chikachi.discord.repack.orgkc7bfi.jflac"
   relocate "org.slf4j", "chikachi.discord.repack.org.slf4j"

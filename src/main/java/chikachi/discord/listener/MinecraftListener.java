@@ -23,14 +23,19 @@ import chikachi.discord.core.config.minecraft.MinecraftDimensionConfig;
 import chikachi.discord.core.config.types.MessageConfig;
 import com.google.common.base.Joiner;
 import net.dv8tion.jda.core.entities.User;
+import net.minecraft.advancements.Advancement;
+import net.minecraft.advancements.DisplayInfo;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.CommandEvent;
 import net.minecraftforge.event.ServerChatEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import net.minecraftforge.event.entity.player.AdvancementEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
@@ -258,27 +263,23 @@ public class MinecraftListener {
         );
     }
 
-    /*
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    public void onPlayerAchievement(AchievementEvent event) {
-        if (event.isCanceled()) return;
-
+    public void onPlayerAchievement(AdvancementEvent event) {
         EntityPlayer entityPlayer = event.getEntityPlayer();
 
         if (entityPlayer != null && entityPlayer instanceof EntityPlayerMP) {
-            StatisticsManagerServer playerStats = ((EntityPlayerMP) entityPlayer).getStatFile();
+            Advancement advancement = event.getAdvancement();
+            DisplayInfo displayInfo = advancement.getDisplay();
 
-            if (playerStats.hasAchievementUnlocked(event.getAchievement()) || !playerStats.canUnlockAchievement(event.getAchievement())) {
+            if (displayInfo == null || !displayInfo.shouldAnnounceToChat()) {
                 return;
             }
 
-            Achievement achievement = event.getAchievement();
-
             HashMap<String, String> arguments = new HashMap<>();
-            arguments.put("ACHIEVEMENT", achievement.getStatName().getUnformattedText());
+            arguments.put("ACHIEVEMENT", displayInfo.getTitle().getUnformattedText());
             // TODO: Figure out what to do with I18n - Might remove the description...
             //noinspection deprecation
-            arguments.put("DESCRIPTION", I18n.translateToLocalFormatted(achievement.achievementDescription, "KEY"));
+            arguments.put("DESCRIPTION", I18n.translateToLocalFormatted(displayInfo.getDescription().getUnformattedText(), "KEY"));
 
             MinecraftConfig minecraftConfig = Configuration.getConfig().minecraft;
             MinecraftDimensionConfig dimensionConfig = minecraftConfig.dimensions.getDimension(entityPlayer.dimension);
@@ -315,7 +316,6 @@ public class MinecraftListener {
             );
         }
     }
-    */
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event) {
