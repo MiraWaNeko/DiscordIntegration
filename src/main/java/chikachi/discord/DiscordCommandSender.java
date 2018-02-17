@@ -14,8 +14,13 @@
 
 package chikachi.discord;
 
+import chikachi.discord.core.Batcher;
+import chikachi.discord.core.DiscordIntegrationLogger;
 import chikachi.discord.core.Patterns;
 import com.google.common.base.Joiner;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Throwables;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.mojang.authlib.GameProfile;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
@@ -26,15 +31,18 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.*;
+import java.util.concurrent.*;
 
 @SuppressWarnings("EntityConstructor")
 @ParametersAreNonnullByDefault
 public class DiscordCommandSender extends FakePlayer {
     private static final UUID playerUUID = UUID.fromString("828653ca-0185-43d4-b26d-620a7f016be6");
+    private static final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor(
+        new ThreadFactoryBuilder().setNameFormat(DiscordCommandSender.class.getSimpleName()).setDaemon(true).build()
+    );
+
     private final MessageChannel channel;
-    private List<String> queue;
-    private Timer timer;
-    private TimerTask timerTask;
+    private final Batcher<String> batcher = new Batcher<>(this::sendBatch, 100, 10, executor);
 
     public DiscordCommandSender(MessageChannel channel, User user) {
         super(FMLCommonHandler.instance().getMinecraftServerInstance().worlds[0], new GameProfile(playerUUID, "@" + user.getName()));
@@ -54,42 +62,32 @@ public class DiscordCommandSender extends FakePlayer {
 
     @Override
     public void sendMessage(ITextComponent component) {
-        this.queueMessage(component);
+        Preconditions.checkNotNull(component);
+        batcher.queue(textComponentToDiscordMessage(component));
     }
 
     @Override
     public void sendStatusMessage(ITextComponent component, boolean actionBar) {
-        this.queueMessage(component);
+        Preconditions.checkNotNull(component);
+        batcher.queue(textComponentToDiscordMessage(component));
     }
 
-    private void queueMessage(ITextComponent component) {
-        if (queue == null) {
-            queue = new ArrayList<>();
-        }
-        if (this.timer == null) {
-            this.timer = new Timer();
-        }
-        if (this.timerTask != null) {
-            this.timerTask.cancel();
-            this.timer.purge();
-        }
-        this.timerTask = new TimerTask() {
-            @Override
-            public void run() {
-                flushQueue();
-            }
-        };
-        this.timer.schedule(this.timerTask, 500);
-        this.queue.add(
-            Patterns.minecraftCodePattern.matcher(
-                component.getUnformattedText()
-            ).replaceAll("")
-        );
+    private static String textComponentToDiscordMessage(ITextComponent component) {
+        return Patterns.minecraftCodePattern.matcher(
+            component.getUnformattedText()
+        ).replaceAll("");
     }
 
-    private void flushQueue() {
+    private void sendBatch(List<String> messages) {
+        final int numMessages = messages.size();
         this.channel.sendMessage(
-            Joiner.on("\n").join(this.queue)
-        ).queue();
+            Joiner.on("\n").join(messages)
+        ).submit().exceptionally((Throwable t) -> {
+            // We could do some kind of retry here, but it feels like JDA should be responsible for that. Maybe it
+            // already does.
+            DiscordIntegrationLogger.Log("Exception sending " + numMessages + " messages to Discord:\n"
+                + Throwables.getStackTraceAsString(t), true);
+            return null;
+        });
     }
 }
