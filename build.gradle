@@ -9,15 +9,11 @@ buildscript {
   dependencies {
     classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
     classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.4'
-    classpath 'com.diffplug.spotless:spotless-plugin-gradle:3.4.1'
+    classpath 'com.diffplug.spotless:spotless-plugin-gradle:3.10.0'
   }
 }
 
 repositories {
-  ivy {
-    name "CurseForge"
-    artifactPattern 'http://addons-origin.cursecdn.com/files/[organisation]/[module]-[revision].[ext]'
-  }
   jcenter()
   flatDir {
     dirs "libs"
@@ -30,8 +26,13 @@ apply plugin: 'java'
 apply plugin: 'com.diffplug.gradle.spotless'
 
 def mcVersion = '1.12.2'
-def forgeVersion = '14.23.1.2600'
+def forgeVersion = '14.23.2.2611'
 def modVersion = '3.0.4'
+
+def jdaVersion = '3.5.1'
+def jdaJob = 339
+
+def downloadDir = "${buildDir}/download/"
 
 version = 'mc' + mcVersion + '-' + modVersion
 group = "chikachi.discord"
@@ -67,7 +68,7 @@ minecraft {
     runDir = 'run'
   }
 
-  mappings = "snapshot_20170624"
+  mappings = "snapshot_20180317"
 }
 
 def printDebug(message) {
@@ -104,13 +105,43 @@ class CurseForgeDependencyInfo {
   }
 }
 
+def CurseForgeDependencyDownloader = { dependencyInfo ->
+  String url = "https://media.forgecdn.net/files/${dependencyInfo.GetFileId()}/${dependencyInfo.module}-${dependencyInfo.version}.${dependencyInfo.ext}"
+  File file = new File("${downloadDir}/${dependencyInfo.module}-${dependencyInfo.version}.${dependencyInfo.ext}")
+  file.parentFile.mkdirs()
+  if (!file.exists()) {
+    printDebug "Download ${url}"
+    new URL(url).withInputStream { downloadStream ->
+      file.withOutputStream { fileOut ->
+        fileOut << downloadStream
+      }
+    }
+  }
+  files(file.absolutePath)
+}
+
+def JDADependencyDownloader = {
+  String url = "http://home.dv8tion.net:8080/job/JDA/${jdaJob}/artifact/build/libs/JDA-${jdaVersion}_${jdaJob}-withDependencies.jar"
+  File file = new File("${downloadDir}/JDA-${jdaVersion}_${jdaJob}-withDependencies.jar")
+  file.parentFile.mkdirs()
+  if (!file.exists()) {
+    printDebug "Download ${url}"
+    new URL(url).withInputStream { downloadStream ->
+      file.withOutputStream { fileOut ->
+        fileOut << downloadStream
+      }
+    }
+  }
+  files(file.absolutePath)
+}
+
 // Dependencies on CurseForge
 List<CurseForgeDependencyInfo> curseForgeDependencies = new ArrayList<CurseForgeDependencyInfo>()
 curseForgeDependencies.add(new CurseForgeDependencyInfo("Dynmap", "2.6-beta-1-forge-1.12", "jar", "2436596"))
 
 dependencies {
-  compile files('./libs/JDA-3.3.1_280-withDependencies.jar')
-  compile 'com.vdurmont:emoji-java:3.3.0'
+  compile JDADependencyDownloader()
+  compile 'com.vdurmont:emoji-java:4.0.0'
 
   // CurseForge
   for (CurseForgeDependencyInfo dependency : curseForgeDependencies) {
@@ -124,13 +155,14 @@ dependencies {
       compile files('./' + dependency.module + '.jar')
       continue
     }
-    compile group: dependency.GetFileId(), name: dependency.module, version: dependency.version, ext: dependency.ext
+    provided CurseForgeDependencyDownloader(dependency)
   }
 
   // IntelliJ
   compile 'org.jetbrains:annotations:15.0'
 
   testCompile 'junit:junit:4.12'
+  testCompile 'org.mockito:mockito-core:2.+'
 }
 
 shadowJar {
@@ -155,8 +187,8 @@ shadowJar {
   relocate "org.apache.commons.logging", "chikachi.discord.repack.org.apache.commons.logging"
 
   dependencies {
-    include(dependency('net.dv8tion:JDA:3.3.1_280:withDependencies'))
-    include(dependency('com.vdurmont:emoji-java:3.3.0'))
+    include(dependency("net.dv8tion:JDA:${jdaVersion}_${jdaJob}:withDependencies"))
+    include(dependency('com.vdurmont:emoji-java:4.0.0'))
   }
 }
 
@@ -173,7 +205,7 @@ processResources {
     expand 'version': modVersion, 'mcversion': project.minecraft.version
   }
 
-  // copy everything else, thats not the mcmod.info
+  // copy everything else, that's not the mcmod.info
   from(sourceSets.main.resources.srcDirs) {
     exclude 'mcmod.info'
   }

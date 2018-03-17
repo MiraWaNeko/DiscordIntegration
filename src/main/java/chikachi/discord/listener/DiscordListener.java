@@ -61,7 +61,7 @@ public class DiscordListener extends ListenerAdapter {
             return;
         }
 
-        String content = event.getMessage().getContent().trim();
+        String content = event.getMessage().getContentDisplay().trim();
 
         if (event.getChannelType() == ChannelType.TEXT) {
             Long channelId = event.getChannel().getIdLong();

@@ -30,15 +30,20 @@ import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 @SuppressWarnings("EntityConstructor")
 @ParametersAreNonnullByDefault
 public class DiscordCommandSender extends FakePlayer {
     private static final UUID playerUUID = UUID.fromString("828653ca-0185-43d4-b26d-620a7f016be6");
     private static final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor(
-        new ThreadFactoryBuilder().setNameFormat(DiscordCommandSender.class.getSimpleName()).setDaemon(true).build()
+        new ThreadFactoryBuilder()
+            .setNameFormat(DiscordCommandSender.class.getSimpleName())
+            .setDaemon(true)
+            .build()
     );
 
     private final MessageChannel channel;
@@ -80,14 +85,20 @@ public class DiscordCommandSender extends FakePlayer {
 
     private void sendBatch(List<String> messages) {
         final int numMessages = messages.size();
-        this.channel.sendMessage(
-            Joiner.on("\n").join(messages)
-        ).submit().exceptionally((Throwable t) -> {
-            // We could do some kind of retry here, but it feels like JDA should be responsible for that. Maybe it
-            // already does.
-            DiscordIntegrationLogger.Log("Exception sending " + numMessages + " messages to Discord:\n"
-                + Throwables.getStackTraceAsString(t), true);
-            return null;
-        });
+        this.channel
+            .sendMessage(
+                Joiner.on("\n").join(messages)
+            )
+            .submit()
+            .exceptionally((Throwable t) -> {
+                // We could do some kind of retry here, but it feels like JDA should be responsible for that. Maybe it
+                // already does.
+                DiscordIntegrationLogger.Log(
+                    "Exception sending " + numMessages + " messages to Discord:\n"
+                        + Throwables.getStackTraceAsString(t),
+                    true
+                );
+                return null;
+            });
     }
 }
