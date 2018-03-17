@@ -1,5 +1,15 @@
 # Changelog (MC 1.12)
 
+### 3.0.5
+- [Forge] Updated to build against 1.12.2-14.23.2.2611
+- [Library] Updated JDA
+- [Library] Updated emote-java
+- [Commands] Rewrite the message batching to use the new Batcher class in core (Thanks @Ricket)
+- [Commands] Combine responses to commands (#125)
+- [Commands] Send commands from main thread for compatibility (Thanks @132ikl)
+- [Events] Added listener for advancement event (#126)
+- [Events] Added Discord to Minecraft nickname support. (Thanks @132ikl)
+
 ### 3.0.4
 - [Forge] Updated to build against 1.12.2-14.23.0.2491
 - [Events] Fixed console spam on Discord => Minecraft chat messages
