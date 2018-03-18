@@ -8,17 +8,7 @@ buildscript {
   }
   dependencies {
     classpath 'net.minecraftforge.gradle:ForgeGradle:1.2-SNAPSHOT'
-    classpath 'com.diffplug.spotless:spotless-plugin-gradle:3.4.1'
-  }
-}
-
-repositories {
-  ivy {
-    name "CurseForge"
-    artifactPattern 'http://addons-origin.cursecdn.com/files/[organisation]/[module]-[revision].[ext]'
-  }
-  flatDir {
-    dirs "libs"
+    classpath 'com.diffplug.spotless:spotless-plugin-gradle:3.10.0'
   }
 }
 
@@ -28,7 +18,12 @@ apply plugin: 'com.diffplug.gradle.spotless'
 
 def mcVersion = '1.7.10'
 def forgeVersion = '10.13.4.1558'
-def modVersion = '3.0.4'
+def modVersion = '3.0.5'
+
+def jdaVersion = '3.5.1'
+def jdaJob = 339
+
+def downloadDir = "${buildDir}/download/"
 
 version = 'mc' + mcVersion + '-' + modVersion
 group = "chikachi.discord"
@@ -81,6 +76,7 @@ minecraft {
   srgExtra "PK: org/apache/http chikachi/discord/repack/org/apache/http"
   srgExtra "PK: org/apache/commons/logging chikachi/discord/repack/org/apache/commons/logging"
   srgExtra "PK: org/apache/commons/codec chikachi/discord/repack/org/apache/commons/codec"
+  srgExtra "PK: org/apache/commons/collections4 chikachi/discord/repack/org/apache/commons/collections4"
   srgExtra "PK: org/apache/commons/lang3 chikachi/discord/repack/org/apache/commons/lang3"
 
   srgExtra "PK: net/dv8tion/jda chikachi/discord/repack/net/dv8tion/jda"
@@ -112,13 +108,43 @@ class CurseForgeDependencyInfo {
   }
 }
 
+def CurseForgeDependencyDownloader = { dependencyInfo ->
+  String url = "https://media.forgecdn.net/files/${dependencyInfo.GetFileId()}/${dependencyInfo.module}-${dependencyInfo.version}.${dependencyInfo.ext}"
+  File file = new File("${downloadDir}/${dependencyInfo.module}-${dependencyInfo.version}.${dependencyInfo.ext}")
+  file.parentFile.mkdirs()
+  if (!file.exists()) {
+    printDebug "Download ${url}"
+    new URL(url).withInputStream { downloadStream ->
+      file.withOutputStream { fileOut ->
+        fileOut << downloadStream
+      }
+    }
+  }
+  files(file.absolutePath)
+}
+
+def JDADependencyDownloader = {
+  String url = "http://home.dv8tion.net:8080/job/JDA/${jdaJob}/artifact/build/libs/JDA-${jdaVersion}_${jdaJob}-withDependencies.jar"
+  File file = new File("${downloadDir}/JDA-${jdaVersion}_${jdaJob}-withDependencies.jar")
+  file.parentFile.mkdirs()
+  if (!file.exists()) {
+    printDebug "Download ${url}"
+    new URL(url).withInputStream { downloadStream ->
+      file.withOutputStream { fileOut ->
+        fileOut << downloadStream
+      }
+    }
+  }
+  files(file.absolutePath)
+}
+
 // Dependencies on CurseForge
 List<CurseForgeDependencyInfo> curseForgeDependencies = new ArrayList<CurseForgeDependencyInfo>()
 curseForgeDependencies.add(new CurseForgeDependencyInfo("Dynmap", "2.4-forge-1.7.10", "jar", "2380586"))
 
 dependencies {
-  shade files('./libs/JDA-3.3.1_280-withDependencies.jar')
-  shade 'com.vdurmont:emoji-java:3.3.0'
+  shade JDADependencyDownloader()
+  shade 'com.vdurmont:emoji-java:4.0.0'
 
   // JDA dependencies
   shade 'org.json:json:20160810'
@@ -135,18 +161,19 @@ dependencies {
       compile files('./' + dependency.module + '.jar')
       continue
     }
-    compile group: dependency.GetFileId(), name: dependency.module, version: dependency.version, ext: dependency.ext
+    compile CurseForgeDependencyDownloader(dependency)
   }
 
   // IntelliJ
   compile 'org.jetbrains:annotations:15.0'
 
   testCompile 'junit:junit:4.12'
+  testCompile 'org.mockito:mockito-core:2.+'
 }
 
 jar {
   configurations.shade.each { dep ->
-    from(project.zipTree(dep)){
+    from(project.zipTree(dep)) {
       exclude 'META-INF', 'META-INF/**'
     }
   }
@@ -170,7 +197,7 @@ processResources {
     expand 'version': modVersion, 'mcversion': project.minecraft.version
   }
 
-  // copy everything else, thats not the mcmod.info
+  // copy everything else, that's not the mcmod.info
   from(sourceSets.main.resources.srcDirs) {
     exclude 'mcmod.info'
   }

@@ -105,7 +105,7 @@ public class DynmapIntegration extends DynmapCommonAPIListener implements EventL
                 return;
             }
 
-            String content = messageReceivedEvent.getMessage().getContent().trim();
+            String content = messageReceivedEvent.getMessage().getContentDisplay().trim();
 
             if (messageReceivedEvent.getChannelType() == ChannelType.TEXT) {
                 Long channelId = messageReceivedEvent.getChannel().getIdLong();
@@ -120,7 +120,7 @@ public class DynmapIntegration extends DynmapCommonAPIListener implements EventL
 
                 this.dynmapCommonAPI.sendBroadcastToWeb(
                     messageReceivedEvent.getAuthor().getName(),
-                    messageReceivedEvent.getMessage().getStrippedContent()
+                    messageReceivedEvent.getMessage().getContentStripped()
                 );
             }
         }

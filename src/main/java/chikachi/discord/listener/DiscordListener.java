@@ -60,7 +60,7 @@ public class DiscordListener extends ListenerAdapter {
             return;
         }
 
-        String content = event.getMessage().getContent().trim();
+        String content = event.getMessage().getContentDisplay().trim();
 
         if (event.getChannelType() == ChannelType.TEXT) {
             Long channelId = event.getChannel().getIdLong();
@@ -134,7 +134,7 @@ public class DiscordListener extends ListenerAdapter {
             );
 
             Message message = new Message()
-                .setAuthor(event.getAuthor().getName())
+                .setAuthor(event.getMember().getEffectiveName())
                 .setMessage(config.discord.channels.generic.messages.chatMessage)
                 .setArguments(arguments);
 

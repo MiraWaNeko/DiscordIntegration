@@ -2,7 +2,7 @@
 
 [![Build Status](https://build.chikachi.net/buildStatus/icon?job=Chikachi/DiscordIntegration/1.7.10)](https://build.chikachi.net/job/Chikachi/job/DiscordIntegration/job/1.7.10/)
 
-This mod combines your Discord to your Minecraft server.
+This mod combines your Discord with your Minecraft server.
 
 This is a server-side mod and therefore don't need to be on the client.
 

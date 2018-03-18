@@ -1,5 +1,12 @@
 # Changelog (MC 1.7.10)
 
+### 3.0.5
+- [Library] Updated JDA
+- [Library] Updated emote-java
+- [Commands] Rewrite the message batching to use the new Batcher class in core (Thanks @Ricket)
+- [Commands] Combine responses to commands (#125)
+- [Events] Added Discord to Minecraft nickname support. (Thanks @132ikl)
+
 ### 3.0.4
 - [Command Execution] Fixed command response not being relayed
 - [Events] Fixed console spam on Discord => Minecraft chat messages
