@@ -124,7 +124,7 @@ def CurseForgeDependencyDownloader = { dependencyInfo ->
 }
 
 def JDADependencyDownloader = {
-  String url = "http://home.dv8tion.net:8080/job/JDA/${jdaJob}/artifact/build/libs/JDA-${jdaVersion}_${jdaJob}-withDependencies.jar"
+  String url = "https://github.com/DV8FromTheWorld/JDA/releases/download/v${jdaVersion}/JDA-${jdaVersion}_${jdaJob}-withDependencies.jar"
   File file = new File("${downloadDir}/JDA-${jdaVersion}_${jdaJob}-withDependencies.jar")
   file.parentFile.mkdirs()
   if (!file.exists()) {
