@@ -17,7 +17,10 @@ package chikachi.discord.command;
 import chikachi.discord.DiscordFakePlayer;
 import chikachi.discord.DiscordTeleporter;
 import com.mojang.authlib.GameProfile;
+import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.command.CommandBase;
+import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
@@ -29,16 +32,33 @@ import net.minecraft.world.storage.IPlayerFileData;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
+import java.util.List;
 
-public class SubCommandUnstuck {
-    public static void execute(ICommandSender sender, ArrayList<String> args) {
-        if (args.size() == 0) {
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
+public class SubCommandUnstuck extends CommandBase {
+
+    @Override
+    public String getName() {
+        return "unstuck";
+    }
+
+    @Override
+    public String getUsage(ICommandSender iCommandSender) {
+        return "/discord unstuck <username>";
+    }
+
+    @Override
+    public void execute(MinecraftServer server, ICommandSender sender, String[] strings) throws CommandException {
+        if (strings.length == 0) {
             sender.sendMessage(new TextComponentString("Missing user"));
             return;
         }
 
-        String username = args.remove(0);
+        String username = strings[0];
         if (username.length() == 0) {
             sender.sendMessage(new TextComponentString("Missing user"));
             return;
@@ -100,5 +120,14 @@ public class SubCommandUnstuck {
         }
 
         sender.sendMessage(new TextComponentString("Player sent to spawn"));
+    }
+    @Override
+    public boolean checkPermission(MinecraftServer server, ICommandSender sender) {
+        return sender.canUseCommand(4, getName());
+    }
+
+    @Override
+    public List<String> getTabCompletions(MinecraftServer server, ICommandSender sender, String[] args, @Nullable BlockPos pos) {
+        return getListOfStringsMatchingLastWord(args, server.getPlayerList().getOnlinePlayerNames());
     }
 }

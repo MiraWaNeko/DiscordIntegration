@@ -16,16 +16,38 @@ package chikachi.discord.command;
 
 import chikachi.discord.core.DiscordClient;
 import chikachi.discord.core.config.Configuration;
+import mcp.MethodsReturnNonnullByDefault;
+import net.minecraft.command.CommandBase;
+import net.minecraft.command.CommandException;
+import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
 
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
+import java.util.List;
 
-public class SubCommandConfig {
-    public static void execute(ICommandSender sender, ArrayList<String> args) {
-        String subCommand = args.size() > 0 ? args.remove(0).toLowerCase() : "";
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
+public class SubCommandConfig extends CommandBase {
 
-        switch (subCommand) {
+    @Override
+    public String getName() {
+        return "config";
+    }
+
+    @Override
+    public String getUsage(ICommandSender iCommandSender) {
+        return "/discord config <reload|save|clean>";
+    }
+
+    @Override
+    public void execute(MinecraftServer server, ICommandSender sender, String[] strings) throws CommandException {
+        String arg = strings[0];
+        switch(arg) {
             case "load":
             case "reload":
                 String oldToken = Configuration.getConfig().discord.token;
@@ -57,5 +79,15 @@ public class SubCommandConfig {
                 sender.sendMessage(new TextComponentString("Unknown command"));
                 break;
         }
+    }
+
+    @Override
+    public boolean checkPermission(MinecraftServer server, ICommandSender sender) {
+        return sender.canUseCommand(4, getName());
+    }
+
+    @Override
+    public List<String> getTabCompletions(MinecraftServer server, ICommandSender sender, String[] args, @Nullable BlockPos pos) {
+        return getListOfStringsMatchingLastWord(args, "reload", "save", "clean");
     }
 }

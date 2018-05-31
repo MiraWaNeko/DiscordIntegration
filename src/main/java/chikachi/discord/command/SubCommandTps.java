@@ -18,22 +18,41 @@ import chikachi.discord.DiscordCommandSender;
 import chikachi.discord.core.CoreUtils;
 import chikachi.discord.core.MinecraftFormattingCodes;
 import com.google.common.base.Joiner;
+import mcp.MethodsReturnNonnullByDefault;
+import net.minecraft.command.CommandBase;
+import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.*;
 
-class SubCommandTps {
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
+class SubCommandTps extends CommandBase {
     private static final DecimalFormat timeFormatter = new DecimalFormat("########0.000", DecimalFormatSymbols.getInstance(Locale.ENGLISH));
 
-    static void execute(ICommandSender sender, ArrayList<String> args) {
-        boolean isDiscord = sender instanceof DiscordCommandSender;
+    @Override
+    public String getName() {
+        return "tps";
+    }
 
+    @Override
+    public String getUsage(ICommandSender iCommandSender) {
+        return "/discord tps";
+    }
+
+    @Override
+    public void execute(MinecraftServer server, ICommandSender sender, String[] strings) throws CommandException {
+        ArrayList<String> args = new ArrayList<>(Arrays.asList(strings));
+        boolean isDiscord = sender instanceof DiscordCommandSender;
         boolean colored = args.stream().anyMatch(arg -> arg.equalsIgnoreCase("--color"));
 
         MinecraftServer minecraftServer = FMLCommonHandler.instance().getMinecraftServerInstance();
@@ -106,5 +125,15 @@ class SubCommandTps {
                     Joiner.on("\n").join(tpsTimes)
             )
         );
+    }
+
+    @Override
+    public boolean checkPermission(MinecraftServer server, ICommandSender sender) {
+        return sender.canUseCommand(4, getName());
+    }
+
+    @Override
+    public List<String> getTabCompletions(MinecraftServer server, ICommandSender sender, String[] args, @Nullable BlockPos pos) {
+        return getListOfStringsMatchingLastWord(args, "--color");
     }
 }
