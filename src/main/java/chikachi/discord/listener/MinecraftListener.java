@@ -113,25 +113,9 @@ public class MinecraftListener {
                 channels = genericConfig.relayChat.getChannels(genericConfig.discordChannel);
             }
 
-            String authorName = null;
-            String avatarUrl = null;
-
-            //noinspection Duplicates
-            if (sender != null) {
-                authorName = sender.getName();
-                if (sender instanceof EntityPlayer) {
-                    avatarUrl = CoreUtils.getAvatarUrl(sender.getName());
-
-                    Long discordId = Configuration.getLinking().getDiscordId(((EntityPlayer) sender).getGameProfile().getId());
-                    if (discordId != null) {
-                        User discordUser = DiscordClient.getInstance().getUser(discordId);
-                        if (discordUser != null) {
-                            authorName = discordUser.getName();
-                            avatarUrl = discordUser.getAvatarUrl();
-                        }
-                    }
-                }
-            }
+            GetEventAuthorNameAndAvatar getEventAuthorNameAndAvatar = new GetEventAuthorNameAndAvatar(sender).invoke();
+            String authorName = getEventAuthorNameAndAvatar.getAuthorName();
+            String avatarUrl = getEventAuthorNameAndAvatar.getAvatarUrl();
 
             DiscordClient.getInstance().broadcast(
                 new Message()
@@ -181,25 +165,9 @@ public class MinecraftListener {
         arguments.put("COMMAND", event.getCommand().getName());
         arguments.put("ARGUMENTS", Joiner.on(" ").join(event.getParameters()));
 
-        String authorName = null;
-        String avatarUrl = null;
-
-        //noinspection Duplicates
-        if (sender != null) {
-            authorName = sender.getName();
-            if (sender instanceof EntityPlayer) {
-                avatarUrl = CoreUtils.getAvatarUrl(sender.getName());
-
-                Long discordId = Configuration.getLinking().getDiscordId(((EntityPlayer) sender).getGameProfile().getId());
-                if (discordId != null) {
-                    User discordUser = DiscordClient.getInstance().getUser(discordId);
-                    if (discordUser != null) {
-                        authorName = discordUser.getName();
-                        avatarUrl = discordUser.getAvatarUrl();
-                    }
-                }
-            }
-        }
+        GetEventAuthorNameAndAvatar getEventAuthorNameAndAvatar = new GetEventAuthorNameAndAvatar(sender).invoke();
+        String authorName = getEventAuthorNameAndAvatar.getAuthorName();
+        String avatarUrl = getEventAuthorNameAndAvatar.getAvatarUrl();
 
         DiscordClient.getInstance().broadcast(
             new Message()
@@ -402,15 +370,33 @@ public class MinecraftListener {
         private String avatarUrl;
 
         GetEventAuthorNameAndAvatar(ServerChatEvent event) {
+            if (event == null) {
+                return;
+            }
             this.discordId = Configuration.getLinking().getDiscordId(event.getPlayer().getGameProfile().getId());
             this.authorName = event.getUsername();
             this.avatarUrl = CoreUtils.getAvatarUrl(this.authorName);
         }
 
         GetEventAuthorNameAndAvatar(EntityPlayer entityPlayer) {
+            if (entityPlayer == null) {
+                return;
+            }
             this.discordId = Configuration.getLinking().getDiscordId(entityPlayer.getGameProfile().getId());
             this.authorName = entityPlayer.getDisplayNameString();
             this.avatarUrl = CoreUtils.getAvatarUrl(this.authorName);
+        }
+
+        GetEventAuthorNameAndAvatar(ICommandSender sender) {
+            if (sender == null) {
+                return;
+            }
+
+            this.authorName = sender.getName();
+            if (sender instanceof EntityPlayer) {
+                this.discordId = Configuration.getLinking().getDiscordId(((EntityPlayer) sender).getGameProfile().getId());
+                this.avatarUrl = CoreUtils.getAvatarUrl(sender.getName());
+            }
         }
 
         String getAuthorName() {
