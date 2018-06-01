@@ -17,6 +17,7 @@ package chikachi.discord;
 import chikachi.discord.core.Batcher;
 import chikachi.discord.core.DiscordIntegrationLogger;
 import chikachi.discord.core.Patterns;
+import chikachi.discord.core.config.discord.CommandConfig;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
@@ -48,16 +49,20 @@ public class DiscordCommandSender extends FakePlayer {
 
     private final MessageChannel channel;
     private final Batcher<String> batcher = new Batcher<>(this::sendBatch, 100, 10, executor);
+    private final CommandConfig command;
 
-    public DiscordCommandSender(MessageChannel channel, User user) {
+
+    public DiscordCommandSender(MessageChannel channel, User user, CommandConfig command) {
         super(FMLCommonHandler.instance().getMinecraftServerInstance().worlds[0], new GameProfile(playerUUID, "@" + user.getName()));
         this.channel = channel;
+        this.command = command;
     }
 
     @SuppressWarnings("unused")
-    public DiscordCommandSender(WorldServer world, MessageChannel channel, String name) {
+    public DiscordCommandSender(WorldServer world, MessageChannel channel, String name, CommandConfig command) {
         super(world, new GameProfile(playerUUID, "@" + name));
         this.channel = channel;
+        this.command = command;
     }
 
     @Override
@@ -67,12 +72,18 @@ public class DiscordCommandSender extends FakePlayer {
 
     @Override
     public void sendMessage(ITextComponent component) {
+        if (!this.command.isOutputEnabled())
+            return;
+
         Preconditions.checkNotNull(component);
         batcher.queue(textComponentToDiscordMessage(component));
     }
 
     @Override
     public void sendStatusMessage(ITextComponent component, boolean actionBar) {
+        if (!this.command.isOutputEnabled())
+            return;
+
         Preconditions.checkNotNull(component);
         batcher.queue(textComponentToDiscordMessage(component));
     }

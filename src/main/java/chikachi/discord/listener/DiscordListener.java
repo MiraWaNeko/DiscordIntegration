@@ -213,7 +213,7 @@ public class DiscordListener extends ListenerAdapter {
             if (command.shouldExecute(cmd, event.getAuthor(), event.getChannel())) {
                 FMLCommonHandler.instance().getMinecraftServerInstance().callFromMainThread(() -> {
                     FMLCommonHandler.instance().getMinecraftServerInstance().getCommandManager().executeCommand(
-                        new DiscordCommandSender(event.getChannel(), event.getAuthor()),
+                        new DiscordCommandSender(event.getChannel(), event.getAuthor(), command),
                         command.buildCommand(args)
                     );
                     return 0;
