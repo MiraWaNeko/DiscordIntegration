@@ -1,6 +1,7 @@
 # ![](http://media-elerium.cursecdn.com/avatars/46/357/636053578365458286.png) **DiscordIntegration**
 
 [![Build Status](https://build.chikachi.net/buildStatus/icon?job=Chikachi/DiscordIntegration/1.12)](https://build.chikachi.net/job/Chikachi/job/DiscordIntegration/job/1.12/)
+[![CodeFactor](https://www.codefactor.io/repository/github/chikachi/discordintegration/badge)](https://www.codefactor.io/repository/github/chikachi/discordintegration)
 
 This mod combines your Discord with your Minecraft server.
 

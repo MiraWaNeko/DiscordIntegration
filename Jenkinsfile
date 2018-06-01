@@ -44,7 +44,7 @@ pipeline {
       }
       post {
         always {
-          archiveArtifacts 'run/logs/*.log'
+          archiveArtifacts 'run/logs/*latest.log'
           cleanWs deleteDirs: true, notFailBuild: true, patterns: [[pattern: 'run/config/**', type: 'INCLUDE'], [pattern: 'run/mods/**', type: 'INCLUDE']]
         }
       }
