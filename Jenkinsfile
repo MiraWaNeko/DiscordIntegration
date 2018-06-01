@@ -44,7 +44,7 @@ pipeline {
       }
       post {
         always {
-          archiveArtifacts 'run/logs/fml-server-latest.log'
+          archiveArtifacts 'run/logs/*.log'
           cleanWs deleteDirs: true, notFailBuild: true, patterns: [[pattern: 'run/config/**', type: 'INCLUDE'], [pattern: 'run/mods/**', type: 'INCLUDE']]
         }
       }
