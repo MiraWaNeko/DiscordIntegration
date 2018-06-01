@@ -42,6 +42,11 @@ class SubCommandUnlink extends CommandBase {
 
     @Override
     public void execute(MinecraftServer server, ICommandSender sender, String[] strings) throws CommandException {
+        if (!Configuration.getConfig().discord.allowLinking) {
+            sender.sendMessage(new TextComponentString(MinecraftFormattingCodes.DARK_RED + "Linking is disabled on this server."));
+            return;
+        }
+
         if (!(sender instanceof EntityPlayer)) {
             sender.sendMessage(new TextComponentString(MinecraftFormattingCodes.DARK_RED + "You need to be a player"));
             return;

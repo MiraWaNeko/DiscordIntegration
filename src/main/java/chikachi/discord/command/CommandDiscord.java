@@ -35,11 +35,8 @@ public class CommandDiscord extends CommandTreeBase {
         this.addSubcommand(new SubCommandTps());
         this.addSubcommand(new SubCommandUnstuck());
         this.addSubcommand(new SubCommandUptime());
-
-        if (Configuration.getConfig().discord.allowLinking) {
-            this.addSubcommand(new SubCommandLink());
-            this.addSubcommand(new SubCommandUnlink());
-        }
+        this.addSubcommand(new SubCommandLink());
+        this.addSubcommand(new SubCommandUnlink());
     }
 
     @Override
@@ -50,16 +47,6 @@ public class CommandDiscord extends CommandTreeBase {
     @Override
     public String getUsage(ICommandSender sender) {
         return "/discord <config|online" + (Configuration.getConfig().discord.allowLinking ? "|link|unlink" : "") + "|tps|unstuck|uptime> [options]";
-    }
-
-    @Override
-    public List<String> getAliases() {
-        return new ArrayList<>();
-    }
-
-    @Override
-    public boolean checkPermission(MinecraftServer server, ICommandSender sender) {
-        return sender.canUseCommand(4, getName());
     }
 
     @Override
