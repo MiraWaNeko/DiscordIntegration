@@ -31,6 +31,7 @@ public class DiscordIntegration {
     static DiscordIntegration instance;
 
     private static Proxy proxy = new Proxy();
+    private static Thread updateThread;
 
     @Mod.EventHandler
     public void onPreInit(FMLPreInitializationEvent event) {
@@ -57,6 +58,9 @@ public class DiscordIntegration {
         DiscordClient.getInstance().addEventListener(new DiscordListener());
 
         event.registerServerCommand(new CommandDiscord());
+
+        updateThread = new Thread(new DiscordThread());
+        updateThread.start();
     }
 
     @Mod.EventHandler
@@ -67,6 +71,7 @@ public class DiscordIntegration {
     @Mod.EventHandler
     public void onServerStopping(FMLServerStoppingEvent event) {
         proxy.onServerStopping();
+        updateThread.interrupt();
     }
 
     @Mod.EventHandler
