@@ -67,7 +67,7 @@ public class MinecraftListener {
                 return;
             }
 
-            if (sender != null && Configuration.getConfig().minecraft.dimensions.generic.ignoreFakePlayerChat && sender instanceof FakePlayer) {
+            if (Configuration.getConfig().minecraft.dimensions.generic.ignoreFakePlayerChat && sender instanceof FakePlayer) {
                 return;
             }
 
@@ -233,18 +233,9 @@ public class MinecraftListener {
 
         MessageConfig messageConfig = dimensionConfig.messages.chatMessage != null ? dimensionConfig.messages.chatMessage : genericConfig.messages.chatMessage;
 
-        String authorName = event.getUsername();
-        String avatarUrl = CoreUtils.getAvatarUrl(authorName);
-
-        Long discordId = Configuration.getLinking().getDiscordId(event.getPlayer().getGameProfile().getId());
-        //noinspection Duplicates
-        if (discordId != null) {
-            User discordUser = DiscordClient.getInstance().getUser(discordId);
-            if (discordUser != null) {
-                authorName = discordUser.getName();
-                avatarUrl = discordUser.getAvatarUrl();
-            }
-        }
+        GetEventAuthorNameAndAvatar getEventAuthorNameAndAvatar = new GetEventAuthorNameAndAvatar(event).invoke();
+        String authorName = getEventAuthorNameAndAvatar.getAuthorName();
+        String avatarUrl = getEventAuthorNameAndAvatar.getAvatarUrl();
 
         DiscordClient.getInstance().broadcast(
             new Message()
@@ -267,7 +258,7 @@ public class MinecraftListener {
     public void onPlayerAchievement(AdvancementEvent event) {
         EntityPlayer entityPlayer = event.getEntityPlayer();
 
-        if (entityPlayer != null && entityPlayer instanceof EntityPlayerMP) {
+        if (entityPlayer instanceof EntityPlayerMP) {
             Advancement advancement = event.getAdvancement();
             DisplayInfo displayInfo = advancement.getDisplay();
 
@@ -287,18 +278,9 @@ public class MinecraftListener {
 
             MessageConfig messageConfig = dimensionConfig.messages.achievement != null ? dimensionConfig.messages.achievement : genericConfig.messages.achievement;
 
-            String authorName = entityPlayer.getDisplayNameString();
-            String avatarUrl = CoreUtils.getAvatarUrl(authorName);
-
-            Long discordId = Configuration.getLinking().getDiscordId(entityPlayer.getGameProfile().getId());
-            //noinspection Duplicates
-            if (discordId != null) {
-                User discordUser = DiscordClient.getInstance().getUser(discordId);
-                if (discordUser != null) {
-                    authorName = discordUser.getName();
-                    avatarUrl = discordUser.getAvatarUrl();
-                }
-            }
+            GetEventAuthorNameAndAvatar getEventAuthorNameAndAvatar = new GetEventAuthorNameAndAvatar(entityPlayer).invoke();
+            String authorName = getEventAuthorNameAndAvatar.getAuthorName();
+            String avatarUrl = getEventAuthorNameAndAvatar.getAvatarUrl();
 
             DiscordClient.getInstance().broadcast(
                 new Message()
@@ -327,18 +309,9 @@ public class MinecraftListener {
 
         MessageConfig messageConfig = dimensionConfig.messages.playerJoin != null ? dimensionConfig.messages.playerJoin : genericConfig.messages.playerJoin;
 
-        String authorName = event.player.getDisplayNameString();
-        String avatarUrl = CoreUtils.getAvatarUrl(authorName);
-
-        Long discordId = Configuration.getLinking().getDiscordId(event.player.getGameProfile().getId());
-        //noinspection Duplicates
-        if (discordId != null) {
-            User discordUser = DiscordClient.getInstance().getUser(discordId);
-            if (discordUser != null) {
-                authorName = discordUser.getName();
-                avatarUrl = discordUser.getAvatarUrl();
-            }
-        }
+        GetEventAuthorNameAndAvatar getEventAuthorNameAndAvatar = new GetEventAuthorNameAndAvatar(event.player).invoke();
+        String authorName = getEventAuthorNameAndAvatar.getAuthorName();
+        String avatarUrl = getEventAuthorNameAndAvatar.getAvatarUrl();
 
         DiscordClient.getInstance().broadcast(
             new Message()
@@ -365,18 +338,9 @@ public class MinecraftListener {
 
         MessageConfig messageConfig = dimensionConfig.messages.playerLeave != null ? dimensionConfig.messages.playerLeave : genericConfig.messages.playerLeave;
 
-        String authorName = event.player.getDisplayNameString();
-        String avatarUrl = CoreUtils.getAvatarUrl(authorName);
-
-        Long discordId = Configuration.getLinking().getDiscordId(event.player.getGameProfile().getId());
-        //noinspection Duplicates
-        if (discordId != null) {
-            User discordUser = DiscordClient.getInstance().getUser(discordId);
-            if (discordUser != null) {
-                authorName = discordUser.getName();
-                avatarUrl = discordUser.getAvatarUrl();
-            }
-        }
+        GetEventAuthorNameAndAvatar getEventAuthorNameAndAvatar = new GetEventAuthorNameAndAvatar(event.player).invoke();
+        String authorName = getEventAuthorNameAndAvatar.getAuthorName();
+        String avatarUrl = getEventAuthorNameAndAvatar.getAvatarUrl();
 
         DiscordClient.getInstance().broadcast(
             new Message()
@@ -411,18 +375,9 @@ public class MinecraftListener {
 
             MessageConfig messageConfig = dimensionConfig.messages.playerDeath != null ? dimensionConfig.messages.playerDeath : genericConfig.messages.playerDeath;
 
-            String authorName = entityPlayer.getDisplayNameString();
-            String avatarUrl = CoreUtils.getAvatarUrl(authorName);
-
-            Long discordId = Configuration.getLinking().getDiscordId(entityPlayer.getGameProfile().getId());
-            //noinspection Duplicates
-            if (discordId != null) {
-                User discordUser = DiscordClient.getInstance().getUser(discordId);
-                if (discordUser != null) {
-                    authorName = discordUser.getName();
-                    avatarUrl = discordUser.getAvatarUrl();
-                }
-            }
+            GetEventAuthorNameAndAvatar getEventAuthorNameAndAvatar = new GetEventAuthorNameAndAvatar(entityPlayer).invoke();
+            String authorName = getEventAuthorNameAndAvatar.getAuthorName();
+            String avatarUrl = getEventAuthorNameAndAvatar.getAvatarUrl();
 
             DiscordClient.getInstance().broadcast(
                 new Message()
@@ -438,6 +393,43 @@ public class MinecraftListener {
                     )
                 )
             );
+        }
+    }
+
+    private class GetEventAuthorNameAndAvatar {
+        private Long discordId;
+        private String authorName;
+        private String avatarUrl;
+
+        GetEventAuthorNameAndAvatar(ServerChatEvent event) {
+            this.discordId = Configuration.getLinking().getDiscordId(event.getPlayer().getGameProfile().getId());
+            this.authorName = event.getUsername();
+            this.avatarUrl = CoreUtils.getAvatarUrl(this.authorName);
+        }
+
+        GetEventAuthorNameAndAvatar(EntityPlayer entityPlayer) {
+            this.discordId = Configuration.getLinking().getDiscordId(entityPlayer.getGameProfile().getId());
+            this.authorName = entityPlayer.getDisplayNameString();
+            this.avatarUrl = CoreUtils.getAvatarUrl(this.authorName);
+        }
+
+        String getAuthorName() {
+            return this.authorName;
+        }
+
+        String getAvatarUrl() {
+            return this.avatarUrl;
+        }
+
+        GetEventAuthorNameAndAvatar invoke() {
+            if (this.discordId != null) {
+                User discordUser = DiscordClient.getInstance().getUser(this.discordId);
+                if (discordUser != null) {
+                    this.authorName = discordUser.getName();
+                    this.avatarUrl = discordUser.getAvatarUrl();
+                }
+            }
+            return this;
         }
     }
 }
