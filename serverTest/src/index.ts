@@ -69,7 +69,6 @@ getVersions()
             .setServerDirectory(serverDirectory)
             .addLocalMod(modFilepath)
             .setDelayBeforeCommands(5000)
-            .setDelayBetweenCommands(1000)
             .addCommand(`/say Hello from ${minecraftVersion}`);
 
         return tester.installForge()
