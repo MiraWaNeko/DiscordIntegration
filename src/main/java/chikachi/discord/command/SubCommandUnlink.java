@@ -14,12 +14,9 @@
 
 package chikachi.discord.command;
 
-import chikachi.discord.core.DiscordClient;
 import chikachi.discord.core.MinecraftFormattingCodes;
 import chikachi.discord.core.config.Configuration;
-import chikachi.discord.core.config.linking.LinkingRequest;
 import mcp.MethodsReturnNonnullByDefault;
-import net.dv8tion.jda.core.entities.User;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
@@ -28,7 +25,6 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentString;
 
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.Optional;
 import java.util.UUID;
 
 @ParametersAreNonnullByDefault

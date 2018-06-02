@@ -34,7 +34,6 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.ArrayList;
 import java.util.List;
 
 @ParametersAreNonnullByDefault
@@ -121,6 +120,7 @@ public class SubCommandUnstuck extends CommandBase {
 
         sender.sendMessage(new TextComponentString("Player sent to spawn"));
     }
+
     @Override
     public boolean checkPermission(MinecraftServer server, ICommandSender sender) {
         return sender.canUseCommand(4, getName());

@@ -16,7 +16,6 @@ package chikachi.discord.command;
 
 import chikachi.discord.core.DiscordClient;
 import chikachi.discord.core.MinecraftFormattingCodes;
-import chikachi.discord.core.Proxy;
 import chikachi.discord.core.config.Configuration;
 import chikachi.discord.core.config.linking.LinkingRequest;
 import mcp.MethodsReturnNonnullByDefault;

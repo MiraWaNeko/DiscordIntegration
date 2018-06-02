@@ -14,21 +14,12 @@
 
 package chikachi.discord.command;
 
-import chikachi.discord.core.DiscordClient;
-import chikachi.discord.core.MinecraftFormattingCodes;
 import chikachi.discord.core.config.Configuration;
-import chikachi.discord.core.config.linking.LinkingRequest;
 import mcp.MethodsReturnNonnullByDefault;
-import net.dv8tion.jda.core.entities.User;
-import net.minecraft.command.CommandException;
-import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.server.command.CommandTreeBase;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -69,28 +60,6 @@ public class CommandDiscord extends CommandTreeBase {
     @Override
     public boolean checkPermission(MinecraftServer server, ICommandSender sender) {
         return sender.canUseCommand(4, getName());
-    }
-
-    @Override
-    public List<String> getTabCompletions(MinecraftServer server, ICommandSender sender, String[] args, @Nullable BlockPos pos) {
-        int position = args.length;
-
-        if (position == 1) {
-            if (!Configuration.getConfig().discord.allowLinking) {
-                return getListOfStringsMatchingLastWord(args, "config", /*"connect", "disconnect",*/ "link", "online", "tps", "unstuck", "uptime", "unlink");
-            }
-            return getListOfStringsMatchingLastWord(args, "config", /*"connect", "disconnect",*/ "link", "online", "tps", "unstuck", "uptime", "unlink");
-        } else if (position == 2) {
-            if (args[0].equalsIgnoreCase("config")) {
-                return getListOfStringsMatchingLastWord(args, "load", "reload", "save");
-            } else if (args[0].equalsIgnoreCase("tps")) {
-                return getListOfStringsMatchingLastWord(args, "--color");
-            } else if (args[0].equalsIgnoreCase("unstuck")) {
-                return getListOfStringsMatchingLastWord(args, server.getPlayerList().getOnlinePlayerNames());
-            }
-        }
-
-        return Collections.emptyList();
     }
 
     @Override

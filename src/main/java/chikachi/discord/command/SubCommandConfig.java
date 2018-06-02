@@ -19,7 +19,6 @@ import chikachi.discord.core.config.Configuration;
 import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
-import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
@@ -27,7 +26,6 @@ import net.minecraft.util.text.TextComponentString;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.ArrayList;
 import java.util.List;
 
 @ParametersAreNonnullByDefault
@@ -46,24 +44,32 @@ public class SubCommandConfig extends CommandBase {
 
     @Override
     public void execute(MinecraftServer server, ICommandSender sender, String[] strings) throws CommandException {
+
+        if (strings.length == 0) {
+            sender.sendMessage(new TextComponentString(getUsage(sender)));
+            return;
+        }
+
         String arg = strings[0];
-        switch(arg) {
+        switch (arg) {
             case "load":
             case "reload":
                 String oldToken = Configuration.getConfig().discord.token;
 
                 Configuration.loadConfig();
+                sender.sendMessage(new TextComponentString("Config reloaded"));
 
                 if (!DiscordClient.getInstance().isConnected()) {
                     // Connect to Discord, if not already connected
                     DiscordClient.getInstance().connect();
+                    sender.sendMessage(new TextComponentString("Connected Bot"));
                 } else if (!oldToken.equals(Configuration.getConfig().discord.token)) {
                     // Connect with the new token
                     DiscordClient.getInstance().disconnect();
                     DiscordClient.getInstance().connect();
+                    sender.sendMessage(new TextComponentString("Reconnected Bot"));
                 }
 
-                sender.sendMessage(new TextComponentString("Config reloaded"));
                 break;
             case "save":
                 Configuration.saveConfig();
@@ -76,7 +82,7 @@ public class SubCommandConfig extends CommandBase {
                 sender.sendMessage(new TextComponentString("Clean config saved"));
                 break;
             default:
-                sender.sendMessage(new TextComponentString("Unknown command"));
+                sender.sendMessage(new TextComponentString(getUsage(sender)));
                 break;
         }
     }
