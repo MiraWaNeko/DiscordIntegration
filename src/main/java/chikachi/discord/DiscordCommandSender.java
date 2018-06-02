@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 Chikachi
+ * Copyright (C) 2018 Chikachi and other contributors
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -65,6 +65,12 @@ public class DiscordCommandSender extends FakePlayer {
         this.command = command;
     }
 
+    private static String textComponentToDiscordMessage(ITextComponent component) {
+        return Patterns.minecraftCodePattern.matcher(
+            component.getUnformattedText()
+        ).replaceAll("");
+    }
+
     @Override
     public boolean canUseCommand(int i, String s) {
         return true;
@@ -86,12 +92,6 @@ public class DiscordCommandSender extends FakePlayer {
 
         Preconditions.checkNotNull(component);
         batcher.queue(textComponentToDiscordMessage(component));
-    }
-
-    private static String textComponentToDiscordMessage(ITextComponent component) {
-        return Patterns.minecraftCodePattern.matcher(
-            component.getUnformattedText()
-        ).replaceAll("");
     }
 
     private void sendBatch(List<String> messages) {
