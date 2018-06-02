@@ -17,18 +17,13 @@ package chikachi.discord.command;
 import chikachi.discord.core.config.Configuration;
 import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.command.ICommandSender;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.server.command.CommandTreeBase;
 
-import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.*;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
 public class CommandDiscord extends CommandTreeBase {
-
     public CommandDiscord() {
         this.addSubcommand(new SubCommandConfig());
         this.addSubcommand(new SubCommandOnline());
@@ -47,10 +42,5 @@ public class CommandDiscord extends CommandTreeBase {
     @Override
     public String getUsage(ICommandSender sender) {
         return "/discord <config|online" + (Configuration.getConfig().discord.allowLinking ? "|link|unlink" : "") + "|tps|unstuck|uptime> [options]";
-    }
-
-    @Override
-    public boolean isUsernameIndex(String[] args, int index) {
-        return args.length > 1 && args[0].equalsIgnoreCase("unstuck") && index == 1;
     }
 }

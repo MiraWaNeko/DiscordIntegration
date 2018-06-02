@@ -123,7 +123,7 @@ public class SubCommandUnstuck extends CommandBase {
 
     @Override
     public boolean checkPermission(MinecraftServer server, ICommandSender sender) {
-        return sender.canUseCommand(4, getName());
+        return sender.canUseCommand(4, "discord." + getName());
     }
 
     @Override
