@@ -67,12 +67,14 @@ getVersions()
             .acceptEULA()
             .useServerProperties()
             .setServerDirectory(serverDirectory)
+            .setAutoRemoveData(false)
             .addLocalMod(modFilepath)
             .setDelayBeforeCommands(5000)
             .addCommand(`/say Hello from ${minecraftVersion}`);
 
         return tester.installForge()
-            .then(() => tester.runServer());
+            .then(() => tester.runServer())
+            .then(() => tester.removeOldData());
     })
     .catch(err => {
         console.error(err);
