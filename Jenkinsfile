@@ -33,8 +33,7 @@ pipeline {
     stage('Run Server Test') {
       steps {
         withCredentials([file(credentialsId: 'discordintegration.test.config', variable: 'CONFIG_FILE')]) {
-          sh 'mkdir -p run/config/Chikachi'
-          sh 'cp "$CONFIG_FILE" ./'
+          sh 'cp "$CONFIG_FILE" ./discordintegration.json'
           dir('serverTest') {
             sh 'npm update'
             sh 'tsc'
@@ -45,7 +44,7 @@ pipeline {
       post {
         always {
           archiveArtifacts 'run/logs/*latest.log'
-          cleanWs deleteDirs: true, notFailBuild: true, patterns: [[pattern: 'run/config/**', type: 'INCLUDE'], [pattern: 'run/mods/**', type: 'INCLUDE']]
+          cleanWs deleteDirs: true, notFailBuild: true, patterns: [[pattern: 'run/config/**', type: 'INCLUDE'], [pattern: 'run/mods/**', type: 'INCLUDE'], [pattern: 'discordintegration.json', type: 'INCLUDE']]
         }
       }
     }
