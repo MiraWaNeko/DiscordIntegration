@@ -67,14 +67,13 @@ getVersions()
             .acceptEULA()
             .useServerProperties()
             .setServerDirectory(serverDirectory)
-            .setAutoRemoveData(false)
             .addLocalMod(modFilepath)
+            .addConfigFile(pathResolve('..', 'discordintegration.json'), ['Chikachi'])
             .setDelayBeforeCommands(5000)
             .addCommand(`/say Hello from ${minecraftVersion}`);
 
         return tester.installForge()
-            .then(() => tester.runServer())
-            .then(() => tester.removeOldData());
+            .then(() => tester.runServer());
     })
     .catch(err => {
         console.error(err);
