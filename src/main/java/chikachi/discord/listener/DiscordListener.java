@@ -126,6 +126,10 @@ public class DiscordListener extends ListenerAdapter {
                 "MESSAGE",
                 content
             );
+            arguments.put(
+                "CHANNEL",
+                event.getChannelType() == ChannelType.PRIVATE ? "DM" : event.getChannel().getName()
+            );
 
             Message message = new Message()
                 .setAuthor(event.getMember().getEffectiveName())
