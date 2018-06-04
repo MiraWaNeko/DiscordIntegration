@@ -1,7 +1,10 @@
 package chikachi.discord;
 
+import chikachi.discord.core.CoreUtils;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.server.MinecraftServer;
+import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 
 import java.util.stream.Stream;
@@ -24,4 +27,14 @@ public abstract class MinecraftInformationHandler {
     public static long getOnlineRealPlayerCount() {
         return getOnlineRealPlayerStream().count();
     }
+
+    public static double getAverageTickCount() {
+        MinecraftServer minecraftServer = FMLCommonHandler.instance().getMinecraftServerInstance();
+        return CoreUtils.mean(minecraftServer.tickTimeArray) * 1.0E-6D;
+    }
+
+    public static double getAverageTPS() {
+       return Math.min(1000.0 / getAverageTickCount(), 20);
+    }
+
 }

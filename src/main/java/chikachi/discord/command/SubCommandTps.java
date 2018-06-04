@@ -15,6 +15,7 @@
 package chikachi.discord.command;
 
 import chikachi.discord.DiscordCommandSender;
+import chikachi.discord.MinecraftInformationHandler;
 import chikachi.discord.core.CoreUtils;
 import chikachi.discord.core.MinecraftFormattingCodes;
 import com.google.common.base.Joiner;
@@ -96,8 +97,8 @@ class SubCommandTps extends CommandBase {
             );
         }
 
-        double meanTickTime = CoreUtils.mean(minecraftServer.tickTimeArray) * 1.0E-6D;
-        double meanTPS = Math.min(1000.0 / meanTickTime, 20);
+        double meanTickTime = MinecraftInformationHandler.getAverageTickCount();
+        double meanTPS = MinecraftInformationHandler.getAverageTPS();
 
         color = colored && !isDiscord ? CoreUtils.tpsToColorString(meanTPS, false) : "";
 
