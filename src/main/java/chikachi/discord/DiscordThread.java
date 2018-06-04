@@ -16,11 +16,7 @@ package chikachi.discord;
 
 import chikachi.discord.core.DiscordClient;
 import chikachi.discord.core.DiscordIntegrationLogger;
-import chikachi.discord.core.TextFormatter;
 import chikachi.discord.core.config.Configuration;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 
 import static java.lang.Thread.sleep;
 
@@ -47,12 +43,6 @@ public class DiscordThread implements Runnable {
         if (!Configuration.getConfig().discord.presence.enabled)
             return;
 
-        String[] players = (String[]) FMLCommonHandler.instance().getMinecraftServerInstance()
-            .getPlayerList().getPlayers().stream()
-            .filter(player -> !player.getDisplayNameString().startsWith("@"))
-            .filter(EntityPlayerMP.class::isInstance)
-            .map(EntityPlayer::getDisplayNameString).toArray();
-
-        DiscordClient.getInstance().setDiscordPresencePlayerCount(players);
+        DiscordClient.getInstance().setDiscordPresencePlayerCount(MinecraftInformationHandler.getOnlineRealPlayerNames());
     }
 }
