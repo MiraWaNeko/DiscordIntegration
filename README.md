@@ -1,6 +1,6 @@
 # ![](http://media-elerium.cursecdn.com/avatars/46/357/636053578365458286.png) **DiscordIntegration**
 
-[![Build Status](https://build.chikachi.net/buildStatus/icon?job=Chikachi/DiscordIntegration/1.12)](https://build.chikachi.net/job/Chikachi/job/DiscordIntegration/job/1.12/)
+[![Build Status](https://build.chikachi.net/buildStatus/icon?job=Chikachi/DiscordIntegration/v3%2Fmc1.12)](https://build.chikachi.net/job/Chikachi/DiscordIntegration/v3%2Fmc1.12)
 [![CodeFactor](https://www.codefactor.io/repository/github/chikachi/discordintegration/badge)](https://www.codefactor.io/repository/github/chikachi/discordintegration)
 [![Download Counter](https://cf.way2muchnoise.eu/full_discordintegration_downloads.svg)](https://minecraft.curseforge.com/projects/discordintegration)
 [![Available for](https://cf.way2muchnoise.eu/versions/discordintegration.svg)](https://minecraft.curseforge.com/projects/discordintegration)
