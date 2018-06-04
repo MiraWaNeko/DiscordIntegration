@@ -1,5 +1,16 @@
 # Changelog (MC 1.12)
 
+### 3.1.0
+- [Forge] Updated to build against 1.12.2-14.23.4.2705
+- [Library] Updated JDA
+- [Commands] /discord is now a tree command and uses correct permissions.
+- [Commands] Feedback information can now be disabled for each discord command.
+- [Commands] Commands can now be ignored (will not be sent to the discord channel).
+- [Presence] You can now show how many players are online using the presence.
+- [Presence] You can now specify that the bot should update the topic of channels.
+- [Chat] One can now use the argument CHANNEL to show the channel in the messages relayed to Minecraft. 
+
+
 ### 3.0.5
 - [Forge] Updated to build against 1.12.2-14.23.2.2611
 - [Library] Updated JDA
