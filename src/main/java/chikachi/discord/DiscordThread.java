@@ -37,7 +37,7 @@ public class DiscordThread implements Runnable {
             try {
                 sleep(1000 * 60);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                // Ignore this as we now stop the thread
             }
         }
         DiscordIntegrationLogger.Log("Stopped update thread");
