@@ -49,90 +49,104 @@ public class MinecraftListener {
         if (event.isCanceled()) return;
 
         String commandName = event.getCommand().getName();
-        ICommandSender sender = event.getSender();
-
-        MinecraftConfig minecraftConfig = Configuration.getConfig().minecraft;
-        MinecraftDimensionConfig genericConfig = minecraftConfig.dimensions.generic;
-
-        MessageConfig messageConfig;
 
         if (commandName.equalsIgnoreCase("say") || commandName.equalsIgnoreCase("me")) {
-            boolean isSayCommand = commandName.equalsIgnoreCase("say");
+            broadcastMeOrSayToDiscord(event);
+        } else {
+            String commandWithParameters = event.getCommand().getName() + " " + Joiner.on(" ").join(event.getParameters());
+            boolean commandIgnored = Configuration.getConfig().minecraft.dimensions.generic.isCommandIgnored(commandWithParameters);
+            boolean isLinkCommand = commandName.equalsIgnoreCase("discord")
+                && event.getParameters().length > 0
+                && event.getParameters()[0].equalsIgnoreCase("link");
 
-            if (isSayCommand && !Configuration.getConfig().minecraft.dimensions.generic.relaySayCommand) {
-                return;
+            if (!commandIgnored && !isLinkCommand) {
+                // Do not relay link commands
+                broadcastCommandToDiscord(event);
             }
+        }
+    }
 
-            if (!isSayCommand && !Configuration.getConfig().minecraft.dimensions.generic.relayMeCommand) {
-                return;
-            }
+    private void broadcastMeOrSayToDiscord(CommandEvent event) {
+        ICommandSender sender = event.getSender();
+        MinecraftConfig minecraftConfig = Configuration.getConfig().minecraft;
+        MinecraftDimensionConfig genericConfig = minecraftConfig.dimensions.generic;
+        MessageConfig messageConfig;
+        boolean isSayCommand = event.getCommand().getName().equalsIgnoreCase("say");
 
-            if (Configuration.getConfig().minecraft.dimensions.generic.ignoreFakePlayerChat && sender instanceof FakePlayer) {
-                return;
-            }
+        if (isSayCommand && !Configuration.getConfig().minecraft.dimensions.generic.relaySayCommand) {
+            return;
+        }
 
-            String message = Joiner.on(" ").join(event.getParameters());
+        if (!isSayCommand && !Configuration.getConfig().minecraft.dimensions.generic.relayMeCommand) {
+            return;
+        }
 
-            if (Configuration.getConfig().minecraft.dimensions.generic.isMessageIgnored(message)) {
-                return;
-            }
+        if (Configuration.getConfig().minecraft.dimensions.generic.ignoreFakePlayerChat && sender instanceof FakePlayer) {
+            return;
+        }
 
-            HashMap<String, String> arguments = new HashMap<>();
-            arguments.put("MESSAGE", isSayCommand ? message : "_" + message + "_");
+        String message = Joiner.on(" ").join(event.getParameters());
 
-            String prefix = minecraftConfig.dimensions.generic.chatPrefix;
-            messageConfig = minecraftConfig.dimensions.generic.messages.chatMessage;
+        if (Configuration.getConfig().minecraft.dimensions.generic.isMessageIgnored(message)) {
+            return;
+        }
 
-            ArrayList<Long> channels;
+        HashMap<String, String> arguments = new HashMap<>();
+        arguments.put("MESSAGE", isSayCommand ? message : "_" + message + "_");
 
-            if (sender != null) {
-                Entity entity = sender.getCommandSenderEntity();
+        String prefix = minecraftConfig.dimensions.generic.chatPrefix;
+        messageConfig = minecraftConfig.dimensions.generic.messages.chatMessage;
 
-                if (entity != null) {
-                    MinecraftDimensionConfig dimensionConfig = minecraftConfig.dimensions.getDimension(entity.dimension);
+        ArrayList<Long> channels;
 
-                    if (dimensionConfig.chatPrefix != null && dimensionConfig.chatPrefix.trim().length() > 0) {
-                        prefix = dimensionConfig.chatPrefix;
-                    }
+        if (sender != null) {
+            Entity entity = sender.getCommandSenderEntity();
 
-                    if (dimensionConfig.messages.chatMessage != null) {
-                        messageConfig = dimensionConfig.messages.chatMessage;
-                    }
+            if (entity != null) {
+                MinecraftDimensionConfig dimensionConfig = minecraftConfig.dimensions.getDimension(entity.dimension);
 
-                    channels = dimensionConfig.relayChat.getChannels(
-                        genericConfig.relayChat.getChannels(
-                            dimensionConfig.discordChannel.getChannels(
-                                genericConfig.discordChannel
-                            )
-                        )
-                    );
-                } else {
-                    channels = genericConfig.relayChat.getChannels(genericConfig.discordChannel);
+                if (dimensionConfig.chatPrefix != null && dimensionConfig.chatPrefix.trim().length() > 0) {
+                    prefix = dimensionConfig.chatPrefix;
                 }
+
+                if (dimensionConfig.messages.chatMessage != null) {
+                    messageConfig = dimensionConfig.messages.chatMessage;
+                }
+
+                channels = dimensionConfig.relayChat.getChannels(
+                    genericConfig.relayChat.getChannels(
+                        dimensionConfig.discordChannel.getChannels(
+                            genericConfig.discordChannel
+                        )
+                    )
+                );
             } else {
                 channels = genericConfig.relayChat.getChannels(genericConfig.discordChannel);
             }
-
-            GetEventAuthorNameAndAvatar getEventAuthorNameAndAvatar = new GetEventAuthorNameAndAvatar(sender).invoke();
-            String authorName = getEventAuthorNameAndAvatar.getAuthorName();
-            String avatarUrl = getEventAuthorNameAndAvatar.getAvatarUrl();
-
-            DiscordClient.getInstance().broadcast(
-                new Message()
-                    .setAuthor(authorName)
-                    .setAvatarUrl(avatarUrl)
-                    .setMessage(messageConfig)
-                    .setArguments(arguments)
-                    .setPrefix(prefix),
-                channels
-            );
-        } else if (commandName.equalsIgnoreCase("discord")) {
-            // Do not relay linking commands
-            if (event.getParameters().length > 0 && event.getParameters()[0].equalsIgnoreCase("link")) {
-                return;
-            }
+        } else {
+            channels = genericConfig.relayChat.getChannels(genericConfig.discordChannel);
         }
 
+        GetEventAuthorNameAndAvatar getEventAuthorNameAndAvatar = new GetEventAuthorNameAndAvatar(sender).invoke();
+        String authorName = getEventAuthorNameAndAvatar.getAuthorName();
+        String avatarUrl = getEventAuthorNameAndAvatar.getAvatarUrl();
+
+        DiscordClient.getInstance().broadcast(
+            new Message()
+                .setAuthor(authorName)
+                .setAvatarUrl(avatarUrl)
+                .setMessage(messageConfig)
+                .setArguments(arguments)
+                .setPrefix(prefix),
+            channels
+        );
+    }
+
+    private void broadcastCommandToDiscord(CommandEvent event) {
+        ICommandSender sender = event.getSender();
+        MinecraftConfig minecraftConfig = Configuration.getConfig().minecraft;
+        MinecraftDimensionConfig genericConfig = minecraftConfig.dimensions.generic;
+        MessageConfig messageConfig;
         ArrayList<Long> channels;
 
         messageConfig = minecraftConfig.dimensions.generic.messages.command;
