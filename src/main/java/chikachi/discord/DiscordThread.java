@@ -18,6 +18,7 @@ import chikachi.discord.core.DiscordClient;
 import chikachi.discord.core.DiscordIntegrationLogger;
 import chikachi.discord.core.TextFormatter;
 import chikachi.discord.core.config.Configuration;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 
@@ -46,29 +47,12 @@ public class DiscordThread implements Runnable {
         if (!Configuration.getConfig().discord.presence.enabled)
             return;
 
-        Object[] players = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayers()
-            .stream().filter(player -> !player.getDisplayNameString().startsWith("@")).toArray();
-        long count = players.length;
-        String message;
+        String[] players = (String[]) FMLCommonHandler.instance().getMinecraftServerInstance()
+            .getPlayerList().getPlayers().stream()
+            .filter(player -> !player.getDisplayNameString().startsWith("@"))
+            .filter(EntityPlayerMP.class::isInstance)
+            .map(EntityPlayer::getDisplayNameString).toArray();
 
-        if (count == 0) {
-            message = Configuration.getConfig().discord.presence.messages.noPlayerOnline;
-        } else if (count == 1) {
-            Object player = players[0];
-            String name = "unknown";
-            if (player instanceof EntityPlayerMP) {
-                name = ((EntityPlayerMP) player).getDisplayNameString();
-            }
-            message = new TextFormatter()
-                .addArgument("USER", name)
-                .addArgument("COUNT", "1")
-                .format(Configuration.getConfig().discord.presence.messages.onePlayerOnline);
-
-        } else {
-            message = new TextFormatter()
-                .addArgument("COUNT", String.format("%d", count))
-                .format(Configuration.getConfig().discord.presence.messages.onePlayerOnline);
-        }
-        DiscordClient.getInstance().setDiscordPresencePlaying(message);
+        DiscordClient.getInstance().setDiscordPresencePlayerCount(players);
     }
 }
