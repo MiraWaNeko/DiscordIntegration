@@ -49,6 +49,7 @@ public class DiscordThread implements Runnable {
 
         TextFormatter tf = new TextFormatter()
             .addArgument("PLAYERCOUNT", MinecraftInformationHandler.getOnlineRealPlayerCount())
+            .addArgument("MAXPLAYERCOUNT", MinecraftInformationHandler.getMaxPlayerCount())
             .addArgument("TPS", MinecraftInformationHandler.getAverageTickCount())
             .addArgument("TICKCOUNT", MinecraftInformationHandler.getAverageTPS());
 
