@@ -15,9 +15,10 @@ public abstract class MinecraftInformationHandler {
     }
 
     public static String[] getOnlineRealPlayerNames() {
-        return (String[]) MinecraftInformationHandler
+        return MinecraftInformationHandler
             .getOnlineRealPlayerStream()
-            .map(EntityPlayer::getDisplayNameString).toArray();
+            .map(EntityPlayer::getDisplayNameString)
+            .toArray(String[]::new);
     }
 
     public static long getOnlineRealPlayerCount() {
