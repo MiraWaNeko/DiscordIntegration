@@ -30,6 +30,9 @@ public abstract class MinecraftInformationHandler {
     public static int getMaxPlayerCount() {
         return FMLCommonHandler.instance().getMinecraftServerInstance().getMaxPlayers();
     }
+    public static int getUniquePlayerCount() {
+        return FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerProfileCache().getUsernames().length;
+    }
 
     public static double getAverageTickCount() {
         MinecraftServer minecraftServer = FMLCommonHandler.instance().getMinecraftServerInstance();
