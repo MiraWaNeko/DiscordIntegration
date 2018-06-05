@@ -150,64 +150,15 @@ public class DiscordListener extends ListenerAdapter {
     }
 
     private void tryExecuteCommand(MessageReceivedEvent event, List<String> args) {
-        MinecraftServer minecraftServer = FMLCommonHandler.instance().getMinecraftServerInstance();
         String cmd = args.remove(0);
 
         if (Configuration.getConfig().discord.allowLinking) {
             if (cmd.equalsIgnoreCase("link")) {
-                UUID minecraftUUID = Configuration.getLinking().getMinecraftId(event.getAuthor().getIdLong());
-                if (minecraftUUID != null) {
-                    GameProfile minecraftProfile = minecraftServer.getPlayerProfileCache().getProfileByUUID(minecraftUUID);
-                    event.getAuthor().openPrivateChannel()
-                        .queue(privateChannel -> privateChannel.sendMessage(
-                            String.format(
-                                "You are already linked to %s",
-                                minecraftProfile == null ? "a Minecraft account" : minecraftProfile.getName()
-                            )
-                        ).queue());
-                    return;
-                }
-
-                LinkingRequest request = Configuration.getLinking().getRequest(event.getAuthor().getIdLong());
-
-                if (request.hasExpired()) {
-                    request.generateCode();
-                }
-
-                event.getAuthor().openPrivateChannel()
-                    .queue(privateChannel -> privateChannel.sendMessage(
-                        String.format(
-                            "Use `/discord link %s` on the Minecraft server to link your Discord user with your Minecraft user.\nThe code expires in %s!",
-                            request.getCode(),
-                            request.expiresIn()
-                        )
-                    ).queue());
-
-                if (event.getMember().getPermissions(event.getTextChannel()).contains(Permission.MESSAGE_MANAGE)) {
-                    event.getMessage().delete().queue();
-                }
-
-                Configuration.saveLinking();
+                handleLinkCommand(event);
                 return;
             }
             if (cmd.equalsIgnoreCase("unlink")) {
-                UUID minecraftUUID = Configuration.getLinking().getMinecraftId(event.getAuthor().getIdLong());
-                if (minecraftUUID == null) {
-                    event.getAuthor().openPrivateChannel()
-                        .queue(privateChannel -> privateChannel.sendMessage(
-                            "You aren't linked"
-                        ).queue());
-                } else {
-                    Configuration.getLinking().removeLink(minecraftUUID);
-                    event.getAuthor().openPrivateChannel()
-                        .queue(privateChannel -> privateChannel.sendMessage(
-                            "Unlinked"
-                        ).queue());
-                }
-
-                if (event.getMember().getPermissions(event.getTextChannel()).contains(Permission.MESSAGE_MANAGE)) {
-                    event.getMessage().delete().queue();
-                }
+                handleUnlinkCommand(event);
                 return;
             }
         }
@@ -224,6 +175,64 @@ public class DiscordListener extends ListenerAdapter {
                 });
                 return;
             }
+        }
+    }
+
+    private void handleLinkCommand(MessageReceivedEvent event) {
+        MinecraftServer minecraftServer = FMLCommonHandler.instance().getMinecraftServerInstance();
+
+        UUID minecraftUUID = Configuration.getLinking().getMinecraftId(event.getAuthor().getIdLong());
+        if (minecraftUUID != null) {
+            GameProfile minecraftProfile = minecraftServer.getPlayerProfileCache().getProfileByUUID(minecraftUUID);
+            event.getAuthor().openPrivateChannel()
+                .queue(privateChannel -> privateChannel.sendMessage(
+                    String.format(
+                        "You are already linked to %s",
+                        minecraftProfile == null ? "a Minecraft account" : minecraftProfile.getName()
+                    )
+                ).queue());
+            return;
+        }
+
+        LinkingRequest request = Configuration.getLinking().getRequest(event.getAuthor().getIdLong());
+
+        if (request.hasExpired()) {
+            request.generateCode();
+        }
+
+        event.getAuthor().openPrivateChannel()
+            .queue(privateChannel -> privateChannel.sendMessage(
+                String.format(
+                    "Use `/discord link %s` on the Minecraft server to link your Discord user with your Minecraft user.\nThe code expires in %s!",
+                    request.getCode(),
+                    request.expiresIn()
+                )
+            ).queue());
+
+        if (event.getMember().getPermissions(event.getTextChannel()).contains(Permission.MESSAGE_MANAGE)) {
+            event.getMessage().delete().queue();
+        }
+
+        Configuration.saveLinking();
+    }
+
+    private void handleUnlinkCommand(MessageReceivedEvent event) {
+        UUID minecraftUUID = Configuration.getLinking().getMinecraftId(event.getAuthor().getIdLong());
+        if (minecraftUUID == null) {
+            event.getAuthor().openPrivateChannel()
+                .queue(privateChannel -> privateChannel.sendMessage(
+                    "You aren't linked"
+                ).queue());
+        } else {
+            Configuration.getLinking().removeLink(minecraftUUID);
+            event.getAuthor().openPrivateChannel()
+                .queue(privateChannel -> privateChannel.sendMessage(
+                    "Unlinked"
+                ).queue());
+        }
+
+        if (event.getMember().getPermissions(event.getTextChannel()).contains(Permission.MESSAGE_MANAGE)) {
+            event.getMessage().delete().queue();
         }
     }
 }
