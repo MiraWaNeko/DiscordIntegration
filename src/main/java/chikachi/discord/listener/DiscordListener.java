@@ -36,6 +36,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -46,20 +47,7 @@ public class DiscordListener extends ListenerAdapter {
         ConfigWrapper config = Configuration.getConfig();
         DiscordConfig discordConfig = config.discord;
 
-        // Ignore bots
-        if (discordConfig.ignoresBots && event.getAuthor().isBot()) {
-            return;
-        }
-
-        // Ignore self
-        if (event.getAuthor().getId().equals(DiscordClient.getInstance().getSelf().getId())) {
-            return;
-        }
-
-        // Ignore specified users
-        if (discordConfig.isIgnoringUser(event.getAuthor())) {
-            return;
-        }
+        if (shouldIgnoreMessage(event)) return;
 
         String content = event.getMessage().getContentDisplay().trim();
 
@@ -85,18 +73,7 @@ public class DiscordListener extends ListenerAdapter {
             }
 
             if (IMCHandler.haveListeners()) {
-                NBTTagCompound eventTagCompound = new NBTTagCompound();
-                eventTagCompound.setString("type", "chat");
-
-                NBTTagCompound userTagComponent = new NBTTagCompound();
-                userTagComponent.setString("id", event.getAuthor().getId());
-                userTagComponent.setString("username", event.getAuthor().getName());
-                userTagComponent.setString("discriminator", event.getAuthor().getDiscriminator());
-
-                eventTagCompound.setTag("user", userTagComponent);
-                eventTagCompound.setString("message", content);
-
-                IMCHandler.emitMessage("event", eventTagCompound);
+                emitIMCMessage(event);
             }
 
             String prefix = channelConfig.commandPrefix != null ? channelConfig.commandPrefix : discordConfig.channels.generic.commandPrefix;
@@ -106,40 +83,7 @@ public class DiscordListener extends ListenerAdapter {
                 return;
             }
 
-            MinecraftServer minecraftServer = FMLCommonHandler.instance().getMinecraftServerInstance();
-            List<EntityPlayerMP> players;
-            if (dimensions.size() == 0) {
-                players = minecraftServer.getPlayerList().getPlayers();
-            } else {
-                players = minecraftServer.getPlayerList().getPlayers()
-                    .stream()
-                    .filter(player -> dimensions.contains(player.dimension))
-                    .collect(Collectors.toList());
-            }
-
-            if (stripMinecraftCodes) {
-                content = Patterns.minecraftCodePattern.matcher(content).replaceAll("");
-            }
-
-            HashMap<String, String> arguments = new HashMap<>();
-            arguments.put(
-                "MESSAGE",
-                content
-            );
-            arguments.put(
-                "CHANNEL",
-                event.getChannelType() == ChannelType.PRIVATE ? "DM" : event.getChannel().getName()
-            );
-
-            Message message = new Message()
-                .setAuthor(event.getMember().getEffectiveName())
-                .setMessage(config.discord.channels.generic.messages.chatMessage)
-                .setArguments(arguments);
-
-            DiscordIntegrationLogger.Log(message.getFormattedTextMinecraft());
-            for (EntityPlayerMP player : players) {
-                player.sendMessage(new TextComponentString(message.getFormattedTextMinecraft()));
-            }
+            broadcastMessageIngame(event, dimensions, stripMinecraftCodes);
         } else if (event.getChannelType() == ChannelType.PRIVATE && Configuration.getConfig().discord.channels.generic.allowDMCommands) {
             String prefix = discordConfig.channels.generic.commandPrefix;
             if (content.startsWith(prefix)) {
@@ -147,6 +91,79 @@ public class DiscordListener extends ListenerAdapter {
                 tryExecuteCommand(event, args);
             }
         }
+    }
+
+    private boolean shouldIgnoreMessage(MessageReceivedEvent event) {
+
+        // Ignore bots
+        if (Configuration.getConfig().discord.ignoresBots && event.getAuthor().isBot()) {
+            return true;
+        }
+
+        // Ignore self
+        if (event.getAuthor().getId().equals(DiscordClient.getInstance().getSelf().getId())) {
+            return true;
+        }
+
+        // Ignore specified users
+        return Configuration.getConfig().discord.isIgnoringUser(event.getAuthor());
+    }
+
+    private void broadcastMessageIngame(MessageReceivedEvent event, ArrayList<Integer> dimensions, boolean stripMinecraftCodes) {
+        String content = event.getMessage().getContentDisplay().trim();
+        MinecraftServer minecraftServer = FMLCommonHandler.instance().getMinecraftServerInstance();
+        List<EntityPlayerMP> players;
+        if (dimensions.size() == 0) {
+            players = minecraftServer.getPlayerList().getPlayers();
+        } else {
+            players = minecraftServer.getPlayerList().getPlayers()
+                .stream()
+                .filter(player -> dimensions.contains(player.dimension))
+                .collect(Collectors.toList());
+        }
+
+        if (stripMinecraftCodes) {
+            content = Patterns.minecraftCodePattern.matcher(content).replaceAll("");
+        }
+
+        Message message = new Message()
+            .setAuthor(event.getMember().getEffectiveName())
+            .setMessage(Configuration.getConfig().discord.channels.generic.messages.chatMessage)
+            .setArguments(buildMessageReceivedArgumentList(event));
+
+        DiscordIntegrationLogger.Log(message.getFormattedTextMinecraft());
+        for (EntityPlayerMP player : players) {
+            player.sendMessage(new TextComponentString(message.getFormattedTextMinecraft()));
+        }
+    }
+
+    private void emitIMCMessage(MessageReceivedEvent event) {
+        NBTTagCompound eventTagCompound = new NBTTagCompound();
+        eventTagCompound.setString("type", "chat");
+
+        NBTTagCompound userTagComponent = new NBTTagCompound();
+        userTagComponent.setString("id", event.getAuthor().getId());
+        userTagComponent.setString("username", event.getAuthor().getName());
+        userTagComponent.setString("discriminator", event.getAuthor().getDiscriminator());
+
+        eventTagCompound.setTag("user", userTagComponent);
+        eventTagCompound.setString("message", event.getMessage().getContentDisplay().trim());
+
+        IMCHandler.emitMessage("event", eventTagCompound);
+    }
+
+    @NotNull
+    private HashMap<String, String> buildMessageReceivedArgumentList(MessageReceivedEvent event) {
+        HashMap<String, String> arguments = new HashMap<>();
+        arguments.put(
+            "MESSAGE",
+            event.getMessage().getContentDisplay().trim()
+        );
+        arguments.put(
+            "CHANNEL",
+            event.getChannelType() == ChannelType.PRIVATE ? "DM" : event.getChannel().getName()
+        );
+        return arguments;
     }
 
     private void tryExecuteCommand(MessageReceivedEvent event, List<String> args) {
