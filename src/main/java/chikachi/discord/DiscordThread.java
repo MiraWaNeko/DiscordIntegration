@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import static java.lang.Thread.currentThread;
 import static java.lang.Thread.sleep;
 
 public class DiscordThread implements Runnable {
@@ -58,6 +59,9 @@ public class DiscordThread implements Runnable {
 
         HashMap<Long, DiscordChannelConfig> channels = Configuration.getConfig().discord.channels.channels;
         for (Map.Entry<Long, DiscordChannelConfig> channelEntry : channels.entrySet()) {
+            if (currentThread().isInterrupted())
+                return;
+
             DiscordChannelConfig channel = channelEntry.getValue();
             Long channelID = channelEntry.getKey();
 

@@ -70,8 +70,8 @@ public class DiscordIntegration {
 
     @Mod.EventHandler
     public void onServerStopping(FMLServerStoppingEvent event) {
-        proxy.onServerStopping();
         updateThread.interrupt();
+        proxy.onServerStopping();
     }
 
     @Mod.EventHandler
