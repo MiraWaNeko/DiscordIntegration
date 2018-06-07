@@ -16,6 +16,7 @@ package chikachi.discord.command;
 
 import chikachi.discord.core.DiscordClient;
 import chikachi.discord.core.config.Configuration;
+import chikachi.discord.core.config.validator.ConfigurationValidator;
 import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
@@ -56,7 +57,7 @@ public class SubCommandConfig extends CommandBase {
             case "reload":
                 String oldToken = Configuration.getConfig().discord.token;
 
-                Configuration.loadConfig();
+                Configuration.loadAndValidateConfig();
                 sender.sendMessage(new TextComponentString("Config reloaded"));
 
                 if (!DiscordClient.getInstance().isConnected()) {
