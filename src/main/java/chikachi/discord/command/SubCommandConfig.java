@@ -16,7 +16,6 @@ package chikachi.discord.command;
 
 import chikachi.discord.core.DiscordClient;
 import chikachi.discord.core.config.Configuration;
-import chikachi.discord.core.config.validator.ConfigurationValidator;
 import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
