@@ -46,12 +46,19 @@ public class DiscordThread implements Runnable {
         DiscordIntegrationLogger.Log("Stopped update thread");
     }
 
+
+    private long lastPlayerCount = -1;
     private void updateChannelDescriptions() {
         if (!DiscordClient.getInstance().isConnected())
             return;
 
+        long currentPlayerCount = MinecraftInformationHandler.getOnlineRealPlayerCount();
+        if (lastPlayerCount == currentPlayerCount)
+            return;
+        lastPlayerCount = currentPlayerCount;
+
         TextFormatter tf = new TextFormatter()
-            .addArgument("PLAYERCOUNT", MinecraftInformationHandler.getOnlineRealPlayerCount())
+            .addArgument("PLAYERCOUNT", currentPlayerCount)
             .addArgument("UNIQUEPLAYERCOUNT", MinecraftInformationHandler.getUniquePlayerCount())
             .addArgument("MAXPLAYERCOUNT", MinecraftInformationHandler.getMaxPlayerCount())
             .addArgument("TPS", MinecraftInformationHandler.getAverageTickCount())
