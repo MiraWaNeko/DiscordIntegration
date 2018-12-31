@@ -1,0 +1,29 @@
+shadowJar {
+  classifier = ""
+  relocate "com.mashape.unirest", "chikachi.discord.repack.com.mashape.unirest"
+  relocate "com.neovisionaries.ws.client", "chikachi.discord.repack.com.neovisionaries.ws.client"
+  relocate "com.sun.jna", "chikachi.discord.repack.com.sun.jna"
+  relocate "com.vdurmont.emoji", "chikachi.discord.repack.com.vdurmont.emoji"
+  relocate "javax.sound", "chikachi.discord.repack.javax.sound"
+  relocate "javazoom", "chikachi.discord.repack.javazoom"
+  relocate "net.dv8tion.jda", "chikachi.discord.repack.net.dv8tion.jda"
+  relocate "net.sourceforge.jaad", "chikachi.discord.repack.net.sourceforge.jaad"
+  relocate "org.apache.commons.codec", "chikachi.discord.repack.org.apache.commons.codec"
+  relocate "org.apache.commons.collections4", "chikachi.discord.repack.org.apache.commons.collections4"
+  relocate "org.json", "chikachi.discord.repack.org.json"
+  relocate "org.kc7bfi.jflac", "chikachi.discord.repack.orgkc7bfi.jflac"
+  relocate "org.slf4j", "chikachi.discord.repack.org.slf4j"
+  relocate "org.tritonus", "chikachi.discord.repack.org.tritonus"
+  relocate "tomp2p.opuswrapper", "chikachi.discord.repack.tomp2p.opuswrapper"
+
+  relocate "org.apache.http", "chikachi.discord.repack.org.apache.http"
+  relocate "org.apache.commons.logging", "chikachi.discord.repack.org.apache.commons.logging"
+
+  dependencies {
+    include(dependency("net.dv8tion:JDA:${jdaVersion}_${jdaJob}:withDependencies"))
+    include(dependency('com.vdurmont:emoji-java:4.0.0'))
+  }
+}
+
+reobf { shadowJar { mappingType = "SEARGE" } }
+tasks.reobfShadowJar.mustRunAfter shadowJar

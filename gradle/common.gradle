@@ -1,0 +1,7 @@
+def printDebug(message) {
+  println '[' + archivesBaseName + '] ' + message
+}
+
+ext {
+  printDebug = this.&printDebug
+}

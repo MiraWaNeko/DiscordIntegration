@@ -1,0 +1,77 @@
+buildscript {
+  repositories {
+    jcenter()
+    maven {
+      name = "forge"
+      url = "http://files.minecraftforge.net/maven"
+    }
+  }
+  dependencies {
+    classpath 'com.diffplug.spotless:spotless-plugin-gradle:3.10.0'
+  }
+}
+
+// Include methods
+apply from: "./gradle/common.gradle"
+apply from: "./gradle/idea.gradle"
+apply from: "./gradle/jda.gradle"
+apply from: "./gradle/curseforge.gradle"
+//apply from: "./gradle/spotless.gradle"
+
+allprojects {
+  repositories {
+    mavenCentral()
+    jcenter()
+  }
+
+  apply plugin: 'java'
+
+  group = 'DiscordIntegration'
+  version = '4.0.0'
+
+  dependencies {
+    compile 'org.jetbrains:annotations:15.0'
+    testCompile "junit:junit:4.12"
+    testCompile 'org.mockito:mockito-core:2.+'
+
+    compile JDADependencyDownloader()
+    compile 'com.vdurmont:emoji-java:4.0.0'
+
+    compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.8.2'
+    compile group: 'com.google.guava', name: 'guava', version: '17.0'
+    compile group: 'com.google.code.gson', name: 'gson', version: '2.8.0'
+  }
+
+  sourceCompatibility = 1.8
+  targetCompatibility = 1.8
+
+  tasks.withType(Jar) {
+    destinationDir = file("$rootDir/build/libs")
+  }
+}
+
+subprojects {
+  dependencies {
+    if (project.name != 'Core') {
+      compile project(':Core')
+    }
+  }
+
+  test {
+    useJUnit()
+  }
+}
+
+// The main project does not need a jar as it does not contain any code
+jar.enabled = false
+
+project(':1.8.9') { archivesBaseName = 'discordintegration-1.8.9' }
+project(':1.9.4') { archivesBaseName = 'discordintegration-1.9.4' }
+project(':1.10.2') { archivesBaseName = 'discordintegration-1.10.2' }
+project(':1.11.2') { archivesBaseName = 'discordintegration-1.11.2' }
+project(':1.12.2') { archivesBaseName = 'discordintegration-1.12.2' }
+
+project(':Core') {
+  // The Core project does not need a jar as it is just used by other projects
+  jar.enabled = false
+}

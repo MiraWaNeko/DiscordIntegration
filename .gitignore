@@ -1,0 +1,10 @@
+# IDEA
+out
+.idea
+
+# Gradle
+build
+.gradle
+
+# other
+run

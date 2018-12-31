@@ -1,0 +1,8 @@
+rootProject.name = 'DiscordIntegration'
+
+include 'Core'
+include '1.8.9'
+include '1.9.4'
+include '1.10.2'
+include '1.11.2'
+include '1.12.2'

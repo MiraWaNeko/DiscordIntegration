@@ -1,0 +1,21 @@
+[
+  {
+    "modid": "discordintegration",
+    "name": "DiscordIntegration",
+    "description": "Minecraft <=> Discord integration",
+    "version": "${version}",
+    "mcversion": "${mcversion}",
+    "url": "https://discordintegration.net",
+    "updateUrl": "",
+    "authorList": [
+      "Chikachi"
+    ],
+    "credits": "",
+    "logoFile": "",
+    "screenshots": [],
+    "requiredMods": [
+      "Forge"
+    ],
+    "dependencies": []
+  }
+]

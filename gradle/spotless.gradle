@@ -1,0 +1,30 @@
+buildscript {
+  repositories {
+    jcenter()
+  }
+  dependencies {
+    classpath 'com.diffplug.spotless:spotless-plugin-gradle:3.10.0'
+  }
+}
+repositories {
+  jcenter()
+  flatDir {
+    dirs "libs"
+  }
+}
+
+
+apply plugin: 'com.diffplug.gradle.spotless'
+
+subprojects {
+  apply plugin: 'com.diffplug.gradle.spotless'
+  spotless {
+    java {
+      encoding 'UTF-8'
+      removeUnusedImports()
+      trimTrailingWhitespace()
+      indentWithSpaces(4)
+      endWithNewline()
+    }
+  }
+}

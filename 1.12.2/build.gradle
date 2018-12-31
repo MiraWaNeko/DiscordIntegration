@@ -1,0 +1,55 @@
+buildscript {
+  repositories {
+    jcenter()
+    maven {
+      name = "forge"
+      url = "http://files.minecraftforge.net/maven"
+    }
+  }
+  dependencies {
+    classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
+    classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.4'
+  }
+}
+
+apply plugin: 'net.minecraftforge.gradle.forge'
+apply plugin: 'com.github.johnrengelman.shadow'
+
+apply from: "../gradle/shadow.gradle"
+
+def mcVersion = '1.12.2'
+def forgeVersion = '14.23.5.2768'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+minecraft {
+  version = mcVersion + '-' + forgeVersion
+
+  if (file('../run').exists()) {
+    runDir = '../run'
+  } else {
+    runDir = 'run'
+  }
+
+  mappings = "stable_39"
+
+  // disable server gui
+  serverRunArgs += 'nogui'
+}
+
+sourceSets {
+  main {
+    java {
+      srcDir 'src/main/java'
+      srcDir '../Core/src/main/java'
+    }
+    resources {
+      srcDir '../Core/src/main/resources'
+    }
+  }
+}
+
+dependencies {
+  compile group: 'com.google.guava', name: 'guava', version: '21.0'
+}
